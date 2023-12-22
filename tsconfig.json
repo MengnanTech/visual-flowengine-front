@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+
+    "allowJs": true,   // 允许编译JavaScript文件
+//    "jsx": "react",   // 支持JSX
+    "outDir": "./dist", // 输出目录
+    "sourceMap": true,  // 生成相应的.map文件
+//    "noEmit": true,  // 使用babel进行编译时，设置为true
+//    "isolatedModules": true,  // 与noEmit配合使用，确保每个文件都是模块
+//    "strict": true,  // 启用所有严格的类型检查选项
+//    "module": "esnext",  // 使用ES模块
+//    "moduleResolution": "node",  // node模块解析算法
+    "esModuleInterop": true,  // 启用ES模块和CommonJS模块之间的互操作性
+    "forceConsistentCasingInFileNames": true, // 强制文件名一致性
+
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx"
+  ],
+  "baseUrl": "./",
+  "paths": {
+    "@/*": ["src/*"]
+  },
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

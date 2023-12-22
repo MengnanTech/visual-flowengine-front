@@ -1,0 +1,84 @@
+$siderbarHeight: 64px;
+
+
+.sidebar_logo {
+  height: calc($siderbarHeight + 12px);
+  border-bottom: solid 12px #f2fafa;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img.logo_img {
+    height: calc($siderbarHeight - 10px);
+    width: calc($siderbarHeight - 10px);
+  }
+}
+:global {
+  .ant-menu-item-selected {
+    color:#4FD1C5 !important;
+  }
+
+  .ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title {
+    color: #4FD1C5 !important;
+  }
+
+  //.ant-menu-submenu-open{
+  //   color:#4FD1C5 !important;
+  // }
+
+
+  //// 设置菜单样式
+  //.ant-menu,.ant-menu-sub,.ant-menu-inline{
+  //  //color: white;
+  //  //background-color: #4FD1C5 !important;
+  //}
+
+  ////// 设置子菜单展开样式
+  //.ant-menu-submenu > .ant-menu {
+  //  //background-color: red !important;
+  //}
+  //.ant-menu-submenu-title{
+  //  color: #4FD1C5 !important;
+  //}
+  // 去掉右边框
+  //.ant-menu-inline {
+  //  border: none;
+  //  margin: 0px;
+  //}
+  //// 设置 a 链接样式
+  //.ant-menu-item a {
+  //  color: white !important;
+  //}
+
+  // 下拉箭头样式
+  //.ant-menu-submenu-arrow {
+  //  color: white !important;
+  //}
+
+  //// 菜单收缩样式
+  //.ant-menu.ant-menu-inline-collapsed {
+  //  width: 660px;
+  //}
+  //// 设置收缩后的右边框
+  //.ant-menu-inline, .ant-menu-vertical, .ant-menu-vertical-left {
+  //  border-right: none;
+  //}
+
+  //// sider 的背景色
+  //.ant-layout-sider {
+  //  background-color: #044d50 !important;
+  //}
+
+  //// 选中菜单状态
+  //.ant-menu-item-selected {
+  //  background-color: rgb(4,77,92) !important;
+  //  color: white !important;
+  //}
+  // 设置未选中菜单项鼠标滑过样式
+  //.ant-menu-item-active {
+  //  background-color: #fff !important;
+  //  color: #666666 !important;
+  //}
+
+}

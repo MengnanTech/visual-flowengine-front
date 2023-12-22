@@ -1,0 +1,57 @@
+$color: #fcf;
+body {
+  //background-color: $color;
+  user-select: none;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+#components-layout-custom-trigger {
+
+  .trigger {
+    padding: 0 24px;
+    font-size: 18px;
+    line-height: 64px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .trigger :hover {
+    color: #dde9f5;
+  }
+
+
+
+  //背景那条缝懂颜色
+  .site-layout {
+    background: #efefed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  //面包屑 和 内容区域的背景颜色
+  .site-layout-background {
+    padding: 0;
+    margin:1px 5px 5px  5px;
+    background: #ffffff;
+  }
+
+  //菜单栏背景颜色
+  .ant-layout-sider {
+    background: #ffffff;
+  }
+
+  .breadcrumb{
+    margin: 16px 0;
+
+  }
+  .collapse-breadcrumb{
+    display: flex;
+  }
+
+}
+
+

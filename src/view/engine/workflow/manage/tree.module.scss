@@ -1,0 +1,22 @@
+/* 定制下拉菜单样式 */
+.ant-dropdown {
+  border-radius: 8px; /* 设置边角的圆滑度 */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15); /* 添加阴影效果 */
+  border: 1px solid #326522; /* 添加边框 */
+}
+
+/* 菜单项 hover 状态的样式 */
+.ant-dropdown-menu-item:hover {
+  background-color: #d74242; /* 鼠标悬停时的背景色 */
+}
+
+/* 菜单项选中状态的样式 */
+.ant-dropdown-menu-item-selected {
+  background-color: #5f2381; /* 菜单项选中时的背景色 */
+}
+
+/* 菜单分割线样式 */
+.ant-dropdown-menu-item-divider {
+  margin: 4px 0; /* 调整分割线的上下边距 */
+  border-top: 1px solid #223f75; /* 分割线颜色 */
+}
