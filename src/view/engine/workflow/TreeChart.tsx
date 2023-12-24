@@ -85,6 +85,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
         }));
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
     const [menuVisible, setMenuVisible] = useState(false);
+    const [dragging, setDragging] = useState(false);
     const [menuPosition, setMenuPosition] = useState({x: 0, y: 0});
     const [menuNode, setMenuNode] = useState<D3Node | null>(null);
     const [clickNode, setClickNode] = useState<D3Node | null>(null);
@@ -356,6 +357,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
         const dragBehavior = d3.drag<any, D3Node>()
             .on("start", function (event, d) {
 
+
+                setDragging(true)
                 if (d === rootNode.current) {
                     message.error("根节点不可拖拽").then(r => r)
                     return
@@ -373,6 +376,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
             })
             .on("drag", function (event, d) {
+                setDragging(true)
                 if (d === rootNode.current) {
                     message.error("根节点不可拖拽").then(r => r)
                     return
@@ -437,6 +441,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
             })
             .on("end", function (_event, d) {
+
                 // 确保不是根节点
                 if (d === rootNode.current) {
                     message.error("根节点不可拖拽").then(r => r);
@@ -487,6 +492,11 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     // 清除预览线和其他状态
                     gRef.current!.select(".preview-line").style("opacity", 0);
                     closestNodeRef.current = null;
+
+                    setTimeout(() => {
+                        setDragging(false)
+                    }, 1000);
+
                 }
             });
         gRef.current!.selectAll<SVGGElement, D3Node>(".node").call(dragBehavior);
@@ -495,8 +505,16 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
     }
 
     const nodeActions = [
-        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '添加节点', action: () => handleAddNode(menuNode!)},
-        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '删除节点', action: () => handleDeleteNode(menuNode!)},
+        {
+            icon: <SmileFilled className={TreeChartStyles.icon}/>,
+            label: '添加节点',
+            action: () => handleAddNode(menuNode!)
+        },
+        {
+            icon: <SmileFilled className={TreeChartStyles.icon}/>,
+            label: '删除节点',
+            action: () => handleDeleteNode(menuNode!)
+        },
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
@@ -691,7 +709,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     top: menuPosition.y,
                 }}
             >
-                <Popover content={menuContent} open={menuVisible}>
+                <Popover content={menuContent} open={menuVisible && !dragging}>
                 </Popover>
             </div>
             )
