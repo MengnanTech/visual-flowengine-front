@@ -2,15 +2,16 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "../../../components/MovingArrowPattern.tsx";
-import {Dropdown, MenuProps, message} from "antd";
+import {Dropdown, MenuProps, message, Modal, Popover} from "antd";
 import styles from "./manage/tree.module.scss";
+import ManageEditor from '../../../components/ManageEditor.tsx';
 
 
 export interface NodeData {
     id: string;
     name: string;
-    scriptText:string;
-    nodeType:string;
+    scriptText: string;
+    nodeType: string;
     children?: NodeData[];
 }
 
@@ -86,8 +87,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
     const [menuPosition, setMenuPosition] = useState({x: 0, y: 0});
     const [menuNode, setMenuNode] = useState<D3Node | null>(null);
     const [clickNode, setClickNode] = useState<D3Node | null>(null);
+    const [menuTransformedPosition, setMenuTransformedPosition] = useState<[] | null>([]);
     const closestNodeRef = useRef<D3Node | null>();
-
 
     function buildCircle(nodesEnter: d3.Selection<SVGGElement, D3Node, any, any>) {
         nodesEnter.append("circle")
@@ -98,12 +99,36 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             .style("opacity", 1)
             .raise()
 
-            .on('mouseover', function () {
-                d3.select(this) // 选择当前的圆
-                    .transition() // 开始一个过渡效果
-                    .duration(50) // 持续时间
-                    .attr("r", 25) // 使圆的半径变大
-                    .style("fill", "#a9db80"); // 改变填充色
+            .on('mouseover', function (_event, node) {
+                const circleRadius = 10; // 圆的半径
+                const popoverHeight = 10; // Popover 的高度
+                const popoverWidth = 10; // 假设的 Popover 宽度
+
+                // 获取当前的缩放变换
+                const transform = d3.zoomTransform(svgRef.current!);
+
+                // 计算变换后的位置
+                const transformedX = transform.applyX(node.y);
+                const transformedY = transform.applyY(node.x) - circleRadius - popoverHeight;
+
+                const boundingClientRect = (svgRef.current! as SVGGElement).getBoundingClientRect();
+
+                // 计算 Popover 在文档中的位置
+                const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
+                const y = boundingClientRect.top + window.scrollY + transformedY;
+
+                d3.select(this)
+                    .transition()
+                    .duration(5)
+                    .attr("r", 25)
+                    .style("fill", "#a9db80");
+                setMenuVisible(false);
+
+                setTimeout(() => {
+                    setMenuPosition({x: x, y: y});
+                    setMenuVisible(true);
+                    setMenuNode(node);
+                }, 1);
             })
             .on('mouseout', function () {
                 d3.select(this) // 选择当前的圆
@@ -159,7 +184,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
         const nodeSelection = gRef.current!.selectAll<SVGGElement, D3Node>(".node");
         const nodes = nodeSelection.data(rootNode.current.descendants(), d => d.data.id);
-        const nodesEnter:d3.Selection<SVGGElement,D3Node,any,any> = nodes.enter()
+        const nodesEnter: d3.Selection<SVGGElement, D3Node, any, any> = nodes.enter()
             .append("g")
             .attr("class", "node")
 
@@ -282,7 +307,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 id: uuid(),
                 name: "New Node" + Math.floor(Math.random() * 90) + 100,
                 nodeType: "还没想好设计",
-                scriptText: "脚本内容"+uuid(),
+                scriptText: "脚本内容" + uuid(),
             };
 
         if (!clickedNode.data.children) {
@@ -303,7 +328,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
         nodesEnter.transition()
             .duration(750)
             .style('opacity', 1)
-            .attrTween("transform", function (d ): (t: number) => string {
+            .attrTween("transform", function (d): (t: number) => string {
 
                 const parentX = d.parent.previousX;
                 const parentY = d.parent.previousY;
@@ -312,7 +337,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 const interpolateSourceY = d3.interpolate(parentY, d.y);
 
                 return function (t: number): string {
-                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})` ;
+                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                 };
             })
     }
@@ -528,16 +553,16 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             // 新的连接线的动画效果，感觉可以在这里解决连接线断掉的问题
             .attrTween("d", function (d): (t: number) => string {
                 // 插值生成器
-                let nodePreviousPosition:number[] |null =null;
+                let nodePreviousPosition: number[] | null = null;
                 const node = rootNode.current.descendants().find(node => node.data.id === d.source.data.id);
                 if (node?.previousX && node?.previousY) {
-                    nodePreviousPosition = [node.previousX,node.previousY];
+                    nodePreviousPosition = [node.previousX, node.previousY];
                 }
 
 
                 if (nodePreviousPosition == null) {
 
-                    return function  (t: number): string {
+                    return function (t: number): string {
                         const interpolateY = d3.interpolate(d.source.y, d.target.y);
                         const interpolateX = d3.interpolate(d.source.x, d.target.x);
 
@@ -549,7 +574,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                         return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
                     };
 
-                }else {
+                } else {
 
                     const previousY = nodePreviousPosition[1];
                     const previousX = nodePreviousPosition[0];
@@ -568,7 +593,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
                         // 临时更新 d.target 的位置
                         const tempD: D3Link = {
-                            source: {x: sourceX(t), y:sourceY(t)} as D3Node,
+                            source: {x: sourceX(t), y: sourceY(t)} as D3Node,
                             target: {x: newX, y: newY} as D3Node,
                         };
 
@@ -636,23 +661,66 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             <svg ref={svgRef} width="2300" height="1200">
                 <MovingArrowPattern/>
             </svg>
-            {clickNode && (<div style={{
-                position: 'absolute',
-                backgroundColor: "red",
-                left: `${clickNode.x + 100}px`,
-                top: `${clickNode.y + 100}px`,
-            }}>TestClickNode</div>)}
+            {clickNode && <Modal
+                title="Modal 1000px width"
+                centered
+                maskClosable={false}
+                open={true}
+                onOk={() => setClickNode(null)}
+                onCancel={() => setClickNode(null)}
+                width={900}
+                // footer={[
+                //     <Button key="back" >
+                //         Return
+                //     </Button>,
+                //     <Button key="submit" type="primary" loading={false} >
+                //         Submit
+                //     </Button>,
+                //     <Button
+                //         key="link"
+                //         type="primary"
+                //         // loading={loading}
+                //         // onClick={handleOk}
+                //     >
+                //        debug
+                //     </Button>,
+                // ]}
+            >
+                <ManageEditor/>
+
+            </Modal>}
             {menuVisible && (
-                <Dropdown menu={{items}} open={true} className={styles.antDropdown}>
-                    <div
-                        style={{
-                            position: 'absolute',
-                            left: `${menuPosition.x}px`,
-                            top: `${menuPosition.y}px`,
-                        }}
-                    />
-                </Dropdown>
-            )}
+                // <Dropdown menu={{items}} open={true} className={styles.antDropdown}>
+                //     <div
+                //         style={{
+                //             position: 'absolute',
+                //             left: `${menuPosition.x}px`,
+                //             top: `${menuPosition.y}px`,
+                //         }}
+                //     />
+                // </Dropdown>
+
+                //
+                // <div style={{position: 'absolute', left: menuPosition.x, top: menuPosition.y}}>
+                //     <Popover content={""} title="标题" open={true}>
+                //         <div style={{width: '10px', height: '10px'}}></div>
+                //     </Popover>
+                // </div>
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: menuPosition.x,
+                        top: menuPosition.y,
+                        // transform: `translate(${menuPosition.x}px, ${menuPosition.y}px))`
+                    }}
+                >
+                    <Popover content={"/* Popover 内容 */"} title="标题" open={true}>
+                        <div style={{width: '10px', height: '10px'}}></div>
+                    </Popover>
+                </div>
+            )
+            }
         </div>
     )
 }
