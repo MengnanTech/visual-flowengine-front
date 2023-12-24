@@ -2,9 +2,10 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "../../../components/MovingArrowPattern.tsx";
-import {Dropdown, MenuProps, message, Modal, Popover} from "antd";
-import styles from "./manage/tree.module.scss";
+import {message, Modal, Popover} from "antd";
 import ManageEditor from '../../../components/ManageEditor.tsx';
+import TreeChartStyles from './TreeChart.module.scss'
+import {SmileFilled} from "@ant-design/icons";
 
 
 export interface NodeData {
@@ -87,7 +88,6 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
     const [menuPosition, setMenuPosition] = useState({x: 0, y: 0});
     const [menuNode, setMenuNode] = useState<D3Node | null>(null);
     const [clickNode, setClickNode] = useState<D3Node | null>(null);
-    const [menuTransformedPosition, setMenuTransformedPosition] = useState<[] | null>([]);
     const closestNodeRef = useRef<D3Node | null>();
 
     function buildCircle(nodesEnter: d3.Selection<SVGGElement, D3Node, any, any>) {
@@ -148,14 +148,9 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 // 继续执行添加节点的函数或其他操作
                 setClickNode(d);
             })
-            .on('contextmenu', function (event, node) {
+            .on('contextmenu', function (event, _node) {
                 event.preventDefault(); // 阻止默认的右键菜单
-                setMenuVisible(false);
-                setTimeout(() => {
-                    setMenuPosition({x: event.pageX, y: event.pageY});
-                    setMenuVisible(true);
-                    setMenuNode(node);
-                }, 1); // 延迟 1 毫秒 解决连续右键节点 菜单位置不变BUG
+
             });
 
         nodesEnter.append("text")
@@ -498,40 +493,26 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     }
 
-    const items: MenuProps['items'] = [
-        {
-            key: '1',
-            label: (
-                <div>
-                    添加节点
-                </div>
-            ),
-            onClick: () => {
-                handleAddNode(menuNode!);
-            },
 
-        }, {
-            key: '2',
-            label: (
-                <div>
-                    删除节点
-                </div>
-            ),
-            onClick: () => {
-                handleDeleteNode(menuNode!);
-            }
-        }, {
-            key: '3',
-            label: (
-                <div>
-                    拖拽节点
-                </div>
-            ),
-            onClick: () => {
-                handDragNode();
-            }
-        }
-    ];
+    const menuContent = (
+
+        <div className={TreeChartStyles.nodePopup}>
+            <div className={TreeChartStyles.nodeIcon} onClick={() => handleAddNode(menuNode!)}>
+                <SmileFilled/>
+                <span>添加节点</span>
+            </div>
+            <div className={TreeChartStyles.nodeIcon} onClick={() => handleDeleteNode(menuNode!)}>
+                <SmileFilled/>
+                <span>删除节点</span>
+            </div>
+            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
+                <SmileFilled/>
+                <span>拖拽</span>
+            </div>
+        </div>
+
+    );
+
 
     function DrawLinks() {
         const selection = gRef.current!.selectAll<SVGPathElement, D3Link>(".link");
@@ -689,38 +670,20 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 <ManageEditor/>
 
             </Modal>}
-            {menuVisible && (
-                // <Dropdown menu={{items}} open={true} className={styles.antDropdown}>
-                //     <div
-                //         style={{
-                //             position: 'absolute',
-                //             left: `${menuPosition.x}px`,
-                //             top: `${menuPosition.y}px`,
-                //         }}
-                //     />
-                // </Dropdown>
 
-                //
-                // <div style={{position: 'absolute', left: menuPosition.x, top: menuPosition.y}}>
-                //     <Popover content={""} title="标题" open={true}>
-                //         <div style={{width: '10px', height: '10px'}}></div>
-                //     </Popover>
-                // </div>
 
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: menuPosition.x,
-                        top: menuPosition.y,
-                        // transform: `translate(${menuPosition.x}px, ${menuPosition.y}px))`
-                    }}
-                >
-                    <Popover content={"/* Popover 内容 */"} title="标题" open={true}>
-                        <div style={{width: '10px', height: '10px'}}></div>
-                    </Popover>
-                </div>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: menuPosition.x,
+                    top: menuPosition.y,
+                }}
+            >
+                <Popover content={menuContent} open={menuVisible}>
+                </Popover>
+            </div>
             )
-            }
+
         </div>
     )
 }

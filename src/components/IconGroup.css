@@ -1,0 +1,31 @@
+.app-popup {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8); /* 透明背景 */
+    padding: 20px;
+    border-radius: 13px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 简单的阴影效果 */
+    position: fixed; /* 固定位置 */
+    bottom: 20px; /* 距离底部一定距离 */
+    left: 50%;
+    transform: translateX(-50%); /* 水平居中 */
+}
+
+.app-icon {
+    width: 60px;
+    margin: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.app-icon img {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.app-icon span {
+    display: block;
+    font-size: 12px;
+    color: #333;
+}
