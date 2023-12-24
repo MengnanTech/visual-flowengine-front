@@ -1,28 +1,27 @@
-.node-popup {
+.nodePopup {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.8); /* 透明背景 */
-  padding: 20px;
-  border-radius: 13px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 简单的阴影效果 */
-  position: fixed; /* 固定位置 */
-  bottom: 20px; /* 距离底部一定距离 */
-  left: 50%;
-  transform: translateX(-50%); /* 水平居中 */
+  justify-content: space-around; // 横向等间距排列
+  flex-wrap: wrap; // 允许图标换行
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
 }
 
-.node-icon {
-  width: 60px;
+.nodeIcon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 10px;
-  text-align: center;
   cursor: pointer;
 }
 
+// 如果使用了antd的图标，也可以直接设置样式
+.antIcon {
+  font-size: 24px; // 图标大小
+  margin-bottom: 8px;
+}
 
-
-.node-icon span {
-  display: block;
+.nodeIcon span {
   font-size: 12px;
   color: #333;
 }

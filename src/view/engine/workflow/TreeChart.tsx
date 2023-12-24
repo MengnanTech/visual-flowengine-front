@@ -509,6 +509,14 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 <SmileFilled/>
                 <span>拖拽</span>
             </div>
+            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
+                <SmileFilled/>
+                <span>拖拽</span>
+            </div>
+            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
+                <SmileFilled/>
+                <span>拖拽</span>
+            </div>
         </div>
 
     );
