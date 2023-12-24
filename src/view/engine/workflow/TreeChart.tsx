@@ -102,7 +102,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             .on('mouseover', function (_event, node) {
                 const circleRadius = 10; // 圆的半径
                 const popoverHeight = 10; // Popover 的高度
-                const popoverWidth = 10; // 假设的 Popover 宽度
+                // const popoverWidth = 10; // 假设的 Popover 宽度
 
                 // 获取当前的缩放变换
                 const transform = d3.zoomTransform(svgRef.current!);
@@ -114,7 +114,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 const boundingClientRect = (svgRef.current! as SVGGElement).getBoundingClientRect();
 
                 // 计算 Popover 在文档中的位置
-                const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
+                const x = boundingClientRect.left + window.scrollX + transformedX; // 调整 X 坐标
+                // const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
                 const y = boundingClientRect.top + window.scrollY + transformedY;
 
                 d3.select(this)
@@ -493,32 +494,35 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     }
 
+    const nodeActions = [
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '添加节点', action: () => handleAddNode(menuNode!)},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '删除节点', action: () => handleDeleteNode(menuNode!)},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        // 为不同的操作添加不同的图标
+    ];
+
 
     const menuContent = (
 
         <div className={TreeChartStyles.nodePopup}>
-            <div className={TreeChartStyles.nodeIcon} onClick={() => handleAddNode(menuNode!)}>
-                <SmileFilled/>
-                <span>添加节点</span>
-            </div>
-            <div className={TreeChartStyles.nodeIcon} onClick={() => handleDeleteNode(menuNode!)}>
-                <SmileFilled/>
-                <span>删除节点</span>
-            </div>
-            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
-                <SmileFilled/>
-                <span>拖拽</span>
-            </div>
-            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
-                <SmileFilled/>
-                <span>拖拽</span>
-            </div>
-            <div className={TreeChartStyles.nodeIcon} onClick={() => handDragNode()}>
-                <SmileFilled/>
-                <span>拖拽</span>
-            </div>
+            {nodeActions.map((nodeAction, index) => (
+                <div key={index} className={TreeChartStyles.node} onClick={nodeAction.action}>
+                    {nodeAction.icon}
+                    <span className={TreeChartStyles.span}>
+                        {nodeAction.label}
+                    </span>
+                </div>
+            ))}
         </div>
-
     );
 
 

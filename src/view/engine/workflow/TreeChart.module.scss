@@ -1,27 +1,43 @@
 .nodePopup {
   display: flex;
-  justify-content: space-around; // 横向等间距排列
-  flex-wrap: wrap; // 允许图标换行
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  justify-content: space-between;
   border-radius: 12px;
+  width: calc(75px * 4); // 增加宽度，以便容纳更大的图标
 }
 
-.nodeIcon {
+.node {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 10px;
   cursor: pointer;
-}
+  width: 65px; // 增加宽度以适应更大的图标
+  height: 40px; // 高度可以根据内容自适应
+  margin: 4px 1px; // 增加图标之间的间距
+  flex: 0 0 auto;
+  text-align: center; // 确保文本居中对齐
+  border-radius: 8px;
+  transition: box-shadow 0.2s, transform 0.2s; // 添加变换效果以平滑过渡
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // 正常状态下的阴影
 
-// 如果使用了antd的图标，也可以直接设置样式
-.antIcon {
-  font-size: 24px; // 图标大小
-  margin-bottom: 8px;
-}
+  &:active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); // 点击时添加内阴影
+    transform: translateY(2px); // 稍微向下移动模仿按下效果
+  }
 
-.nodeIcon span {
-  font-size: 12px;
-  color: #333;
+  .icon {
+    font-size: 22px;
+    //color: #333;
+    //width: 100%; // 确保图标水平居中
+    //display: flex; // 使用flex布局
+    //align-items: center; // 垂直居中图标
+    //justify-content: center; // 水平居中图标
+  }
+
+  span {
+    font-size: 10px; // 增加文本的字体大小
+    color: #333;
+    white-space: nowrap;
+    margin-top: 2px; // 增加图标和文本之间的间距
+  }
 }
