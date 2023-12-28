@@ -21,14 +21,4 @@ export default defineConfig(({mode}) => ({
         }
 
     },
-    server: {
-        proxy: {
-            '/api/': {
-                target: 'https://ikuning.com/',
-                changeOrigin: true,
-                rewrite: (path: string) => path.replace('^/', '')
-            }
-        }
-    },
-
 }))
