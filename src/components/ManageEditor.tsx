@@ -1,5 +1,6 @@
 import React from "react";
 import Editor from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
 
 const ManageEditor: React.FC = () => {
 
@@ -13,16 +14,16 @@ const ManageEditor: React.FC = () => {
         console.log("onMount: the monaco instance:", monaco);
     }
 
-    function handleEditorWillMount(monaco: any) {
-        console.log("beforeMount: the monaco instance:", monaco);
 
-        // 在这里注册 Groovy 语言
+
+
+    function handleEditorWillMount(monaco: any) {
         monaco.languages.register({ id: 'groovy' });
 
-        // 定义 Groovy 语言的简单语法高亮
         monaco.languages.setMonarchTokensProvider('groovy', {
             tokenizer: {
                 root: [
+                    [/\/\/.*$/, 'comment'],
                     [/[{}]/, 'delimiter.bracket'],
                     [/[a-z_$][\w$]*/, {
                         cases: {
@@ -34,13 +35,56 @@ const ManageEditor: React.FC = () => {
                     [/"/, { token: 'string.quote', next: '@string' }],
                     // 更多规则...
                 ],
+
                 string: [
                     [/[^"]+/, 'string'],
                     [/"/, { token: 'string.quote', next: '@pop' }],
                 ]
             },
-            keywords: ['def', 'return', 'if', 'else', 'while', 'switch', 'case'],
+
+            keywords: [
+                'def', 'return', 'if', 'else', 'while', 'switch', 'case',
+                'break', 'continue', 'throw', 'try', 'catch', 'finally'
+            ],
         });
+
+        const completionItemProvider: monaco.languages.CompletionItemProvider = {
+            provideCompletionItems: function(model, position) {
+                const word = model.getWordUntilPosition(position);
+                const range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn
+                };
+
+                const suggestions = [
+                    {
+                        label: 'println',
+                        kind: monaco.languages.CompletionItemKind.Function,
+                        insertText: 'println("${1}")',
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        documentation: '打印一行到控制台',
+                        range: range, // 添加 range 属性
+                    },
+                    // ...其他建议项
+                ];
+
+                return { suggestions };
+            },
+
+            // 可选：实现 resolveCompletionItem
+            resolveCompletionItem: function(item: any) {
+                // 进一步解析 item，如添加文档注释等
+                return item;
+            }
+        };
+
+        monaco.languages.registerCompletionItemProvider('groovy', completionItemProvider);
+
+
+
+
     }
 
     function handleEditorValidation(markers: any[]) {

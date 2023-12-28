@@ -672,11 +672,11 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             <svg ref={svgRef} width="2300" height="1200">
                 <MovingArrowPattern/>
             </svg>
-            {clickNode && <Modal
+             <Modal
                 title="Modal 1000px width"
                 centered
                 maskClosable={false}
-                open={true}
+                open={clickNode != null}
                 onOk={() => setClickNode(null)}
                 onCancel={() => setClickNode(null)}
                 width={900}
@@ -699,7 +699,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             >
                 <ManageEditor/>
 
-            </Modal>}
+            </Modal>
 
 
             <div
