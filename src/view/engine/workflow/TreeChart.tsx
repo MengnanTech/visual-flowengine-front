@@ -145,7 +145,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     .duration(50) // 闪烁效果快速发生
                     .style('fill', '#a1c26f') // 临时变为新颜色
                     .transition()
-                    .duration(100)
+                    .duration(10)
                     .style('fill', '#c0f1b0'); // 然后迅速变回原色
                 // 继续执行添加节点的函数或其他操作
                 setClickNode(d);

@@ -24,14 +24,14 @@ const ManageIndex: React.FC = () => {
         markers.forEach(marker => console.log('onValidate:', marker.message));
     }
         return (
-        <div>
+        <div style={{width:'800px',height:'500px'}}>
             <Editor
-                height="90vh"
+                height="60vh"
                 onChange={handleEditorChange}
                 onMount={handleEditorDidMount}
                 beforeMount={handleEditorWillMount}
                 onValidate={handleEditorValidation}
-                defaultLanguage="java"
+                defaultLanguage="groovy"
                 defaultValue="// some comment"
             />
         </div>
