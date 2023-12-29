@@ -1,7 +1,7 @@
 import React from "react";
 import Editor, {Monaco} from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-import {compileGroovyScript} from "../api/api.ts";
+import {compileGroovyScript} from "../../api/api.ts";
 
 const ManageEditor: React.FC = () => {
 

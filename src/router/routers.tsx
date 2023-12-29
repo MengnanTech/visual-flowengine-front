@@ -5,8 +5,8 @@ import Index from "../view/404";
 import {EditFilled, HomeFilled, InteractionFilled, SlidersFilled, SmileFilled,} from "@ant-design/icons";
 
 const HomeLayout = lazy(() => import("../view/layout/HomeLayout.tsx"));
-const WorkflowIndex = lazy(() => import("../view/engine/workflow/index.tsx"));
-const RuleManageIndex = lazy(() => import("../view/engine/workflow/manage/manageIndex.tsx"));
+const WorkflowArrange = lazy(() => import("../view/engine/workflow/arrange/Arrange.tsx"));
+const WorkflowManage = lazy(() => import("../view/engine/workflow/manage/manageIndex.tsx"));
 const RuleIndex = lazy(() => import("../view/engine/rule/ruleIndex.tsx"));
 const Dashboard = lazy(() => import("../view/dashboard/dashboard.tsx"));
 
@@ -59,13 +59,13 @@ export const AdminRouter: Router[] =
                             path: '/admin/engine/workflow/choreography',
                             label: '流程引擎编排',
                             icon: <EditFilled/>,
-                            element: withSuspense(<WorkflowIndex/>)
+                            element: withSuspense(<WorkflowArrange/>)
                         },
                         {
                             path: '/admin/engine/workflow/manage',
                             label: '流程引擎管理',
                             icon: <SlidersFilled/>,
-                            element: withSuspense(<RuleManageIndex/>)
+                            element: withSuspense(<WorkflowManage/>)
                         }
                     ]
                 },

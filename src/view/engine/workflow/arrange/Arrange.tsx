@@ -1,7 +1,7 @@
 import React from "react";
 import TreeChart, {NodeData} from "./TreeChart.js";
 
-const Index: React.FC = () => {
+const Arrange: React.FC = () => {
 
 
     const initialData: NodeData = {
@@ -59,4 +59,4 @@ const Index: React.FC = () => {
         </div>
     );
 }
-export default Index
+export default Arrange

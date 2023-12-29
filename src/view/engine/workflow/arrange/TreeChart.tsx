@@ -1,12 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
-import MovingArrowPattern from "../../../components/MovingArrowPattern.tsx";
-import {Button, message, Modal, Popover} from "antd";
-import ManageEditor from '../../../components/ManageEditor.tsx';
+import MovingArrowPattern from "../../../../components/d3Helpers/MovingArrowPattern.tsx";
+import { message, Modal, Popover} from "antd";
+import ManageEditor from '../../../../components/editor/ManageEditor.tsx';
 import TreeChartStyles from './TreeChart.module.scss'
 import {SmileFilled} from "@ant-design/icons";
-import ModalFooter from "../../../components/ModalFooter.tsx";
+import ModalFooter from "../../../../components/editor/ModalFooter.tsx";
+import {centerTree} from "../../../../components/d3Helpers/treeHelpers.ts";
 
 
 export interface NodeData {
@@ -41,33 +42,7 @@ export interface D3Link extends d3.HierarchyLink<NodeData> {
 }
 
 // 中心化树
-const centerTree = (rootNode: D3Node, width: number, height: number) => {
-    let x0 = Infinity;
-    let x1 = -x0;
-    let y0 = Infinity;
-    let y1 = -y0;
-    // 计算树的边界
-    rootNode.each((d) => {
-        if (d.x > x1) x1 = d.x;
-        if (d.x < x0) x0 = d.x;
-        if (d.y > y1) y1 = d.y;
-        if (d.y < y0) y0 = d.y;
-    });
-    // 计算树的中心位置
-    const scaleX = (x1 - x0) / 2 + x0;
-    const scaleY = (y1 - y0) / 2 + y0;
-    // 计算平移量
-    const translateX = width / 2 - scaleY - 550;
-    const translateY = height / 2 - scaleX - 250;
-    // 如果树的大小是奇数，对齐到30像素网格
-    const offsetX = (x1 - x0) % 2 === 0 ? 0 : 30;
-    // 调整每个节点的位置
-    rootNode.each((d) => {
-        d.x += offsetX;
-    });
-    // 返回平移量
-    return [translateX, translateY];
-};
+
 
 const TreeChart: React.FC<NodeData> = (initialData) => {
 
@@ -151,7 +126,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 // 继续执行添加节点的函数或其他操作
                 setClickNode(d);
             })
-            .on('contextmenu', function (event, _node) {
+            .on('contextmenu', function (event, ) {
                 event.preventDefault(); // 阻止默认的右键菜单
 
             });
