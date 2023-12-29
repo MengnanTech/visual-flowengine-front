@@ -125,6 +125,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     .duration(10)
                     .style('fill', '#c0f1b0'); // 然后迅速变回原色
                 // 继续执行添加节点的函数或其他操作
+                console.log("点击节点", d)
                 setClickNode(d);
             })
             .on('contextmenu', function (event,) {
@@ -644,6 +645,19 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     }, [initialData]);
 
+    const updateNodeScriptText = (clickNode: D3Node,newScriptText:string) => {
+
+        rootNode.current.descendants().forEach(node => {
+            if (node == clickNode) {
+                node.data.scriptText = newScriptText;
+                setClickNode(node);
+                console.log("node", node.data)
+            }
+        });
+        console.log("rootNode", rootNode)
+
+    };
+
 
     return (
         <div>
@@ -652,7 +666,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)}/>
+            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)} updateScriptText={updateNodeScriptText}/>
             {/*悬浮菜单*/}
             <div
                 style={{

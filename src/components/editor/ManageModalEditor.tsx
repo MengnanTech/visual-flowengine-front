@@ -9,10 +9,14 @@ import * as monaco from 'monaco-editor';
 interface ManageModalProps {
     clickNode: D3Node | null; // 假设 clickNode 可以为 null
     onClose: () => void; // 当模态框关闭时调用的函数
+    updateScriptText: (clickNode: D3Node, newScriptText: string) => void; // 更新脚本内容的函数
 }
 
-const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose}) => {
+const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
     // Editor 相关的状态和逻辑
+    const clickNode = manageModalProps.clickNode;
+    const updateScriptText = manageModalProps.updateScriptText;
+
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
@@ -34,18 +38,20 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose}) => 
     };
 
     const handleDebug = () => {
-        console.log("调试", clickNode);
-        onClose();
+
     };
 
     const handleSave = () => {
-        console.log("暂存", clickNode);
-        onClose();
+
+        if (clickNode) {
+            console.log("更新脚本内容", clickNode, editorCode);
+            updateScriptText(clickNode,editorCode);
+        }
+        manageModalProps.onClose();
     };
 
     const handleSubmit = () => {
-        console.log("提交", clickNode);
-        onClose();
+
     };
 
     function handleEditorChange(value: string | undefined) {
@@ -197,7 +203,7 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose}) => 
             centered
             maskClosable={false}
             open={clickNode !== null}
-            onCancel={onClose}
+            onCancel={manageModalProps.onClose}
             width={900}
             footer={
                 <div style={{
@@ -231,6 +237,7 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose}) => 
                 padding: '10px',
             }}>
                 <Editor
+                    key={clickNode ? clickNode.data.id : 'editor'}
                     height="70vh"
                     onChange={handleEditorChange}
                     onMount={handleEditorDidMount}
