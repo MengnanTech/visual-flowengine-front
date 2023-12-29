@@ -48,7 +48,6 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose}) => 
         onClose();
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function handleEditorChange(value: string | undefined) {
         setEditorCode(value || '');
     }
