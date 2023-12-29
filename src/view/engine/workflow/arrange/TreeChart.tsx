@@ -2,12 +2,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "../../../../components/d3Helpers/MovingArrowPattern.tsx";
-import { message, Modal, Popover} from "antd";
-import ManageEditor from '../../../../components/editor/ManageEditor.tsx';
+import {message, Popover} from "antd";
+
 import TreeChartStyles from './TreeChart.module.scss'
 import {SmileFilled} from "@ant-design/icons";
-import ModalFooter from "../../../../components/editor/ModalFooter.tsx";
+
 import {centerTree} from "../../../../components/d3Helpers/treeHelpers.ts";
+import ManageModalEditor from "../../../../components/editor/ManageModalEditor.tsx";
 
 
 export interface NodeData {
@@ -126,7 +127,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 // 继续执行添加节点的函数或其他操作
                 setClickNode(d);
             })
-            .on('contextmenu', function (event, ) {
+            .on('contextmenu', function (event,) {
                 event.preventDefault(); // 阻止默认的右键菜单
 
             });
@@ -650,25 +651,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 <MovingArrowPattern/>
             </svg>
 
-            <Modal
-                title="Modal 1000px width"
-                centered
-                maskClosable={false}
-                open={clickNode != null}
-                onCancel={() => setClickNode(null)}
-                width={900}
-                footer={<ModalFooter clickNode={clickNode} setClickNode={setClickNode} />}
-            >
-                <div style={{
-                    border: '1px solid #e1e4e8', // 浅灰色边框
-                    background: '#f6f8fa', // 轻微的背景色
-                    borderRadius: '4px', // 轻微的圆角
-                    padding: '10px', // 内边距
-                }}>
-                    <ManageEditor/>
-                </div>
-
-            </Modal>
+            {/* 编辑器 */}
+            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)}/>
             {/*悬浮菜单*/}
             <div
                 style={{
