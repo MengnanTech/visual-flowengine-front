@@ -1,30 +1,9 @@
 import React from "react";
 import Editor, {Monaco} from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-interface Diagnostic {
-    startLineNumber: number;
-    startColumn: number;
-    endLineNumber: number;
-    endColumn: number;
-    message: string;
-    severity: monaco.MarkerSeverity;
-}
+import {compileGroovyScript} from "../api/api.ts";
+
 const ManageEditor: React.FC = () => {
-
-    const createDiagnostics = (code: string): Diagnostic[] => {
-        // let diagnostics: Diagnostic[] = [];
-        // diagnostics.push({
-        //     startLineNumber: stringStartLine,
-        //     startColumn: stringStartColumn,
-        //     endLineNumber: lineNum,
-        //     endColumn: line.length + 1,
-        //     message: '字符串未闭合。',
-        //     severity: monaco.MarkerSeverity.Error,
-        // });
-        //
-        // return diagnostics;
-    };
-
 
 
     // 当编辑器内容变化时触发
@@ -35,10 +14,10 @@ const ManageEditor: React.FC = () => {
 
     // 编辑器挂载完成时执行，可以获取到编辑器实例和 Monaco 实例
     const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => {
-        editor.onDidChangeModelContent(() => {
-            // const code = editor.getValue();
-            // const diagnostics = createDiagnostics(code);
-            // monaco.editor.setModelMarkers(editor.getModel()!, 'groovy', diagnostics);
+        editor.onDidChangeModelContent(async () => {
+            const code = editor.getValue();
+            const diagnostics = await compileGroovyScript(code);
+            monaco.editor.setModelMarkers(editor.getModel()!, 'groovy', diagnostics);
         });
     };
     // 在编辑器挂载之前执行，用于设置 Groovy 语言的语法和自动完成功能
