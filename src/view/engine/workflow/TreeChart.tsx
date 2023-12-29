@@ -2,10 +2,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "../../../components/MovingArrowPattern.tsx";
-import {message, Modal, Popover} from "antd";
+import {Button, message, Modal, Popover} from "antd";
 import ManageEditor from '../../../components/ManageEditor.tsx';
 import TreeChartStyles from './TreeChart.module.scss'
 import {SmileFilled} from "@ant-design/icons";
+import ModalFooter from "../../../components/ModalFooter.tsx";
 
 
 export interface NodeData {
@@ -667,41 +668,33 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     }, [initialData]);
 
+
     return (
         <div>
             <svg ref={svgRef} width="2300" height="1200">
                 <MovingArrowPattern/>
             </svg>
-             <Modal
+
+            <Modal
                 title="Modal 1000px width"
                 centered
                 maskClosable={false}
                 open={clickNode != null}
-                onOk={() => setClickNode(null)}
                 onCancel={() => setClickNode(null)}
                 width={900}
-                // footer={[
-                //     <Button key="back" >
-                //         Return
-                //     </Button>,
-                //     <Button key="submit" type="primary" loading={false} >
-                //         Submit
-                //     </Button>,
-                //     <Button
-                //         key="link"
-                //         type="primary"
-                //         // loading={loading}
-                //         // onClick={handleOk}
-                //     >
-                //        debug
-                //     </Button>,
-                // ]}
+                footer={<ModalFooter clickNode={clickNode} setClickNode={setClickNode} />}
             >
-                <ManageEditor/>
+                <div style={{
+                    border: '1px solid #e1e4e8', // 浅灰色边框
+                    background: '#f6f8fa', // 轻微的背景色
+                    borderRadius: '4px', // 轻微的圆角
+                    padding: '10px', // 内边距
+                }}>
+                    <ManageEditor/>
+                </div>
 
             </Modal>
-
-
+            {/*悬浮菜单*/}
             <div
                 style={{
                     position: 'absolute',
@@ -712,7 +705,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 <Popover content={menuContent} open={menuVisible && !dragging}>
                 </Popover>
             </div>
-            )
+
 
         </div>
     )
