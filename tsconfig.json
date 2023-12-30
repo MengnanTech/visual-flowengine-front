@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "allowJs": true,   // 允许编译JavaScript文件
 //    "jsx": "react",   // 支持JSX
     "outDir": "./dist", // 输出目录
@@ -39,9 +42,7 @@
     "src/**/*.js",
     "src/**/*.jsx"
   ],
-  "baseUrl": "./",
-  "paths": {
-    "@/*": ["src/*"]
-  },
+
+
   "references": [{ "path": "./tsconfig.node.json" }]
 }

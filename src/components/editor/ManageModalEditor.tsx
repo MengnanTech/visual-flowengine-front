@@ -44,7 +44,6 @@ const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
     const handleSave = () => {
 
         if (clickNode) {
-            console.log("更新脚本内容", clickNode, editorCode);
             updateScriptText(clickNode,editorCode);
         }
         manageModalProps.onClose();
@@ -204,7 +203,7 @@ const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
             maskClosable={false}
             open={clickNode !== null}
             onCancel={manageModalProps.onClose}
-            width={900}
+            width={1000}
             footer={
                 <div style={{
                     display: 'flex',

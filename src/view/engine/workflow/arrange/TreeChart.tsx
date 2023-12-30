@@ -1,14 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
-import MovingArrowPattern from "../../../../components/d3Helpers/MovingArrowPattern.tsx";
+import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {message, Popover} from "antd";
 
 import TreeChartStyles from './TreeChart.module.scss'
 import {SmileFilled} from "@ant-design/icons";
 
-import {centerTree} from "../../../../components/d3Helpers/treeHelpers.ts";
-import ManageModalEditor from "../../../../components/editor/ManageModalEditor.tsx";
+import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
+import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
 
 
 export interface NodeData {
@@ -125,7 +125,6 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     .duration(10)
                     .style('fill', '#c0f1b0'); // 然后迅速变回原色
                 // 继续执行添加节点的函数或其他操作
-                console.log("点击节点", d)
                 setClickNode(d);
             })
             .on('contextmenu', function (event,) {
@@ -195,7 +194,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
     }
 
 
-    function removeNode(nodeToRemove: D3Node) {
+    function removeCurrentTree(nodeToRemove: D3Node) {
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
             message.error('根节点无法删除').then(r => r)
@@ -317,8 +316,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             })
     }
 
-    const handleDeleteNode = (node: D3Node) => {
-        removeNode(node);
+    const handleDeleteCurrentTree = (node: D3Node) => {
+        removeCurrentTree(node);
         setMenuVisible(false); //
     };
 
@@ -364,7 +363,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                 const dy = event.y - dragStart.y;
                 d3.select(`#link-${d.data.id}`)
                     .transition()
-                    .duration(100)
+                    .duration(30)
                     .style("opacity", 0)
                     .on("end", function () {
                         d3.select(this).remove();
@@ -490,8 +489,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
         },
         {
             icon: <SmileFilled className={TreeChartStyles.icon}/>,
-            label: '删除节点',
-            action: () => handleDeleteNode(menuNode!)
+            label: '删除当前树',
+            action: () => handleDeleteCurrentTree(menuNode!)
         },
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
@@ -651,10 +650,8 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             if (node == clickNode) {
                 node.data.scriptText = newScriptText;
                 setClickNode(node);
-                console.log("node", node.data)
             }
         });
-        console.log("rootNode", rootNode)
 
     };
 
