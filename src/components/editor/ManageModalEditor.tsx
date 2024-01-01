@@ -131,7 +131,7 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, upda
                     // 插值内的大括号开始
                     [/\{/, 'delimiter.bracket', '@bracketCounting'],
                     // 插值内的大括号结束
-                    [/\}/, 'delimiter.bracket', '@pop'],
+                    [/}/, 'delimiter.bracket', '@pop'],
                     // 包含 root 规则
                     {include: 'root'}
                 ],
