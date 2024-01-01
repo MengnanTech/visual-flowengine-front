@@ -3,17 +3,15 @@ import {Modal, Button} from 'antd';
 import Editor from '@monaco-editor/react';
 import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
-import {D3Node} from "@/components/D3Node/D3model.ts";
+import {TreeStore} from "@/store/TreeStore.ts";
+import {observer} from "mobx-react";
 
-
-interface ManageModalProps {
-    clickNode: D3Node | null; // 假设 clickNode 可以为 null
-    onClose: () => void; // 当模态框关闭时调用的函数
-    updateScriptText: (clickNode: D3Node, newScriptText: string) => void; // 更新脚本内容的函数
+interface ManageModalEditorProps {
+    treeStore: TreeStore;
 }
+const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({ treeStore }) => {
 
-const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, updateScriptText}) => {
-
+    const clickNode = treeStore.clickNode;
 
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -40,11 +38,11 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, upda
     };
 
     const handleSave = () => {
-
         if (clickNode) {
-            updateScriptText(clickNode, editorCode);
+            clickNode.data.scriptText = editorCode;
+
         }
-        onClose();
+        treeStore.setClickNode(null);
     };
 
     const handleSubmit = () => {
@@ -199,8 +197,8 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, upda
             title="Modal 1000px width"
             centered
             maskClosable={false}
-            open={clickNode !== null}
-            onCancel={onClose}
+            open={treeStore.clickNode!== null}
+            onCancel={() => treeStore.setClickNode(null)}
             width={1000}
             footer={
                 <div style={{
@@ -246,6 +244,6 @@ const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, upda
             </div>
         </Modal>
     );
-};
+});
 
 export default ManageModalEditor;

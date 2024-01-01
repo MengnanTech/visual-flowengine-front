@@ -20,6 +20,7 @@ interface TreeChartProps {
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
+
     const svgRef = useRef(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
@@ -571,7 +572,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     useEffect(() => {
 
+        console.log(svgRef.current)
         if (!svgRef.current) return;
+
         svgSelect.current = d3.select(svgRef.current)
         // treeStore
         gRef.current = svgSelect.current.append("g");
@@ -613,18 +616,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         DrawCircle()
 
 
-    }, [initialData]);
-
-    const updateNodeScriptText = (clickNode: D3Node, newScriptText: string) => {
-
-        rootNode.current.descendants().forEach(node => {
-            if (node == clickNode) {
-                node.data.scriptText = newScriptText;
-                treeStore.setClickNode(node)
-            }
-        });
-
-    };
+    }, [initialData, treeStore]);
 
 
     return (
@@ -634,8 +626,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor clickNode={treeStore.clickNode} onClose={() =>  treeStore.setClickNode(null)}
-                               updateScriptText={updateNodeScriptText}/>
+            <ManageModalEditor  treeStore={treeStore}/>
             {/*悬浮菜单*/}
 
             {treeStore.menuPosition != null && <div
