@@ -1,5 +1,7 @@
 import React from "react";
-import TreeChart, {NodeData} from "./TreeChart.js";
+import TreeChart from "./TreeChart.js";
+import {TreeStore} from "@/store/TreeStore.ts";
+import {NodeData} from "@/components/D3Node/D3model.ts";
 
 const Arrange: React.FC = () => {
 
@@ -54,8 +56,7 @@ const Arrange: React.FC = () => {
     return (
         <div style={{backgroundColor: "#f1f0dc"}}>
             <h1>workflow index</h1>
-            <TreeChart {...initialData}/>
-
+            <TreeChart treeStore={new TreeStore()} initialData={initialData} />
         </div>
     );
 }

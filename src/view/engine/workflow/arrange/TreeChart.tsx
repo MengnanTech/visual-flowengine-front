@@ -6,46 +6,19 @@ import {message, Popover} from "antd";
 
 import TreeChartStyles from './TreeChart.module.scss'
 import {SmileFilled} from "@ant-design/icons";
-
+import {observer} from 'mobx-react';
 import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
+import {D3Link, D3Node, NodeData} from "@/components/D3Node/D3model.ts";
+import {TreeStore} from "@/store/TreeStore.ts";
 
 
-export interface NodeData {
-    id: string;
-    name: string;
-    scriptText: string;
-    nodeType: string;
-    children?: NodeData[];
+interface TreeChartProps {
+    treeStore: TreeStore;
+    initialData: NodeData;
 }
 
-export interface D3Node extends d3.HierarchyNode<NodeData> {
-    relativeX: number;
-    relativeY: number;
-    x: number;
-    y: number;
-    depth: number;
-    height: number;
-
-    previousX?: number;
-    previousY?: number;
-}
-
-export interface D3Link extends d3.HierarchyLink<NodeData> {
-    source: D3Node;
-    target: D3Node;
-    parent?: {
-        x: number;
-        y: number;
-    }
-    x?: number;
-    y?: number;
-}
-
-// 中心化树
-
-
-const TreeChart: React.FC<NodeData> = (initialData) => {
+const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
     const svgRef = useRef(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
@@ -61,9 +34,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             return 1;
         }));
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
-    const [menuVisible, setMenuVisible] = useState(false);
     const [dragging, setDragging] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({x: 0, y: 0});
     const [menuNode, setMenuNode] = useState<D3Node | null>(null);
     const [clickNode, setClickNode] = useState<D3Node | null>(null);
     const closestNodeRef = useRef<D3Node | null>();
@@ -101,11 +72,11 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
                     .duration(5)
                     .attr("r", 25)
                     .style("fill", "#a9db80");
-                setMenuVisible(false);
+                treeStore.setCurrentMenu(null)
 
                 setTimeout(() => {
-                    setMenuPosition({x: x, y: y});
-                    setMenuVisible(true);
+                    treeStore.setCurrentMenu({x: x, y: y});
+
                     setMenuNode(node);
                 }, 1);
             })
@@ -318,12 +289,12 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     const handleDeleteCurrentTree = (node: D3Node) => {
         removeCurrentTree(node);
-        setMenuVisible(false); //
+        treeStore.setCurrentMenu(null)
     };
 
     function handleAddNode(node: D3Node) {
         addNode(node);
-        setMenuVisible(false); // 关闭菜单
+        treeStore.setCurrentMenu(null)
     }
 
     function handDragNode() {
@@ -603,10 +574,11 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
         if (!svgRef.current) return;
         svgSelect.current = d3.select(svgRef.current)
+        // treeStore
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
             // 点击页面任何其他地方时隐藏菜单
-            setMenuVisible(false);
+            treeStore.setCurrentMenu(null);
         });
         const root = rootNode.current;
         gRef.current.append("path")
@@ -627,7 +599,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             .zoom()
             .scaleExtent([0.4, 5])
             .on('zoom', (event) => {
-                setMenuVisible(false); // 关闭菜单
+                treeStore.setCurrentMenu(null);
                 currentTransform.current = event.transform;
                 treeGroup.attr('transform', event.transform);
             })
@@ -644,7 +616,7 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
 
     }, [initialData]);
 
-    const updateNodeScriptText = (clickNode: D3Node,newScriptText:string) => {
+    const updateNodeScriptText = (clickNode: D3Node, newScriptText: string) => {
 
         rootNode.current.descendants().forEach(node => {
             if (node == clickNode) {
@@ -663,22 +635,24 @@ const TreeChart: React.FC<NodeData> = (initialData) => {
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)} updateScriptText={updateNodeScriptText}/>
+            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)}
+                               updateScriptText={updateNodeScriptText}/>
             {/*悬浮菜单*/}
-            <div
+
+            {treeStore.menuPosition != null && <div
                 style={{
                     position: 'absolute',
-                    left: menuPosition.x,
-                    top: menuPosition.y,
+                    left: treeStore.menuPosition.x,
+                    top: treeStore.menuPosition.y,
                 }}
             >
-                <Popover content={menuContent} open={menuVisible && !dragging}>
+                <Popover content={menuContent} open={!dragging}>
                 </Popover>
-            </div>
+            </div>}
 
 
         </div>
-    )
-}
+    );
+});
 
 export default TreeChart;
