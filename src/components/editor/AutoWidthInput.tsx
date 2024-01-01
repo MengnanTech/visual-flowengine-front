@@ -18,9 +18,12 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinis
         if (spanWidth < 80) {
             spanWidth = 80;
         }
-        setInputWidth(spanWidth); // 文本宽度 + 固定额外空间
+        setInputWidth(spanWidth);
     }, [value]);
-
+    useEffect(() => {
+        // 当组件渲染或更新时，自动聚焦到输入框
+        inputRef.current.focus();
+    }, []);
     // 确保初始化时添加额外空间
     useEffect(() => {
         const handleClickOutside = (event: { target: any; }) => {

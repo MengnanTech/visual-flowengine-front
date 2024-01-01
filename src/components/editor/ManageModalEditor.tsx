@@ -7,6 +7,7 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
 import {EditOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
+import EditorStyles from "./style/editor.module.scss";
 
 
 interface ManageModalEditorProps {
@@ -211,7 +212,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
 
     return (
-        <Modal
+        <Modal className={EditorStyles.resizableModal}
             title={
                 <div>
                     {isEditing ? (
