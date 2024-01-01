@@ -50,7 +50,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     }
 
 
-    function addNode(clickedNode: D3Node) {
+    function handleAddNode(clickedNode: D3Node) {
 
         const newNodeData: NodeData =
             {
@@ -93,6 +93,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                 };
             })
+        //添加完了之后重新布局,把当前CurrentMenu 重置一下
+        treeStore.setCurrentMenu(null)
     }
 
 
@@ -183,10 +185,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         treeStore.setCurrentMenu(null)
     };
 
-    function handleAddNode(node: D3Node) {
-        addNode(node);
-        treeStore.setCurrentMenu(null)
-    }
 
     function handDragNode() {
 
