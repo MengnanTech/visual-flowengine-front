@@ -20,7 +20,6 @@ interface TreeChartProps {
 }
 
 
-
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
     const svgRef = useRef(null);
@@ -38,18 +37,17 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
     const closestNodeRef = useRef<D3Node | null>();
 
-     function createTreeChartState(): TreeChartState {
+    function createTreeChartState(): TreeChartState {
         return {
-            gRef:gRef.current!,
-            rootNode:rootNode.current,
-            svgRef:svgRef.current!,
-            treeLayout:treeLayout.current!,
-            currentTransform:currentTransform.current!,
-            closestNodeRef:closestNodeRef.current!,
-            treeStore:treeStore
+            gRef: gRef.current!,
+            rootNode: rootNode.current,
+            svgRef: svgRef.current!,
+            treeLayout: treeLayout.current!,
+            currentTransform: currentTransform.current!,
+            closestNodeRef: closestNodeRef.current!,
+            treeStore: treeStore
         };
     }
-
 
 
     function addNode(clickedNode: D3Node) {
@@ -389,11 +387,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     useEffect(() => {
 
-        console.log(svgRef.current)
-        if (!svgRef.current) return;
-
         svgSelect.current = d3.select(svgRef.current)
-        // treeStore
+
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
             // 点击页面任何其他地方时隐藏菜单
@@ -428,8 +423,19 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         //很容易双击，所以先取消双击事件
         svgSelect.current!.on("dblclick.zoom", null);
 
-        DrawLinks(createTreeChartState());
-        DrawCircle(createTreeChartState());
+        const treeChartState = {
+            gRef: gRef.current!,
+            rootNode: rootNode.current,
+            svgRef: svgRef.current!,
+            treeLayout: treeLayout.current!,
+            currentTransform: currentTransform.current!,
+            closestNodeRef: closestNodeRef.current!,
+            treeStore: treeStore
+        } as TreeChartState
+
+
+        DrawLinks(treeChartState);
+        DrawCircle(treeChartState);
 
     }, [initialData, treeStore]);
 
