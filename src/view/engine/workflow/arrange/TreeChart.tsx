@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
@@ -11,6 +11,7 @@ import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
 import {D3Link, D3Node, NodeData} from "@/components/D3Node/D3model.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
+import useD3Refs from "@/components/d3Helpers/UseD3Refs.ts";
 
 
 interface TreeChartProps {
@@ -21,21 +22,14 @@ interface TreeChartProps {
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
 
-    const svgRef = useRef(null);
-    const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
-    const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-    const rootNode = useRef(d3.hierarchy(initialData) as D3Node);
-    const treeLayout = useRef(d3.tree<NodeData>()
-        .nodeSize([100, 250])
-        /**
-         * 定义邻居节点的距离
-         */
-        .separation(function () {
-            return 1;
-        }));
-    const currentTransform = useRef<d3.ZoomTransform | null>(null);
-    const closestNodeRef = useRef<D3Node | null>();
-
+    const d3Refs = useD3Refs(initialData);
+    const svgRef = d3Refs.svgRef;
+    const svgSelect = d3Refs.svgSelect;
+    const gRef = d3Refs.gRef;
+    const rootNode = d3Refs.rootNode;
+    const treeLayout = d3Refs.treeLayout;
+    const currentTransform = d3Refs.currentTransform;
+    const closestNodeRef = d3Refs.closestNodeRef;
 
 
     function buildCircle(nodesEnter: d3.Selection<SVGGElement, D3Node, any, any>) {
@@ -626,7 +620,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor  treeStore={treeStore}/>
+            <ManageModalEditor treeStore={treeStore}/>
             {/*悬浮菜单*/}
 
             {treeStore.menuPosition != null && <div
