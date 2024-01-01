@@ -7,7 +7,7 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
 import {EditOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
-import EditorStyles from "./style/editor.module.scss";
+// import EditorStyles from "./style/editor.module.scss";
 
 
 interface ManageModalEditorProps {
@@ -212,80 +212,85 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
 
     return (
-        <Modal className={EditorStyles.resizableModal}
-            title={
-                <div>
-                    {isEditing ? (
-                        <AutoWidthInput
-                            value={title}
-                            onChange={handleTitleChange}
-                            onFinish={toggleEditing}
-                        />
+        <div>
+            <Modal
+                   title={
+                       <div>
+                           {isEditing ? (
+                               <AutoWidthInput
+                                   value={title}
+                                   onChange={handleTitleChange}
+                                   onFinish={toggleEditing}
+                               />
 
-                    ) : (
-                        <div style={{display: 'flex', alignItems: 'center'}}>
-                            <div style={{display: 'flex', alignItems: 'center'}}>
-                                <span>{title}</span>
-                                <Button size="small" type="link" onClick={toggleEditing}>
-                                    <EditOutlined/>
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                    <div style={{marginTop: 10, fontSize: 'smaller'}}>
-                        {/* 在这里添加额外的节点信息 */}
-                        <p>更多节点信息...</p>
-                    </div>
-                </div>
-            }
-            centered
-            maskClosable={false}
-            open={treeStore.clickNode !== null}
-            onCancel={() => treeStore.setClickNode(null)}
-            width={1000}
-            footer={
+                           ) : (
+                               <div style={{display: 'flex', alignItems: 'center'}}>
+                                   <div style={{display: 'flex', alignItems: 'center'}}>
+                                       <span>{title}</span>
+                                       <Button size="small" type="link" onClick={toggleEditing}>
+                                           <EditOutlined/>
+                                       </Button>
+                                   </div>
+                               </div>
+                           )}
+                           <div style={{marginTop: 10, fontSize: 'smaller'}}>
+                               {/* 在这里添加额外的节点信息 */}
+                               <p>更多节点信息...</p>
+                           </div>
+                       </div>
+                   }
+                   centered
+                   maskClosable={false}
+                   open={treeStore.clickNode !== null}
+                   onCancel={() => treeStore.setClickNode(null)}
+                   width={1000}
+                   footer={
+                       <div style={{
+                           display: 'flex',
+                           justifyContent: 'space-between',
+                           textAlign: 'left'
+                       }}>
+                           <div>
+                               <Button onClick={handleCompile}>
+                                   编译
+                               </Button>
+                               <Button type="primary" onClick={handleDebug}>
+                                   调试
+                               </Button>
+                           </div>
+                           <div>
+                               <Button type="primary" onClick={handleSave}>
+                                   暂存
+                               </Button>
+                               <Button type="primary" onClick={handleSubmit}>
+                                   提交
+                               </Button>
+                           </div>
+                       </div>
+                   }
+            >
                 <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    textAlign: 'left'
+                    border: '1px solid #e1e4e8',
+                    background: '#f6f8fa',
+                    borderRadius: '4px',
+                    padding: '10px',
                 }}>
-                    <div>
-                        <Button onClick={handleCompile}>
-                            编译
-                        </Button>
-                        <Button type="primary" onClick={handleDebug}>
-                            调试
-                        </Button>
-                    </div>
-                    <div>
-                        <Button type="primary" onClick={handleSave}>
-                            暂存
-                        </Button>
-                        <Button type="primary" onClick={handleSubmit}>
-                            提交
-                        </Button>
-                    </div>
+                    <Editor
+                        key={clickNode ? clickNode.data.id : 'editor'}
+                        height="70vh"
+                        onChange={handleEditorChange}
+                        onMount={handleEditorDidMount}
+                        beforeMount={handleEditorWillMount}
+                        onValidate={handleEditorValidation}
+                        defaultLanguage="groovy"
+                        defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
+                    />
                 </div>
-            }
-        >
-            <div style={{
-                border: '1px solid #e1e4e8',
-                background: '#f6f8fa',
-                borderRadius: '4px',
-                padding: '10px',
-            }}>
-                <Editor
-                    key={clickNode ? clickNode.data.id : 'editor'}
-                    height="70vh"
-                    onChange={handleEditorChange}
-                    onMount={handleEditorDidMount}
-                    beforeMount={handleEditorWillMount}
-                    onValidate={handleEditorValidation}
-                    defaultLanguage="groovy"
-                    defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
-                />
-            </div>
-        </Modal>
+            </Modal>
+        </div>
+
+
+
     );
 });
 
