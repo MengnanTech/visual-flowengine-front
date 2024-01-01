@@ -23,7 +23,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const svgRef = useRef(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-    // const [rootNode] = useState(d3.hierarchy(initialData) as D3Node);
     const rootNode = useRef(d3.hierarchy(initialData) as D3Node);
     const treeLayout = useRef(d3.tree<NodeData>()
         .nodeSize([100, 250])
@@ -35,7 +34,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         }));
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
     const [dragging, setDragging] = useState(false);
-    const [menuNode, setMenuNode] = useState<D3Node | null>(null);
     const [clickNode, setClickNode] = useState<D3Node | null>(null);
     const closestNodeRef = useRef<D3Node | null>();
 
@@ -76,8 +74,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
                 setTimeout(() => {
                     treeStore.setCurrentMenu({x: x, y: y});
-
-                    setMenuNode(node);
+                    treeStore.setMenuNode(node);
                 }, 1);
             })
             .on('mouseout', function () {
@@ -456,12 +453,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         {
             icon: <SmileFilled className={TreeChartStyles.icon}/>,
             label: '添加节点',
-            action: () => handleAddNode(menuNode!)
+            action: () => handleAddNode(treeStore.menuNode!)
         },
         {
             icon: <SmileFilled className={TreeChartStyles.icon}/>,
             label: '删除当前树',
-            action: () => handleDeleteCurrentTree(menuNode!)
+            action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
         {icon: <SmileFilled className={TreeChartStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
