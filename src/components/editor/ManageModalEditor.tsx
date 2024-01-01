@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Modal, Button} from 'antd';
 import Editor from '@monaco-editor/react';
-import {D3Node} from "../../view/engine/workflow/arrange/TreeChart.tsx";
-import {compileGroovyScript} from "../../api/api.ts";
+import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
+import {D3Node} from "@/components/D3Node/D3model.ts";
 
 
 interface ManageModalProps {
@@ -12,10 +12,8 @@ interface ManageModalProps {
     updateScriptText: (clickNode: D3Node, newScriptText: string) => void; // 更新脚本内容的函数
 }
 
-const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
-    // Editor 相关的状态和逻辑
-    const clickNode = manageModalProps.clickNode;
-    const updateScriptText = manageModalProps.updateScriptText;
+const ManageModalEditor: React.FC<ManageModalProps> = ({clickNode, onClose, updateScriptText}) => {
+
 
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -44,9 +42,9 @@ const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
     const handleSave = () => {
 
         if (clickNode) {
-            updateScriptText(clickNode,editorCode);
+            updateScriptText(clickNode, editorCode);
         }
-        manageModalProps.onClose();
+        onClose();
     };
 
     const handleSubmit = () => {
@@ -202,7 +200,7 @@ const ManageModalEditor: React.FC<ManageModalProps> = (manageModalProps) => {
             centered
             maskClosable={false}
             open={clickNode !== null}
-            onCancel={manageModalProps.onClose}
+            onCancel={onClose}
             width={1000}
             footer={
                 <div style={{

@@ -6,6 +6,7 @@ export class TreeStore {
     rootNode: D3Node | null = null;
     draggingNode: D3Node | null = null;
     menuNode: D3Node | null = null;
+    clickNode: D3Node | null = null;
     menuPosition: { x: number; y: number } | null = null;
 
     constructor() {
@@ -24,7 +25,12 @@ export class TreeStore {
 
 
     @action
-    setMenuNode(node: D3Node) {
+    setMenuNode(node: D3Node | null) {
         this.menuNode = node;
+    }
+
+    @action
+    setClickNode(d: D3Node | null) {
+        this.clickNode = d;
     }
 }

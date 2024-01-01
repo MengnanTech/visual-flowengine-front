@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import * as d3 from 'd3';
 import {v4 as uuid} from 'uuid'
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
@@ -33,9 +33,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             return 1;
         }));
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
-    const [dragging, setDragging] = useState(false);
-    const [clickNode, setClickNode] = useState<D3Node | null>(null);
     const closestNodeRef = useRef<D3Node | null>();
+
+
 
     function buildCircle(nodesEnter: d3.Selection<SVGGElement, D3Node, any, any>) {
         nodesEnter.append("circle")
@@ -93,7 +93,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     .duration(10)
                     .style('fill', '#c0f1b0'); // 然后迅速变回原色
                 // 继续执行添加节点的函数或其他操作
-                setClickNode(d);
+                treeStore.setClickNode(d)
             })
             .on('contextmenu', function (event,) {
                 event.preventDefault(); // 阻止默认的右键菜单
@@ -303,7 +303,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .on("start", function (event, d) {
 
 
-                setDragging(true)
+                treeStore.setDraggingNode(d)
+
+
                 if (d === rootNode.current) {
                     message.error("根节点不可拖拽").then(r => r)
                     return
@@ -321,7 +323,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
             })
             .on("drag", function (event, d) {
-                setDragging(true)
+
                 if (d === rootNode.current) {
                     message.error("根节点不可拖拽").then(r => r)
                     return
@@ -439,7 +441,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     closestNodeRef.current = null;
 
                     setTimeout(() => {
-                        setDragging(false)
+                        treeStore.setDraggingNode(null)
                     }, 1000);
 
                 }
@@ -618,7 +620,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         rootNode.current.descendants().forEach(node => {
             if (node == clickNode) {
                 node.data.scriptText = newScriptText;
-                setClickNode(node);
+                treeStore.setClickNode(node)
             }
         });
 
@@ -632,7 +634,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor clickNode={clickNode} onClose={() => setClickNode(null)}
+            <ManageModalEditor clickNode={treeStore.clickNode} onClose={() =>  treeStore.setClickNode(null)}
                                updateScriptText={updateNodeScriptText}/>
             {/*悬浮菜单*/}
 
@@ -643,7 +645,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     top: treeStore.menuPosition.y,
                 }}
             >
-                <Popover content={menuContent} open={!dragging}>
+                <Popover content={menuContent} open={!treeStore.draggingNode}>
                 </Popover>
             </div>}
 
