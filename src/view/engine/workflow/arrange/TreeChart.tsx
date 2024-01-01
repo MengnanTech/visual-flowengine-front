@@ -9,15 +9,17 @@ import {SmileFilled} from "@ant-design/icons";
 import {observer} from 'mobx-react';
 import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
-import {D3Link, D3Node, NodeData} from "@/components/D3Node/D3model.ts";
+import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/D3model.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {DrawCircle, DrawLinks} from "@/components/d3Helpers/TreeChartDrawing.ts";
+import {DrawCircle, DrawLinks, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 
 
 interface TreeChartProps {
     treeStore: TreeStore;
     initialData: NodeData;
 }
+
+
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
@@ -36,21 +38,63 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const currentTransform = useRef<d3.ZoomTransform | null>(null);
     const closestNodeRef = useRef<D3Node | null>();
 
-    function refresh() {
-        rootNode.current.descendants().forEach(d => {
+     function createTreeChartState(): TreeChartState {
+        return {
+            gRef:gRef.current!,
+            rootNode:rootNode.current,
+            svgRef:svgRef.current!,
+            treeLayout:treeLayout.current!,
+            currentTransform:currentTransform.current!,
+            closestNodeRef:closestNodeRef.current!,
+            treeStore:treeStore
+        };
+    }
 
-            d.previousX = d.x
-            d.previousY = d.y
-        });
 
 
-        const root = rootNode.current;
-        console.log("data", JSON.stringify(root.data))
-        treeLayout.current(root);
-        gRef.current!.attr("transform", currentTransform.current!.toString());
+    function addNode(clickedNode: D3Node) {
 
-        DrawLinks(gRef.current!,rootNode.current);
-        DrawCircle(gRef.current!,rootNode.current,svgRef.current,treeStore);
+        const newNodeData: NodeData =
+            {
+
+                id: uuid(),
+                name: "New Node" + Math.floor(Math.random() * 90) + 100,
+                nodeType: "还没想好设计",
+                scriptText: "脚本内容" + uuid(),
+            };
+
+        if (!clickedNode.data.children) {
+            clickedNode.data.children = [];
+        }
+        clickedNode.data.children.push(newNodeData);
+
+        if (!clickedNode.children) {
+            clickedNode.children = [];
+        }
+
+        const newNode = d3.hierarchy(newNodeData) as D3Node;
+        newNode.depth = clickedNode.depth + 1;
+        newNode.parent = clickedNode;
+        clickedNode.children.push(newNode);
+
+        refresh(createTreeChartState());
+
+        const nodesEnter = gRef.current!.select<SVGGElement>(`#node-${newNodeData.id}`);
+        nodesEnter.transition()
+            .duration(750)
+            .style('opacity', 1)
+            .attrTween("transform", function (d): (t: number) => string {
+
+                const parentX = d.parent.previousX;
+                const parentY = d.parent.previousY;
+
+                const interpolateSourceX = d3.interpolate(parentX, d.x);
+                const interpolateSourceY = d3.interpolate(parentY, d.y);
+
+                return function (t: number): string {
+                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                };
+            })
     }
 
 
@@ -123,7 +167,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             }
         }
 
-        setTimeout(refresh, 750);
+        setTimeout(() => {
+            refresh(createTreeChartState());
+        }, 500);
     }
 
     function updateNodeDepth(node: D3Node, newDepth: number) {
@@ -133,48 +179,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         }
     }
 
-    function addNode(clickedNode: D3Node) {
-
-        const newNodeData: NodeData =
-            {
-
-                id: uuid(),
-                name: "New Node" + Math.floor(Math.random() * 90) + 100,
-                nodeType: "还没想好设计",
-                scriptText: "脚本内容" + uuid(),
-            };
-
-        if (!clickedNode.data.children) {
-            clickedNode.data.children = [];
-        }
-        clickedNode.data.children.push(newNodeData);
-
-        if (!clickedNode.children) {
-            clickedNode.children = [];
-        }
-
-        const newNode = d3.hierarchy(newNodeData) as D3Node;
-        newNode.depth = clickedNode.depth + 1;
-        newNode.parent = clickedNode;
-        clickedNode.children.push(newNode);
-        refresh();
-        const nodesEnter = gRef.current!.select<SVGGElement>(`#node-${newNodeData.id}`);
-        nodesEnter.transition()
-            .duration(750)
-            .style('opacity', 1)
-            .attrTween("transform", function (d): (t: number) => string {
-
-                const parentX = d.parent.previousX;
-                const parentY = d.parent.previousY;
-
-                const interpolateSourceX = d3.interpolate(parentX, d.x);
-                const interpolateSourceY = d3.interpolate(parentY, d.y);
-
-                return function (t: number): string {
-                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
-                };
-            })
-    }
 
     const handleDeleteCurrentTree = (node: D3Node) => {
         removeCurrentTree(node);
@@ -326,7 +330,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     }
                     closestNode.data.children.push(d.data);
 
-                    refresh();
+                    refresh(createTreeChartState());
 
                     // 清除预览线和其他状态
                     gRef.current!.select(".preview-line").style("opacity", 0);
@@ -424,8 +428,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         //很容易双击，所以先取消双击事件
         svgSelect.current!.on("dblclick.zoom", null);
 
-        DrawLinks(gRef.current,rootNode.current);
-        DrawCircle(gRef.current,rootNode.current,svgRef.current,treeStore);
+        DrawLinks(createTreeChartState());
+        DrawCircle(createTreeChartState());
 
     }, [initialData, treeStore]);
 

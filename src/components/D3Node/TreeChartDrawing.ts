@@ -1,8 +1,13 @@
-import {D3Link, D3Node} from "@/components/D3Node/D3model.ts";
+import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/D3model.ts";
 import * as d3 from "d3";
-import {TreeStore} from "@/store/TreeStore.ts";
 
-export function DrawCircle(gRef: d3.Selection<any, any, any, any>, rootNode: D3Node, svgRef: any, treeStore: TreeStore) {
+
+export function DrawCircle(treeChartState:TreeChartState) {
+
+    const rootNode = treeChartState.rootNode;
+    const svgRef = treeChartState.svgRef;
+    const gRef = treeChartState.gRef;
+    const treeStore = treeChartState.treeStore;
 
     const nodeSelection = gRef.selectAll<SVGGElement, D3Node>(".node");
     const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.id);
@@ -24,7 +29,7 @@ export function DrawCircle(gRef: d3.Selection<any, any, any, any>, rootNode: D3N
         .raise()
 
         .on('mouseover', function (_event, node) {
-            console.log("mouseover",node)
+            console.log("mouseover", node)
             const circleRadius = 10; // 圆的半径
             const popoverHeight = 10; // Popover 的高度
             // const popoverWidth = 10; // 假设的 Popover 宽度
@@ -106,8 +111,33 @@ export function DrawCircle(gRef: d3.Selection<any, any, any, any>, rootNode: D3N
         });
 }
 
+export function refresh(treeChartState: TreeChartState) {
+    const rootNode = treeChartState.rootNode;
+    const treeLayout = treeChartState.treeLayout;
+    const gRef = treeChartState.gRef;
+    const currentTransform = treeChartState.currentTransform;
 
-export function DrawLinks(gRef: d3.Selection<any, any, any, any>, rootNode: D3Node) {
+
+    rootNode.descendants().forEach(d => {
+
+        d.previousX = d.x
+        d.previousY = d.y
+    });
+
+
+    console.log("data", JSON.stringify(rootNode.data))
+    treeLayout(rootNode);
+    gRef.attr("transform", currentTransform.toString());
+
+    DrawLinks(treeChartState);
+    DrawCircle(treeChartState);
+}
+
+export function DrawLinks(treeChartState: TreeChartState) {
+    const rootNode = treeChartState.rootNode;
+
+    const gRef = treeChartState.gRef;
+
     const selection = gRef.selectAll<SVGPathElement, D3Link>(".link");
     const links = selection.data(rootNode.links() as D3Link[], d => {
         return d.target.data.id

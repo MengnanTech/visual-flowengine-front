@@ -1,4 +1,5 @@
-import {D3Node} from "../../view/engine/workflow/arrange/TreeChart.tsx";
+import {D3Node} from "@/components/D3Node/D3model.ts";
+
 
 export const centerTree = (rootNode: D3Node, width: number, height: number) => {
     let x0 = Infinity;

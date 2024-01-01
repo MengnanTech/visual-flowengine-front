@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import {TreeStore} from "@/store/TreeStore.ts";
 
 export interface NodeData {
     id: string;
@@ -29,4 +30,14 @@ export interface D3Link extends d3.HierarchyLink<NodeData> {
     }
     x?: number;
     y?: number;
+}
+
+export interface TreeChartState {
+    gRef: d3.Selection<any, any, any, any>;
+    rootNode: D3Node;
+    svgRef: SVGSVGElement;
+    treeLayout: d3.TreeLayout<NodeData>;
+    currentTransform: d3.ZoomTransform;
+    closestNodeRef:D3Node;
+    treeStore: TreeStore;
 }
