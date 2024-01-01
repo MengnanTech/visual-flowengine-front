@@ -5,21 +5,37 @@ import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
+import {EditOutlined} from "@ant-design/icons";
+import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
+
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
 }
-const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({ treeStore }) => {
+
+const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore}) => {
 
     const clickNode = treeStore.clickNode;
 
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
+    const [title, setTitle] = useState('Editable Title');
+    const [isEditing, setIsEditing] = useState(false);
+    const handleTitleChange = (newValue:string) => {
+        setTitle(newValue);
+    };
+
+    const toggleEditing = () => {
+        setIsEditing(!isEditing);
+    };
+
     useEffect(() => {
         if (clickNode?.data.scriptText) {
             compileCode(clickNode.data.scriptText).then(r => r);
         }
+        // 更新标题
+        setTitle(clickNode?.data.name || 'Editable Title');
     }, [clickNode]);
 
     const compileCode = async (code: string) => {
@@ -192,12 +208,38 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({ treeStor
         markers.forEach(marker => console.log('onValidate:', marker.message));
     }
 
+
+
     return (
         <Modal
-            title="Modal 1000px width"
+            title={
+                <div>
+                    {isEditing ? (
+                        <AutoWidthInput
+                            value={title}
+                            onChange={handleTitleChange}
+                            onFinish={toggleEditing}
+                        />
+
+                    ) : (
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                                <span>{title}</span>
+                                <Button size="small" type="link" onClick={toggleEditing}>
+                                    <EditOutlined/>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                    <div style={{marginTop: 10, fontSize: 'smaller'}}>
+                        {/* 在这里添加额外的节点信息 */}
+                        <p>更多节点信息...</p>
+                    </div>
+                </div>
+            }
             centered
             maskClosable={false}
-            open={treeStore.clickNode!== null}
+            open={treeStore.clickNode !== null}
             onCancel={() => treeStore.setClickNode(null)}
             width={1000}
             footer={
