@@ -1,5 +1,5 @@
-import React, {useState, useRef, useLayoutEffect, useEffect} from 'react';
-import { Input } from 'antd';
+import React, {useState, useRef, useEffect} from 'react';
+import {Input} from 'antd';
 
 interface AutoWidthInputProps {
     value: string;
@@ -7,20 +7,23 @@ interface AutoWidthInputProps {
     onFinish: () => void;
 }
 
-const AutoWidthInput: React.FC<AutoWidthInputProps> = ({ value, onChange, onFinish }) => {
+const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinish}) => {
     const inputRef = useRef<any>(null);
     const spanRef = useRef<HTMLSpanElement>(null);
-    const [inputWidth, setInputWidth] = useState<number>(0);
-
-
+    const extraSpace = 30; // 额外空间保持固定
+    const [inputWidth, setInputWidth] = useState(0);
     useEffect(() => {
-        const spanWidth = spanRef.current?.offsetWidth || 0;
-        setInputWidth(spanWidth + 100);
+        let spanWidth = spanRef.current?.offsetWidth || 0
+        if (spanWidth < extraSpace+50) {
+            spanWidth = extraSpace+50;
+        }
+        setInputWidth(spanWidth); // 文本宽度 + 固定额外空间
     }, [value]);
 
+    // 确保初始化时添加额外空间
     useEffect(() => {
         const handleClickOutside = (event: { target: any; }) => {
-            if (inputRef.current && !inputRef.current.input.contains(event.target)) {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
                 onFinish();
             }
         };
@@ -30,9 +33,10 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({ value, onChange, onFini
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [inputRef, onFinish]);
+
     return (
-        <div style={{ display: 'inline-block', padding: '2px' }}>
-            <span ref={spanRef} style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{display: 'inline-block', padding: '2px'}}>
+            <span ref={spanRef} style={{position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap'}}>
                 {value}
             </span>
             <Input
@@ -41,7 +45,7 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({ value, onChange, onFini
                 onChange={(e) => onChange(e.target.value)}
                 onPressEnter={onFinish}
                 onBlur={onFinish}
-                style={{ width: inputWidth }}
+                style={{width: `${inputWidth + extraSpace}px`}}
             />
         </div>
     );
