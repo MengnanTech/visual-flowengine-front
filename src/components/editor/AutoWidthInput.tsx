@@ -14,8 +14,9 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinis
     const [inputWidth, setInputWidth] = useState(0);
     useEffect(() => {
         let spanWidth = spanRef.current?.offsetWidth || 0
-        if (spanWidth < extraSpace+50) {
-            spanWidth = extraSpace+50;
+        console.log("spanWidth", spanWidth)
+        if (spanWidth < 80) {
+            spanWidth = 80;
         }
         setInputWidth(spanWidth); // 文本宽度 + 固定额外空间
     }, [value]);
