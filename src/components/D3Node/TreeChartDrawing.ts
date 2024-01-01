@@ -2,7 +2,7 @@ import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/D3model.ts";
 import * as d3 from "d3";
 
 
-export function DrawCircle(treeChartState:TreeChartState) {
+export function DrawCircle(treeChartState: TreeChartState) {
 
     const rootNode = treeChartState.rootNode;
     const svgRef = treeChartState.svgRef;
@@ -116,6 +116,7 @@ export function refresh(treeChartState: TreeChartState) {
     const treeLayout = treeChartState.treeLayout;
     const gRef = treeChartState.gRef;
     const currentTransform = treeChartState.currentTransform;
+    const treeStore = treeChartState.treeStore;
 
 
     rootNode.descendants().forEach(d => {
@@ -131,6 +132,7 @@ export function refresh(treeChartState: TreeChartState) {
 
     DrawLinks(treeChartState);
     DrawCircle(treeChartState);
+    treeStore.setCurrentMenu(null)
 }
 
 export function DrawLinks(treeChartState: TreeChartState) {

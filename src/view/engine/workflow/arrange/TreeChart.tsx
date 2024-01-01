@@ -93,12 +93,11 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                 };
             })
-        //添加完了之后重新布局,把当前CurrentMenu 重置一下
-        treeStore.setCurrentMenu(null)
+
     }
 
 
-    function removeCurrentTree(nodeToRemove: D3Node) {
+    function handleDeleteCurrentTree(nodeToRemove: D3Node) {
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
             message.error('根节点无法删除').then(r => r)
@@ -180,10 +179,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     }
 
 
-    const handleDeleteCurrentTree = (node: D3Node) => {
-        removeCurrentTree(node);
-        treeStore.setCurrentMenu(null)
-    };
 
 
     function handDragNode() {
