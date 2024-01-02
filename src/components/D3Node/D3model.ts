@@ -1,12 +1,22 @@
 import * as d3 from "d3";
 import {TreeStore} from "@/store/TreeStore.ts";
+import {makeObservable, observable} from "mobx";
 
-export interface NodeData {
+export class NodeData {
     id: string;
-    name: string;
-    scriptText: string;
+    @observable name: string;
+    @observable scriptText: string;
     nodeType: string;
     children?: NodeData[];
+
+    constructor(id: string, name: string, scriptText: string, nodeType: string, children?: NodeData[]) {
+        makeObservable(this);
+        this.id = id;
+        this.name = name;
+        this.scriptText = scriptText;
+        this.nodeType = nodeType;
+        this.children = children;
+    }
 }
 
 export interface D3Node extends d3.HierarchyNode<NodeData> {

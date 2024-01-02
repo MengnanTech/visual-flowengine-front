@@ -27,7 +27,7 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinis
     // 确保初始化时添加额外空间
     useEffect(() => {
         const handleClickOutside = (event: { target: any; }) => {
-            if (inputRef.current && !inputRef.current.contains(event.target)) {
+            if (inputRef.current && inputRef.current instanceof HTMLElement && !inputRef.current.contains(event.target)) {
                 onFinish();
             }
         };

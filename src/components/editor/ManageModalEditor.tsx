@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Modal, Button} from 'antd';
+import {Button, Modal} from 'antd';
 import Editor from '@monaco-editor/react';
 import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
@@ -7,6 +7,8 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
 import {EditOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
+import {D3Node} from "@/components/D3Node/D3model.ts";
+
 // import EditorStyles from "./style/editor.module.scss";
 
 
@@ -18,13 +20,24 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     const clickNode = treeStore.clickNode;
 
+    console.log("clickNode", clickNode)
+
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-
-    const [title, setTitle] = useState('Editable Title');
     const [isEditing, setIsEditing] = useState(false);
-    const handleTitleChange = (newValue:string) => {
-        setTitle(newValue);
+    const handleTitleChange = (newValue: string) => {
+        if (clickNode) {
+
+            const newClickNode = {
+                ...clickNode,
+                data: {
+                    ...clickNode.data,
+                    name: newValue
+                }
+            } as D3Node;
+            clickNode.data.name = newValue; // 更新节点数据模型中的名称
+            treeStore.setClickNode(newClickNode); // 如果需要的话，更新 TreeStore 中的节点数据
+        }
     };
 
     const toggleEditing = () => {
@@ -36,8 +49,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             compileCode(clickNode.data.scriptText).then(r => r);
         }
         // 更新标题
-        setTitle(clickNode?.data.name || 'Editable Title');
-    }, [clickNode]);
+    }, [clickNode?.data.scriptText]);
 
     const compileCode = async (code: string) => {
         const diagnostics = await compileGroovyScript(code);
@@ -57,14 +69,17 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const handleSave = () => {
         if (clickNode) {
             clickNode.data.scriptText = editorCode;
-
+            treeStore.setClickNode(clickNode);
         }
-        treeStore.setClickNode(null);
     };
 
     const handleSubmit = () => {
 
     };
+
+    function handleClose() {
+        treeStore.setClickNode(null);
+    }
 
     function handleEditorChange(value: string | undefined) {
         setEditorCode(value || '');
@@ -210,64 +225,66 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     }
 
 
-
     return (
         <div>
             <Modal
-                   title={
-                       <div>
-                           {isEditing ? (
-                               <AutoWidthInput
-                                   value={title}
-                                   onChange={handleTitleChange}
-                                   onFinish={toggleEditing}
-                               />
+                title={
+                    <div>
+                        {isEditing ? (
+                            <AutoWidthInput
+                                value={clickNode == null ? "" : clickNode.data.name}
+                                onChange={handleTitleChange}
+                                onFinish={toggleEditing}
+                            />
 
-                           ) : (
-                               <div style={{display: 'flex', alignItems: 'center'}}>
-                                   <div style={{display: 'flex', alignItems: 'center'}}>
-                                       <span>{title}</span>
-                                       <Button size="small" type="link" onClick={toggleEditing}>
-                                           <EditOutlined/>
-                                       </Button>
-                                   </div>
-                               </div>
-                           )}
-                           <div style={{marginTop: 10, fontSize: 'smaller'}}>
-                               {/* 在这里添加额外的节点信息 */}
-                               <p>更多节点信息...</p>
-                           </div>
-                       </div>
-                   }
-                   centered
-                   maskClosable={false}
-                   open={treeStore.clickNode !== null}
-                   onCancel={() => treeStore.setClickNode(null)}
-                   width={1000}
-                   footer={
-                       <div style={{
-                           display: 'flex',
-                           justifyContent: 'space-between',
-                           textAlign: 'left'
-                       }}>
-                           <div>
-                               <Button onClick={handleCompile}>
-                                   编译
-                               </Button>
-                               <Button type="primary" onClick={handleDebug}>
-                                   调试
-                               </Button>
-                           </div>
-                           <div>
-                               <Button type="primary" onClick={handleSave}>
-                                   暂存
-                               </Button>
-                               <Button type="primary" onClick={handleSubmit}>
-                                   提交
-                               </Button>
-                           </div>
-                       </div>
-                   }
+                        ) : (
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                    <span>{clickNode == null ? "" : clickNode.data.name}</span>
+                                    <Button size="small" type="link" onClick={toggleEditing}>
+                                        <EditOutlined/>
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                        <div style={{marginTop: 10, fontSize: 'smaller'}}>
+                            {/* 在这里添加额外的节点信息 */}
+                            <p>更多节点信息...</p>
+                        </div>
+                    </div>
+                }
+                centered
+                maskClosable={false}
+                open={treeStore.clickNode !== null}
+                onCancel={() => treeStore.setClickNode(null)}
+                width={1000}
+                footer={
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        textAlign: 'left'
+                    }}>
+                        <div>
+                            <Button onClick={handleCompile}>
+                                编译
+                            </Button>
+                            <Button type="primary" onClick={handleDebug}>
+                                调试
+                            </Button>
+                        </div>
+                        <div>
+                            <Button type="primary" onClick={handleSave}>
+                                暂存
+                            </Button>
+                            <Button type="primary" onClick={handleSubmit}>
+                                提交
+                            </Button>
+                            <Button type="primary" onClick={handleClose}>
+                                关闭
+                            </Button>
+                        </div>
+                    </div>
+                }
             >
                 <div style={{
                     border: '1px solid #e1e4e8',
@@ -288,7 +305,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 </div>
             </Modal>
         </div>
-
 
 
     );
