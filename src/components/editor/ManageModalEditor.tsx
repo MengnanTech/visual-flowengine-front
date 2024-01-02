@@ -7,7 +7,7 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
 import {EditOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
-import {D3Node} from "@/components/D3Node/D3model.ts";
+import * as d3 from 'd3';
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -20,36 +20,33 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     const clickNode = treeStore.clickNode;
 
-    console.log("clickNode", clickNode)
-
+    const [title, setTitle] = useState(clickNode?.data.name || '');
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const handleTitleChange = (newValue: string) => {
-        if (clickNode) {
-
-            const newClickNode = {
-                ...clickNode,
-                data: {
-                    ...clickNode.data,
-                    name: newValue
-                }
-            } as D3Node;
-            clickNode.data.name = newValue; // 更新节点数据模型中的名称
-            treeStore.setClickNode(newClickNode); // 如果需要的话，更新 TreeStore 中的节点数据
-        }
+        setTitle(newValue); // 更新局部状态
     };
 
+
     const toggleEditing = () => {
+        if (isEditing && clickNode) {
+            // 如果之前处于编辑状态，现在要保存更改
+            clickNode.data.name = title;
+            treeStore.setClickNode(clickNode);
+            d3.select(`#node-${clickNode.data.id}`).select("text").text(clickNode.data.name);
+        }
         setIsEditing(!isEditing);
     };
 
+
     useEffect(() => {
+        setTitle(clickNode?.data.name || '');  // 更新 title 状态
         if (clickNode?.data.scriptText) {
             compileCode(clickNode.data.scriptText).then(r => r);
         }
         // 更新标题
-    }, [clickNode?.data.scriptText]);
+    }, [clickNode]);
 
     const compileCode = async (code: string) => {
         const diagnostics = await compileGroovyScript(code);
@@ -79,6 +76,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     function handleClose() {
         treeStore.setClickNode(null);
+        setTitle('');
+        setEditorCode('');
     }
 
     function handleEditorChange(value: string | undefined) {
@@ -232,7 +231,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     <div>
                         {isEditing ? (
                             <AutoWidthInput
-                                value={clickNode == null ? "" : clickNode.data.name}
+                                value={title}
                                 onChange={handleTitleChange}
                                 onFinish={toggleEditing}
                             />
@@ -240,7 +239,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         ) : (
                             <div style={{display: 'flex', alignItems: 'center'}}>
                                 <div style={{display: 'flex', alignItems: 'center'}}>
-                                    <span>{clickNode == null ? "" : clickNode.data.name}</span>
+                                    <span>{title}</span>
                                     <Button size="small" type="link" onClick={toggleEditing}>
                                         <EditOutlined/>
                                     </Button>

@@ -103,6 +103,12 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 .style("fill", "#555") // 恢复默认文本颜色
                 .style("font-weight", "normal"); // 文字恢复正常
         });
+    nodesEnter.append('image')
+        .attr('xlink:href', 'src/assets/logo/321.svg') // 替换为你的图标路径
+        .attr('width', 16)  // 图标宽度
+        .attr('height', 16) // 图标高度
+        .attr('x', -8)  // 图标相对于节点中心的 x 偏移
+        .attr('y', -8); // 图标相对于节点中心的 y 偏移
 
     nodes.transition()
         .duration(750)
@@ -150,9 +156,10 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .append("path")
         .attr("class", "link")
         .attr("fill", "none")
-        .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
+        // .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
         .attr("stroke-width", 10)
         .attr('id', d => `link-${d.target.data.id}`) // 同时设置ID，用于后续选择
+        .attr('marker-end', 'url(#arrow)')
         .lower()
         .transition()
         .duration(750)

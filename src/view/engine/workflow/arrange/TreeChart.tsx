@@ -376,8 +376,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             ))}
         </div>
     );
-
-
     useEffect(() => {
 
         svgSelect.current = d3.select(svgRef.current)
@@ -437,6 +435,17 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         <div>
             <svg ref={svgRef} width="2300" height="1200">
                 <MovingArrowPattern/>
+            </svg>
+
+            <svg>
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+                            markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#f00"/>
+                        // 红色箭头
+                    </marker>
+                </defs>
             </svg>
 
             {/* 编辑器 */}

@@ -11,29 +11,29 @@ const Arrange: React.FC = () => {
         "id": "1",
         "name": "Root",
         "nodeType": "nodeType",
-        "scriptText": "scriptText",
+        "scriptText": "scriptTextRoot啊",
         "children": [
             {
                 "id": "root123",
-                "name": "Child 1",
+                "name": "Child 1冲冲冲",
                 "nodeType": "nodeType",
-                "scriptText": "scriptText"
+                "scriptText": "root123scriptText是"
             },
             {
                 "id": "root369",
-                "name": "Child 2",
+                "name": "Child 2诸葛",
                 "nodeType": "nodeType",
                 "scriptText": "scriptText",
                 "children": [{
                     "id": "root456", "name": "Grandchild 2-1",
                     "nodeType": "nodeType",
-                    "scriptText": "scriptText"
+                    "scriptText": "Grandchild 2-1scriptText收到"
                 },
                 {
                     "id": "root789",
-                    "name": "Grandchild 2-2",
+                    "name": "Grandchild 2-2收到",
                     "nodeType": "nodeType",
-                    "scriptText": "scriptText"
+                    "scriptText": "Grandchild 2-2scriptTextv啊"
                 },
                 {
                     "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
