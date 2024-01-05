@@ -121,7 +121,6 @@ export function refresh(treeChartState: TreeChartState) {
     const rootNode = treeChartState.rootNode;
     const treeLayout = treeChartState.treeLayout;
     const gRef = treeChartState.gRef;
-    const currentTransform = treeChartState.currentTransform;
     const treeStore = treeChartState.treeStore;
 
 
@@ -134,7 +133,7 @@ export function refresh(treeChartState: TreeChartState) {
 
     console.log("data", JSON.stringify(rootNode.data))
     treeLayout(rootNode);
-    gRef.attr("transform", currentTransform.toString());
+    gRef.attr("transform", treeStore.currentTransform?.toString()!);
 
     DrawLinks(treeChartState);
     DrawCircle(treeChartState);

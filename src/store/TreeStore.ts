@@ -1,13 +1,14 @@
 import {action, makeAutoObservable} from "mobx";
-// import * as d3 from 'd3';
+import * as d3 from 'd3';
 import {D3Node} from "@/components/D3Node/D3model.ts";
 
 export class TreeStore {
     rootNode: D3Node | null = null;
     draggingNode: D3Node | null = null;
-    menuNode: D3Node | null = null;
+     menuNode: D3Node | null = null;
     clickNode: D3Node | null = null;
     menuPosition: { x: number; y: number } | null = null;
+    currentTransform : d3.ZoomTransform | null = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -32,5 +33,9 @@ export class TreeStore {
     @action
     setClickNode(d: D3Node | null) {
         this.clickNode = d;
+    }
+    @action
+    setCurrentTransform(d: d3.ZoomTransform) {
+        this.currentTransform = d;
     }
 }

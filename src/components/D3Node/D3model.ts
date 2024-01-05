@@ -47,7 +47,6 @@ export interface TreeChartState {
     rootNode: D3Node;
     svgRef: SVGSVGElement;
     treeLayout: d3.TreeLayout<NodeData>;
-    currentTransform: d3.ZoomTransform;
     closestNodeRef:D3Node | null;
     treeStore: TreeStore;
 }

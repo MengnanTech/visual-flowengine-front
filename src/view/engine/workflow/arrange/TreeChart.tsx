@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {observer} from 'mobx-react';
@@ -30,13 +30,16 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         .separation(function () {
             return 1;
         }));
-    const currentTransform = useRef<d3.ZoomTransform | null>(null);
+    // const currentTransform = useRef<d3.ZoomTransform | null>(null);
+
+
     const closestNodeRef = useRef<D3Node | null>();
+    const treeChartState = useRef<TreeChartState | null>();
     // 新增状态来跟踪treeChartState是否准备好
     const [isTreeChartStateReady, setIsTreeChartStateReady] = useState(false);
 
 
-    useLayoutEffect(() => {
+    useEffect(() => {
 
         svgSelect.current = d3.select(svgRef.current)
 
@@ -67,7 +70,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .scaleExtent([0.4, 5])
             .on('zoom', (event) => {
                 treeStore.setCurrentMenu(null);
-                currentTransform.current = event.transform;
+                treeStore.setCurrentTransform(event.transform);
                 treeGroup.attr('transform', event.transform);
             })
 
@@ -76,19 +79,20 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         //很容易双击，所以先取消双击事件
         svgSelect.current!.on("dblclick.zoom", null);
 
-        const treeChartState = {
+
+
+        const initState = {
             gRef: gRef.current!,
             rootNode: rootNode.current,
             svgRef: svgRef.current!,
             treeLayout: treeLayout.current!,
-            currentTransform: currentTransform.current!,
             closestNodeRef: closestNodeRef.current!,
             treeStore: treeStore
         } as TreeChartState
+        treeChartState.current =initState;
 
-
-        DrawLinks(treeChartState);
-        DrawCircle(treeChartState);
+        DrawLinks(initState);
+        DrawCircle(initState);
         setIsTreeChartStateReady(true);
     }, [initialData, treeStore]);
 
@@ -105,7 +109,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                             markerWidth="6" markerHeight="6"
                             orient="auto-start-reverse">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="#f00"/>
-                        // 红色箭头
                     </marker>
                 </defs>
             </svg>
@@ -113,15 +116,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             {/* 编辑器 */}
             <ManageModalEditor treeStore={treeStore}/>
             {/*悬浮菜单*/}
-            {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={{
-                gRef: gRef.current!,
-                rootNode: rootNode.current,
-                svgRef: svgRef.current!,
-                treeLayout: treeLayout.current!,
-                currentTransform: currentTransform.current!,
-                closestNodeRef: closestNodeRef.current!,
-                treeStore: treeStore
-            }}/>}
+            {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
         </div>
     );
 });

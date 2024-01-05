@@ -1,6 +1,6 @@
 // NodeMenu.tsx
 import React from 'react';
-import { SmileFilled } from "@ant-design/icons";
+import {SmileFilled} from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import {TreeStore} from "@/store/TreeStore.ts";
@@ -22,13 +22,18 @@ interface NodeMenuProps {
 }
 
 
-
-const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) => {
+const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
     const menuPosition = treeStore.menuPosition;
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
-    if (!menuPosition) return null; // 不渲染菜单，如果没有位置信息
 
+    // useEffect(() => {
+    //     console.log("NodeMenu,",menuPosition, treeStore.draggingNode)
+    // }, [menuPosition, treeStore.draggingNode]);
+
+    if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
+
+    console.log(treeStore.draggingNode)
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
@@ -150,7 +155,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
     }
 
 
-    const nodeActions:NodeAction[] = [
+    const nodeActions: NodeAction[] = [
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '添加节点',
@@ -182,17 +187,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
     }
 
 
-
     function handDragNode() {
 
-
         const dragStart = {x: 0, y: 0};
-
         const dragBehavior = d3.drag<any, D3Node>()
             .on("start", function (event, d) {
 
-
-                treeStore.setDraggingNode(d)
 
 
                 if (d === rootNode) {
@@ -212,7 +212,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
 
             })
             .on("drag", function (event, d) {
-
+                treeStore.setDraggingNode(d)
                 if (d === rootNode) {
                     message.error("根节点不可拖拽").then(r => r)
                     return
@@ -329,10 +329,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
                     gRef.select(".preview-line").style("opacity", 0);
                     treeChartState.closestNodeRef = null;
 
-                    setTimeout(() => {
-                        treeStore.setDraggingNode(null)
-                    }, 1000);
-
+                    // setTimeout(() => {
+                    // treeStore.setDraggingNode(null)
+                    // }, 1000);
+                    treeStore.setDraggingNode(null)
                 }
             });
         gRef.selectAll<SVGGElement, D3Node>(".node").call(dragBehavior);
@@ -341,11 +341,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
     }
 
 
-
-
-
     return (
-        <div style={{ position: 'absolute', left: menuPosition.x, top: menuPosition.y }}>
+        <div style={{position: 'absolute', left: menuPosition.x, top: menuPosition.y}}>
             <Popover content={(
                 <div className={NodeMenuStyles.nodePopup}>
                     {nodeActions.map((nodeAction, index) => (
@@ -355,7 +352,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore,treeChartState}) 
                         </div>
                     ))}
                 </div>
-            )} open={treeStore.draggingNode==null}>
+            )} open={treeStore.draggingNode == null}>
             </Popover>
         </div>
     );
