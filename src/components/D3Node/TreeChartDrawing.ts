@@ -29,7 +29,6 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .raise()
 
         .on('mouseover', function (_event, node) {
-            console.log("mouseover", node)
             const circleRadius = 10; // 圆的半径
             const popoverHeight = 10; // Popover 的高度
             // const popoverWidth = 10; // 假设的 Popover 宽度
@@ -108,7 +107,8 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .attr('width', 16)  // 图标宽度
         .attr('height', 16) // 图标高度
         .attr('x', -8)  // 图标相对于节点中心的 x 偏移
-        .attr('y', -8); // 图标相对于节点中心的 y 偏移
+        .attr('y', -8) // 图标相对于节点中心的 y 偏移
+        .style("pointer-events", "none");
 
     nodes.transition()
         .duration(750)

@@ -10,7 +10,7 @@ interface AutoWidthInputProps {
 const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinish}) => {
     const inputRef = useRef<any>(null);
     const spanRef = useRef<HTMLSpanElement>(null);
-    const extraSpace = 30; // 额外空间保持固定
+    const extraSpace = 90; // 额外空间保持固定
     const [inputWidth, setInputWidth] = useState(0);
     useEffect(() => {
         let spanWidth = spanRef.current?.offsetWidth || 0
@@ -49,8 +49,14 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinis
                 onChange={(e) => onChange(e.target.value)}
                 onPressEnter={onFinish}
                 onBlur={onFinish}
-                style={{width: `${inputWidth + extraSpace}px`}}
+                style={{
+                    width: `${inputWidth + extraSpace}px`,
+                    lineHeight: '10px', // 这里确保行高与div的高度一致
+                    verticalAlign: 'middle' // 垂直居中对齐
+                }}
             />
+
+
         </div>
     );
 };

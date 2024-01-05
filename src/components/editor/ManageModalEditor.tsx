@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Button, Modal} from 'antd';
+import {Badge, Button, Descriptions, Modal} from 'antd';
 import Editor from '@monaco-editor/react';
 import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
@@ -228,30 +228,36 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         <div>
             <Modal
                 title={
-                    <div>
-                        {isEditing ? (
-                            <AutoWidthInput
-                                value={title}
-                                onChange={handleTitleChange}
-                                onFinish={toggleEditing}
-                            />
+                    <Descriptions size="small" column={1}>
+                        <Descriptions.Item label="Node ID">{clickNode?.data.id}</Descriptions.Item>
 
-                        ) : (
-                            <div style={{display: 'flex', alignItems: 'center'}}>
-                                <div style={{display: 'flex', alignItems: 'center'}}>
-                                    <span>{title}</span>
-                                    <Button size="small" type="link" onClick={toggleEditing}>
-                                        <EditOutlined/>
-                                    </Button>
-                                </div>
+                        <Descriptions.Item label="Node Name">
+                            <div style={{ display: 'flex', alignItems: 'center', height: '22px' }}>
+                                {isEditing ? (
+                                    <AutoWidthInput
+                                        value={title}
+                                        onChange={handleTitleChange}
+                                        onFinish={toggleEditing}
+                                    />
+                                ) : (
+                                    <>
+                                        <span style={{ lineHeight: '32px' }}>{title}</span>
+                                        <Button size="small" type="link" onClick={toggleEditing} style={{ marginLeft: 'auto' }}>
+                                            <EditOutlined />
+                                        </Button>
+                                    </>
+                                )}
                             </div>
-                        )}
-                        <div style={{marginTop: 10, fontSize: 'smaller'}}>
-                            {/* 在这里添加额外的节点信息 */}
-                            <p>更多节点信息...</p>
-                        </div>
-                    </div>
-                }
+                        </Descriptions.Item>
+
+                        {/* 在这里添加其他节点信息 */}
+                        <Descriptions.Item label="Node Type">{clickNode?.data.nodeType}</Descriptions.Item>
+                        <Descriptions.Item label="Node Status">
+                            <Badge status="processing" text="Running" color="green" />
+                        </Descriptions.Item>
+                        {/* 如果有更多信息，继续添加 */}
+                    </Descriptions>
+            }
                 centered
                 maskClosable={false}
                 open={treeStore.clickNode !== null}
@@ -293,7 +299,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 }}>
                     <Editor
                         key={clickNode ? clickNode.data.id : 'editor'}
-                        height="70vh"
+                        height="50vh"
                         onChange={handleEditorChange}
                         onMount={handleEditorDidMount}
                         beforeMount={handleEditorWillMount}
