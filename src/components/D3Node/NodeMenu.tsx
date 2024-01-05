@@ -336,7 +336,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 }
             });
         gRef.selectAll<SVGGElement, D3Node>(".node").call(dragBehavior);
-
+        // gRef.selectAll<SVGGElement, D3Node>(".node").on('.drag', null);
 
     }
 
