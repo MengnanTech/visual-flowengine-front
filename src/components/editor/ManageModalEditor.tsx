@@ -1,14 +1,14 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Badge, Button, Descriptions, Modal} from 'antd';
+import {Badge, Button, Descriptions, Modal, Tooltip} from 'antd';
 import Editor from '@monaco-editor/react';
 import {compileGroovyScript} from "@/api/api.ts";
 import * as monaco from 'monaco-editor';
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
-import {EditOutlined} from "@ant-design/icons";
+import {CopyFilled, EditFilled} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
-
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 // import EditorStyles from "./style/editor.module.scss";
 
 
@@ -229,7 +229,16 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             <Modal
                 title={
                     <Descriptions size="small" column={1}>
-                        <Descriptions.Item label="Node ID">{clickNode?.data.id}</Descriptions.Item>
+                        <Descriptions.Item label="Node ID">
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <span>{clickNode?.data.id}</span>
+                                <Tooltip title="复制">
+                                    <CopyToClipboard text={clickNode?.data.id || ''}>
+                                        <Button size="small" type="link" icon={<CopyFilled style={{ color: 'gray' }}/>} />
+                                    </CopyToClipboard>
+                                </Tooltip>
+                            </div>
+                        </Descriptions.Item>
 
                         <Descriptions.Item label="Node Name">
                             <div style={{ display: 'flex', alignItems: 'center', height: '22px' }}>
@@ -243,7 +252,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                     <>
                                         <span style={{ lineHeight: '32px' }}>{title}</span>
                                         <Button size="small" type="link" onClick={toggleEditing} style={{ marginLeft: 'auto' }}>
-                                            <EditOutlined />
+                                            <EditFilled />
                                         </Button>
                                     </>
                                 )}
