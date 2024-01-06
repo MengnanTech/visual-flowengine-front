@@ -34,6 +34,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
 
     console.log(treeStore.draggingNode)
+
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
@@ -115,8 +116,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 id: uuid(),
                 name: "New Node" + Math.floor(Math.random() * 90) + 100,
-                nodeType: "还没想好设计",
-                scriptText: "脚本内容" + uuid(),
+                nodeType: "script",
+                nodeDesc: "",
+                scriptText: '',
             };
 
         if (!clickedNode.data.children) {
@@ -158,25 +160,18 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const nodeActions: NodeAction[] = [
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '添加节点',
+            label: '添加代码节点',
             action: () => handleAddNode(treeStore.menuNode!)
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '删除当前树',
-            action: () => handleDeleteCurrentTree(treeStore.menuNode!)
+            label: '添加条件节点',
+            action: () => handleAddNode(treeStore.menuNode!)
         },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
-        // 为不同的操作添加不同的图标
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '删除当前节点', action: () => handleDeleteCurrentTree(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '删除当前树', action: () => handleDeleteCurrentTree(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()}
+
     ];
 
     function updateNodeDepth(node: D3Node, newDepth: number) {
@@ -192,7 +187,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         const dragStart = {x: 0, y: 0};
         const dragBehavior = d3.drag<any, D3Node>()
             .on("start", function (event, d) {
-
 
 
                 if (d === rootNode) {

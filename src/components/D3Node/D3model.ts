@@ -7,14 +7,16 @@ export class NodeData {
     @observable name: string;
     @observable scriptText: string;
     nodeType: string;
+    nodeDesc: string;
     children?: NodeData[];
 
-    constructor(id: string, name: string, scriptText: string, nodeType: string, children?: NodeData[]) {
+    constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string,children?: NodeData[]) {
         makeObservable(this);
         this.id = id;
         this.name = name;
         this.scriptText = scriptText;
         this.nodeType = nodeType;
+        this.nodeDesc = nodeDesc;
         this.children = children;
     }
 }
