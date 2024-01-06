@@ -27,14 +27,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
 
-    // useEffect(() => {
-    //     console.log("NodeMenu,",menuPosition, treeStore.draggingNode)
-    // }, [menuPosition, treeStore.draggingNode]);
-
     if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
-
-    console.log(treeStore.draggingNode)
-
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
@@ -327,10 +320,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     // treeStore.setDraggingNode(null)
                     // }, 1000);
                     treeStore.setDraggingNode(null)
+                    //拖拽结束。禁用拖拽
+                    gRef.selectAll<SVGGElement, D3Node>(".node").on('.drag', null);
                 }
             });
         gRef.selectAll<SVGGElement, D3Node>(".node").call(dragBehavior);
-        // gRef.selectAll<SVGGElement, D3Node>(".node").on('.drag', null);
+
 
     }
 
