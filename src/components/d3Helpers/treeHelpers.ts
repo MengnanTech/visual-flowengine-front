@@ -1,4 +1,4 @@
-import {D3Node} from "@/components/D3Node/D3model.ts";
+import {D3Node} from "@/components/D3Node/NodeModel.ts";
 
 
 export const centerTree = (rootNode: D3Node, width: number, height: number) => {

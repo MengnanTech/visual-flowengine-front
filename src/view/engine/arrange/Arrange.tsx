@@ -1,7 +1,7 @@
 import React from "react";
 import TreeChart from "./TreeChart.js";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {NodeData} from "@/components/D3Node/D3model.ts";
+import {NodeData} from "@/components/D3Node/NodeModel.ts";
 
 const Arrange: React.FC = () => {
 

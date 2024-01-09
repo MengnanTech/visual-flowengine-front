@@ -1,4 +1,4 @@
-import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/D3model.ts";
+import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
 
 

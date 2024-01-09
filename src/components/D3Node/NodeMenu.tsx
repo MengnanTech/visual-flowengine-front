@@ -5,7 +5,7 @@ import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import {TreeStore} from "@/store/TreeStore.ts";
 import * as d3 from "d3";
-import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/D3model.ts";
+import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {v4 as uuid} from "uuid";
 import {observer} from "mobx-react";

@@ -1,6 +1,6 @@
 import {action, makeAutoObservable} from "mobx";
 import * as d3 from 'd3';
-import {D3Node} from "@/components/D3Node/D3model.ts";
+import {D3Node} from "@/components/D3Node/NodeModel.ts";
 
 export class TreeStore {
     rootNode: D3Node | null = null;
