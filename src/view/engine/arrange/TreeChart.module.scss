@@ -1,0 +1,16 @@
+.jsonContainer {
+  margin: 0; // 确保没有外边距导致内容不是顶格的
+  padding: 0; // 确保没有内边距导致内容不是顶格的
+  font-family: 'Courier New', monospace; // 使用等宽字体
+  white-space: pre-wrap; // 保持空白符和换行符
+  word-break: break-all; // 自动换行
+  overflow-y: auto; // 超出部分显示滚动条
+  max-height: 60vh; // 最大高度，根据需要调整
+  background: #f6f8fa; // 背景色
+  border-radius: 4px; // 圆角
+  line-height: 1.5; // 行间距
+  color: #333; // 文本颜色
+  user-select: text; // 允许用户选择文本
+  cursor: text; // 显示文本选择光标
+}
+

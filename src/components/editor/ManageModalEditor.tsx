@@ -273,29 +273,15 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 onCancel={() => treeStore.setClickNode(null)}
                 width={1000}
                 footer={
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        textAlign: 'left'
-                    }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
                         <div>
-                            <Button onClick={handleCompile}>
-                                编译
-                            </Button>
-                            <Button type="primary" onClick={handleDebug}>
-                                调试
-                            </Button>
+                            <Button onClick={handleCompile} style={{marginRight: '8px'}}>编译</Button>
+                            <Button type="primary" onClick={handleDebug} style={{marginRight: '8px'}}>调试</Button>
                         </div>
                         <div>
-                            <Button type="primary" onClick={handleSave}>
-                                暂存
-                            </Button>
-                            <Button type="primary" onClick={handleSubmit}>
-                                提交
-                            </Button>
-                            <Button type="primary" onClick={handleClose}>
-                                关闭
-                            </Button>
+                            <Button type="primary" onClick={handleSave} style={{marginRight: '8px'}}>暂存</Button>
+                            <Button type="primary" onClick={handleSubmit} style={{marginRight: '8px'}}>提交</Button>
+                            <Button type="primary" onClick={handleClose}>关闭</Button>
                         </div>
                     </div>
                 }

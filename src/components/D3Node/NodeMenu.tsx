@@ -151,20 +151,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
 
     const nodeActions: NodeAction[] = [
-        {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '添加代码节点',
-            action: () => handleAddNode(treeStore.menuNode!)
-        },
-        {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '添加条件节点',
-            action: () => handleAddNode(treeStore.menuNode!)
-        },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '删除当前节点', action: () => handleDeleteCurrentTree(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '添加代码节点', action: () => handleAddNode(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '条件节点todo', action: () => handleAddNode(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '规则节点todo', action: () => handleAddNode(treeStore.menuNode!)},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '删除此节点todo', action: () => handleDeleteCurrentTree(treeStore.menuNode!)},
         {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '删除当前树', action: () => handleDeleteCurrentTree(treeStore.menuNode!)},
         {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()}
-
     ];
 
     function updateNodeDepth(node: D3Node, newDepth: number) {

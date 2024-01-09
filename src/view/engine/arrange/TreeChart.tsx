@@ -8,7 +8,9 @@ import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts
 import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
-
+import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
+import {Modal} from "antd";
+import Editor from "@monaco-editor/react";
 
 interface TreeChartProps {
     treeStore: TreeStore;
@@ -37,6 +39,43 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const treeChartState = useRef<TreeChartState | null>();
     // 新增状态来跟踪treeChartState是否准备好
     const [isTreeChartStateReady, setIsTreeChartStateReady] = useState(false);
+
+    const [contextMenu, setContextMenu] = useState<{
+        x: number;
+        y: number;
+        options: { label: string; action: () => void }[]
+    } | null>(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [jsonData, setJsonData] = useState('');
+
+    const showModal = (data: string) => {
+        setJsonData(data);
+        setIsModalVisible(true);
+    };
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+    const handleContextMenu = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+        event.preventDefault();
+
+        // 检查是否在SVG空白位置上点击
+        if (event.target === svgRef.current) {
+            setContextMenu({
+                x: event.clientX,
+                y: event.clientY,
+                options: [
+                    {
+                        label: '查看源代码',
+                        action: () => showModal(JSON.stringify(rootNode.current.data, null, 2))
+                    },
+                    // ...更多选项
+                ]
+            });
+        }
+    };
+    const closeContextMenu = () => {
+        setContextMenu(null);
+    };
 
 
     useEffect(() => {
@@ -80,7 +119,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         svgSelect.current!.on("dblclick.zoom", null);
 
 
-
         const initState = {
             gRef: gRef.current!,
             rootNode: rootNode.current,
@@ -89,17 +127,24 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             closestNodeRef: closestNodeRef.current!,
             treeStore: treeStore
         } as TreeChartState
-        treeChartState.current =initState;
+        treeChartState.current = initState;
 
         DrawLinks(initState);
         DrawCircle(initState);
         setIsTreeChartStateReady(true);
+
+        window.addEventListener('click', closeContextMenu);
+        return () => {
+            window.removeEventListener('click', closeContextMenu);
+        };
+
+
     }, [initialData, treeStore]);
 
 
     return (
         <div>
-            <svg ref={svgRef} width="2300" height="1200">
+            <svg ref={svgRef} width="2300" height="1200" onContextMenu={handleContextMenu}>
                 <MovingArrowPattern/>
             </svg>
 
@@ -117,6 +162,35 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             <ManageModalEditor treeStore={treeStore}/>
             {/*悬浮菜单*/}
             {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
+            <Modal
+                title="源代码"
+                open={isModalVisible}
+                centered
+                onCancel={handleCancel}
+                maskClosable={false}
+                footer={null}
+                width={1000}
+            >
+                <Editor
+                    key={new Date().getTime()}
+                    height="70vh"
+                    defaultLanguage="json"
+                    defaultValue={jsonData}
+                    options={{
+                        readOnly: true
+                    }}
+                />
+            </Modal>
+
+
+            {contextMenu && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    options={contextMenu.options}
+                    onClose={closeContextMenu}
+                />
+            )}
         </div>
     );
 });

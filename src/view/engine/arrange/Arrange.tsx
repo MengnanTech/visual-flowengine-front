@@ -63,7 +63,6 @@ const Arrange: React.FC = () => {
     };
     return (
         <div style={{backgroundColor: "#f1f0dc"}}>
-            <h1>workflow index</h1>
             <TreeChart treeStore={new TreeStore()} initialData={initialData} />
         </div>
     );
