@@ -11,13 +11,15 @@ interface ContextMenuProps {
 const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, options, onClose }) => {
     return (
         <div style={{ position: 'absolute', top: y, left: x, zIndex: 100 }}>
-            <Menu onClick={onClose}>
-                {options.map((option, index) => (
-                    <Menu.Item key={index} onClick={option.action}>
-                        {option.label}
-                    </Menu.Item>
-                ))}
-            </Menu>
+            <Menu
+                onClick={onClose}
+                items={options.map((option, index) => ({
+                    key: index,
+                    label: option.label,
+                    onClick: option.action
+                }))}
+            />
+
         </div>
     );
 };
