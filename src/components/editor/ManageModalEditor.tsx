@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Badge, Button, Descriptions, Modal, Tooltip} from 'antd';
 import Editor from '@monaco-editor/react';
-import {compileGroovyScript} from "@/api/api.ts";
+import {compileGroovyScript} from "@/network/api.ts";
 import * as monaco from 'monaco-editor';
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
