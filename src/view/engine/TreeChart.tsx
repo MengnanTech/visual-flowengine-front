@@ -204,13 +204,13 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
             {contextMenu && (
                 <ContextMenu
-                    x={contextMenu.x}
+                    x={contextMenu.x-255}
                     y={contextMenu.y}
                     options={contextMenu.options}
                     onClose={closeContextMenu}
                 />
             )}
-            <div style={{position: 'absolute', top: 0, right: 0, padding: '16px'}}>
+            <div style={{position: 'absolute', top: 0, right: 0, padding: '36px'}}>
                 <Button icon={<SyncOutlined/>} onClick={handleRefresh}>刷新</Button>
                 <Switch checkedChildren="锁定" unCheckedChildren="解锁" checked={isLocked} onChange={handleLockChange}/>
                 <Button onClick={handleResetLayout}>重置布局</Button>

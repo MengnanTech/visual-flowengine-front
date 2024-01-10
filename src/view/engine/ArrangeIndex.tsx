@@ -5,8 +5,8 @@ import {EnvironmentOutlined, PlusOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
+import styles from './styles/ArrangeIndex.module.scss'
 
-const {Panel} = Collapse;
 
 // import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
 
@@ -166,7 +166,7 @@ const items: DescriptionsProps['items'] = [
 const collapseItems: CollapseProps['items'] = [
     {
         key: '1',
-        label: 'This is panel header 1',
+        label: '简介标题',
         children: <Descriptions title="User Info" layout="vertical" items={items}/>
     }
 ];
@@ -254,29 +254,31 @@ const ArrangeIndex: React.FC = () => {
         path: `/${item.key}`,
     }));
 
+
     return (
         <ProLayout
-            logo={"src/assets/logo/logo.jpeg"} // 您的logo路径
-            title="流程引擎编排"
+
+            logo={"src/assets/logo/logo.jpeg"}
+            title="可视化流程引擎"
             menuItemRender={(item, dom) => (
                 <span onClick={() => handleMenuClick(item)}>
                     {dom}
                   </span>
             )}
             actionsRender={() => [
-                <Button key="1" type="primary" icon={<PlusOutlined/>}>新增</Button>,
+                <Button key="1" type="primary"  className={styles.responsiveButton} icon={<PlusOutlined/>}>新增</Button>,
             ]}
             avatarProps={{
                 src: 'src/assets/logo/logo.jpeg', // 您的头像图片路径
                 size: 'large',
                 // 如果您想要头像点击事件:
                 onClick: () => {
-                    console.log('Avatar clicked');
+                    message.info('Avatar clicked').then(r => r)
                 },
             }}
             menuDataRender={() => menuData}
             onMenuHeaderClick={() => {
-                console.log('菜单头部被点击，跳转到主页');
+                message.info('菜单头部被点击').then(r => r)
             }}
             onPageChange={() => {
                 // 页面变化时，如清除选中的菜单项
@@ -284,18 +286,18 @@ const ArrangeIndex: React.FC = () => {
 
 
         >
-            <PageContainer title={"简洁标题"}>
-                {selectedMenuItem && (
+            <PageContainer title={selectedMenuItem && (
+                <div className={styles.collapseContainer}>
                     <Collapse bordered={false} items={collapseItems}/>
+                </div>
 
+            )}>
 
-                )}
                 {/* 页面内容 */}
                 {selectedMenuItem && treeData && (
                     <>
-                        <div style={{position: 'relative'}}>
+                    <div className={styles.treeChartContainer}>
                             <TreeChart key={treeChartKey} treeStore={new TreeStore()} initialData={treeData}/>
-
                         </div>
                     </>
                 )}
