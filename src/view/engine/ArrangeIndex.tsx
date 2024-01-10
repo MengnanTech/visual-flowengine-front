@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Button, Collapse, Descriptions, DescriptionsProps, message} from 'antd';
+import {Button, Collapse, CollapseProps, Descriptions, DescriptionsProps, message} from 'antd';
 import {EnvironmentOutlined, PlusOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
-const { Panel } = Collapse;
+
+const {Panel} = Collapse;
+
 // import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
 
 interface MenuItem {
@@ -161,6 +163,13 @@ const items: DescriptionsProps['items'] = [
         children: 'empty',
     },
 ];
+const collapseItems: CollapseProps['items'] = [
+    {
+        key: '1',
+        label: 'This is panel header 1',
+        children: <Descriptions title="User Info" layout="vertical" items={items}/>
+    }
+];
 const ArrangeIndex: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
@@ -238,7 +247,12 @@ const ArrangeIndex: React.FC = () => {
     if (loading) {
         return <div>Loading...</div>;
     }
-
+    const menuData = menuItems.map(item => ({
+        key: item.key,
+        name: item.label,
+        icon: <EnvironmentOutlined/>, // 假设每个菜单项都使用这个图标
+        path: `/${item.key}`,
+    }));
 
     return (
         <ProLayout
@@ -260,24 +274,21 @@ const ArrangeIndex: React.FC = () => {
                     console.log('Avatar clicked');
                 },
             }}
-            menuDataRender={() => menuItems.map(item => ({
-                key: item.key,
-                name: item.label,
-                icon: <EnvironmentOutlined/>, // 假设每个菜单项都使用这个图标
-                path: `/${item.key}`,
-            }))}
-            // onMenuHeaderClick={() => setSelectedMenuItemKey(null)}
+            menuDataRender={() => menuData}
+            onMenuHeaderClick={() => {
+                console.log('菜单头部被点击，跳转到主页');
+            }}
             onPageChange={() => {
                 // 页面变化时，如清除选中的菜单项
             }}
+
+
         >
             <PageContainer title={"简洁标题"}>
                 {selectedMenuItem && (
-                    <Collapse bordered={false}>
-                        <Panel header="查看详情" key="1">
-                            <Descriptions title="User Info" layout="vertical" items={items} />
-                        </Panel>
-                    </Collapse>
+                    <Collapse bordered={false} items={collapseItems}/>
+
+
                 )}
                 {/* 页面内容 */}
                 {selectedMenuItem && treeData && (
