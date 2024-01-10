@@ -7,13 +7,11 @@ $margin-bottom: 16px;
 .treeChartContainer {
   border: 1px solid $border-color; // 边框颜色
   background-color: $background-color; // 背景色
-  padding: $padding; // 内边距
-  //margin-bottom: $margin-bottom; // 与下一个组件的间距
+  //position: relative;
+  max-width: 100%; // 限制最大宽度为视口宽度
+  overflow: auto; // 内容太宽时，提供滚动条
 }
 
-.collapseContainer {
-  margin-bottom: $margin-bottom; // 与下一个组件的间距
-}
 
 
 

@@ -9,9 +9,10 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
-import {Button, Modal, Switch} from "antd";
+import { Modal} from "antd";
 import Editor from "@monaco-editor/react";
-import {SyncOutlined} from "@ant-design/icons";
+// import {SyncOutlined} from "@ant-design/icons";
+// import styles from './styles/TreeChart.module.scss'
 
 interface TreeChartProps {
     treeStore: TreeStore;
@@ -57,23 +58,23 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         setIsModalVisible(false);
     };
 
-    const [isLocked, setIsLocked] = useState(false);
-
-    // 处理局部刷新的函数
-    const handleRefresh = () => {
-        // 刷新逻辑
-    };
-
-    // 处理锁定开关变化的函数
-    const handleLockChange = (checked:boolean) => {
-        setIsLocked(checked);
-        // 锁定或解锁布局的逻辑
-    };
-
-    // 处理重置布局的函数
-    const handleResetLayout = () => {
-        // 重置布局逻辑
-    };
+    // const [isLocked, setIsLocked] = useState(false);
+    //
+    // // 处理局部刷新的函数
+    // const handleRefresh = () => {
+    //     // 刷新逻辑
+    // };
+    //
+    // // 处理锁定开关变化的函数
+    // const handleLockChange = (checked:boolean) => {
+    //     setIsLocked(checked);
+    //     // 锁定或解锁布局的逻辑
+    // };
+    //
+    // // 处理重置布局的函数
+    // const handleResetLayout = () => {
+    //     // 重置布局逻辑
+    // };
     const handleContextMenu = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         event.preventDefault();
 
@@ -204,17 +205,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
             {contextMenu && (
                 <ContextMenu
-                    x={contextMenu.x-255}
+                    x={contextMenu.x - 255}
                     y={contextMenu.y}
                     options={contextMenu.options}
                     onClose={closeContextMenu}
                 />
             )}
-            <div style={{position: 'absolute', top: 0, right: 0, padding: '36px'}}>
-                <Button icon={<SyncOutlined/>} onClick={handleRefresh}>刷新</Button>
-                <Switch checkedChildren="锁定" unCheckedChildren="解锁" checked={isLocked} onChange={handleLockChange}/>
-                <Button onClick={handleResetLayout}>重置布局</Button>
-            </div>
         </div>
 
     );

@@ -287,10 +287,7 @@ const ArrangeIndex: React.FC = () => {
 
         >
             <PageContainer title={selectedMenuItem && (
-                <div className={styles.collapseContainer}>
-                    <Collapse bordered={false} items={collapseItems}/>
-                </div>
-
+                <Collapse bordered={false} items={collapseItems}/>
             )}>
 
                 {/* 页面内容 */}
