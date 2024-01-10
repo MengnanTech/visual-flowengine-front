@@ -1,0 +1,60 @@
+
+:global {
+
+  .ant-menu-item-selected {
+    background-color: rgba(255, 255, 255, 0.2) !important
+  }
+
+}
+
+.customMenu {
+  background: #F5F5F5;
+
+}
+
+
+
+.logo {
+  max-width: 100%;
+  max-height: 100%; // 确保 logo 图片不会超出容器
+  // 如果你需要的话，可以添加更多样式
+}
+// App.module.scss
+.logoContainer {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #F5F5F5; // Or any other color
+}
+
+.logoIcon {
+  height: 30px; // Adjust the size accordingly
+  margin-right: 10px; // Spacing between icon and text
+}
+
+.logoText {
+  flex-grow: 1;
+  margin: 0;
+}
+
+.addButton {
+  // Custom styles for your add button if needed
+}
+
+.closeSidebarButton {
+  position: absolute;
+  bottom: 1000px;
+  left: 105%;
+  transform: translateX(-50%);
+  background: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px; // Rounded corners
+  cursor: pointer;
+  white-space: nowrap; // Prevent the text from wrapping
+
+
+}
+
+// Include other styles for the Menu as previously discussed
+
