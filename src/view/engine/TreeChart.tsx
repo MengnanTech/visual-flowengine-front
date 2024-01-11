@@ -9,7 +9,7 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
-import { Modal} from "antd";
+import {Modal} from "antd";
 import Editor from "@monaco-editor/react";
 // import {SyncOutlined} from "@ant-design/icons";
 // import styles from './styles/TreeChart.module.scss'
@@ -22,7 +22,7 @@ interface TreeChartProps {
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
-    const svgRef = useRef(null);
+    const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
     const rootNode = useRef(d3.hierarchy(initialData) as D3Node);
@@ -58,7 +58,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         setIsModalVisible(false);
     };
 
-    // const [isLocked, setIsLocked] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
     //
     // // 处理局部刷新的函数
     // const handleRefresh = () => {
@@ -98,6 +98,14 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     };
 
 
+    function handleRefresh() {
+
+    }
+
+    function toggleLock() {
+
+    }
+
     useEffect(() => {
 
         svgSelect.current = d3.select(svgRef.current)
@@ -115,7 +123,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .style("stroke-dasharray", "5,5")  // 虚线样式
             .style("opacity", 0);  // 初始不可见
 
-        console.log("root", JSON.stringify(root.data))
         treeLayout.current(root);
         const width = +svgSelect.current!.attr("width");
         const height = +svgSelect.current!.attr("height");
@@ -153,6 +160,45 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         DrawCircle(initState);
         setIsTreeChartStateReady(true);
 
+
+        const iconWidth = 15; // 每个图标的宽度
+        const iconSpacing = 30; // 图标之间的间距
+        const iconGroup = svgSelect.current.append('g')
+            .attr('transform', `translate(${width - 200}, 10)`); // 位于右上角，留出一些边距
+
+        // 添加图标到图标组
+        iconGroup.append('image')
+            .attr('href', 'src/assets/logo/locked_icon.png')
+            .attr('width', 30)
+            .attr('height', 30)
+            .attr('x', 0) // 第一个图标的x坐标
+            .attr('y', 0)
+            .on('click', handleRefresh); // 添加刷新逻辑
+
+        iconGroup.append('image')
+            .attr('href', isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg')
+            .attr('width', 30)
+            .attr('height', 30)
+            .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
+            .attr('y', 0)
+            .on('click', toggleLock); // 添加锁定逻辑
+
+        iconGroup.append('image')
+            .attr('href', isLocked ? 'path/to/locked_icon.svg' : 'path/to/unlocked_icon.svg')
+            .attr('width', 30)
+            .attr('height', 30)
+            .attr('x', 2 * (iconWidth + iconSpacing)) // 第三个图标的x坐标
+            .attr('y', 0)
+            .on('click', () => {
+                // 锁定/解锁逻辑
+            });
+
+
+        iconGroup.attr('pointer-events', 'all'); // 确保图标可以交互
+        // window.addEventListener('resize', () => {
+        //     const newWidth = svgElement!.node()!.getBoundingClientRect().width;
+        //     iconGroup.attr('transform', `translate(${newWidth - 100}, 10)`);
+        // });
         window.addEventListener('click', closeContextMenu);
         return () => {
             window.removeEventListener('click', closeContextMenu);
@@ -164,18 +210,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
-            <svg ref={svgRef} width="2300" height="1200" onContextMenu={handleContextMenu}>
+            <svg ref={svgRef} width="1500" height="900" onContextMenu={handleContextMenu}>
                 <MovingArrowPattern/>
-            </svg>
-
-            <svg>
-                <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
-                            markerWidth="6" markerHeight="6"
-                            orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#f00"/>
-                    </marker>
-                </defs>
             </svg>
 
             {/* 编辑器 */}
@@ -202,7 +238,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 />
             </Modal>
 
-
             {contextMenu && (
                 <ContextMenu
                     x={contextMenu.x - 255}
@@ -213,7 +248,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             )}
         </div>
 
-    );
+    )
+        ;
 });
 
 export default TreeChart;

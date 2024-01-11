@@ -35,7 +35,7 @@ export class TreeStore {
         this.clickNode = d;
     }
     @action
-    setCurrentTransform(d: d3.ZoomTransform) {
+    setCurrentTransform(d: d3.ZoomTransform| null) {
         this.currentTransform = d;
     }
 }

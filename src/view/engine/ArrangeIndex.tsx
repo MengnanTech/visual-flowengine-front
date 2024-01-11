@@ -292,11 +292,9 @@ const ArrangeIndex: React.FC = () => {
 
                 {/* 页面内容 */}
                 {selectedMenuItem && treeData && (
-                    <>
                     <div className={styles.treeChartContainer}>
-                            <TreeChart key={treeChartKey} treeStore={new TreeStore()} initialData={treeData}/>
-                        </div>
-                    </>
+                        <TreeChart key={treeChartKey} treeStore={new TreeStore()} initialData={treeData}/>
+                    </div>
                 )}
                 {!selectedMenuItem && (
                     <div>请选择左侧列表中的一个节点查看详情。</div>

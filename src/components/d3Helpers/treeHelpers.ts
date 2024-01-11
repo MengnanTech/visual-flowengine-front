@@ -17,8 +17,8 @@ export const centerTree = (rootNode: D3Node, width: number, height: number) => {
     const scaleX = (x1 - x0) / 2 + x0;
     const scaleY = (y1 - y0) / 2 + y0;
     // 计算平移量
-    const translateX = width / 2 - scaleY - 550;
-    const translateY = height / 2 - scaleX - 250;
+    const translateX = width / 2 - scaleY ;
+    const translateY = height / 2 - scaleX ;
     // 如果树的大小是奇数，对齐到30像素网格
     const offsetX = (x1 - x0) % 2 === 0 ? 0 : 30;
     // 调整每个节点的位置
