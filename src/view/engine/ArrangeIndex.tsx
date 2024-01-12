@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, Descriptions, message} from 'antd';
-import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
+import {Button, Collapse, Descriptions, message} from 'antd';
+import {DownOutlined, EnvironmentOutlined, SettingOutlined, UpOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
@@ -16,6 +16,8 @@ interface MenuItem {
 }
 
 const ArrangeIndex: React.FC = () => {
+    const [isContentCollapsed, setIsContentCollapsed] = useState(false);
+
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -23,10 +25,9 @@ const ArrangeIndex: React.FC = () => {
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
         null
     );
-    // const [isEnlarged, setIsEnlarged] = useState(false);
-    // const handleButtonClick = () => {
-    //     setIsEnlarged(!isEnlarged);
-    // };
+    const toggleContent = () => {
+        setIsContentCollapsed(!isContentCollapsed);
+    };
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -157,25 +158,21 @@ const ArrangeIndex: React.FC = () => {
             }}
         >
             <PageContainer
-                content={ <Descriptions title="User Info" layout="vertical" items={items}/>}
-
-                // extra={[
-                //     <Button key="3">Operation</Button>,
-                //     <Button key="2">Operation</Button>,
-                //     <Button key="1" type="primary">
-                //         Primary Action
-                //     </Button>,
-                // ]}
-                // footer={[
-                //     <Button key="rest">Reset</Button>,
-                //     <Button key="submit" type="primary">
-                //         submit
-                //     </Button>,
-                // ]}
+                content={
+                    <div style={{ display: isContentCollapsed ? 'none' : 'block' }}>
+                        {/* 这里放入PageContainer的内容 */}
+                        <Descriptions title="User Info" layout="vertical" items={items} />
+                    </div>
+                }
                 title={
-                    selectedMenuItem && (
-                       "流程编辑"
-                    )
+                    <>
+                        {selectedMenuItem && "流程编辑"}
+                        <Button
+                            type="link"
+                            onClick={toggleContent}
+                            icon={isContentCollapsed ? <DownOutlined /> : <UpOutlined />}
+                        />
+                    </>
                 }
             >
                 {/*<Divider />*/}
