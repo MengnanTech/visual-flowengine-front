@@ -1,4 +1,3 @@
-
 $border-color: #d9d9d9;
 $background-color: #f0f2f5;
 $padding: 16px;
@@ -29,16 +28,19 @@ $margin-bottom: 16px;
   box-shadow: none; /* 移除阴影 */
   padding: 0; /* 移除内边距 */
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-color: #1890ff; /* 悬浮时保持相同的背景色 */
     transform: scale(1.35); /* 悬浮时放大 35% */
   }
+}
+.maskDiv {
+  background-color: #f5f5f4;
 }
 
 .circleButton.enlarged {
   transform: scale(1.35); /* 放大 35% */
 }
-
 
 :global {
   .ant-pro-sider-actions-list-item {
@@ -50,14 +52,4 @@ $margin-bottom: 16px;
     cursor: none !important;
     border-radius: 0 !important;
   }
-
 }
-
-
-
-
-
-
-
-
-
