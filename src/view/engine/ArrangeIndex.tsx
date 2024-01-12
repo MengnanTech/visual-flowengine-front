@@ -23,10 +23,10 @@ const ArrangeIndex: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [treeChartKey, setTreeChartKey] = useState<number>(0);
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(null);
-    const [isEnlarged, setIsEnlarged] = useState(false);
-    const handleButtonClick = () => {
-        setIsEnlarged(!isEnlarged);
-    };
+    // const [isEnlarged, setIsEnlarged] = useState(false);
+    // const handleButtonClick = () => {
+    //     setIsEnlarged(!isEnlarged);
+    // };
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -122,8 +122,9 @@ const ArrangeIndex: React.FC = () => {
 
                 <button
                     key="1"
-                    className={`${styles.circleButton} ${isEnlarged ? 'enlarged' : ''}`}
-                    onClick={handleButtonClick}
+                    // className={`${styles.circleButton} ${isEnlarged ? 'enlarged' : ''}`}
+                    className={styles.circleButton}
+                    // onClick={handleButtonClick}
                 >
                     +
                 </button>
