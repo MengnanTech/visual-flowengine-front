@@ -105,7 +105,7 @@ const ArrangeIndex: React.FC = () => {
         path: `/${item.key}`,
     }));
 
-    const handleMenuSettingClick=(e: MenuDataItem) => {
+    const handleMenuSettingClick = (e: MenuDataItem) => {
         message.success(e.name);
     }
 
@@ -159,21 +159,26 @@ const ArrangeIndex: React.FC = () => {
         >
             <PageContainer
                 content={
-                    <div style={{ display: isContentCollapsed ? 'none' : 'block' }}>
+                    <div style={{display: (isContentCollapsed && selectedMenuItem) ? 'block' : 'none'}}>
                         {/* 这里放入PageContainer的内容 */}
-                        <Descriptions title="User Info" layout="vertical" items={items} />
+                        <Descriptions layout="vertical" items={items}/>
                     </div>
                 }
                 title={
                     <>
-                        {selectedMenuItem && "流程编辑"}
-                        <Button
-                            type="link"
-                            onClick={toggleContent}
-                            icon={isContentCollapsed ? <DownOutlined /> : <UpOutlined />}
-                        />
+                        {selectedMenuItem && (
+                            <>
+                                {selectedMenuItem.name}
+                                <Button
+                                    type="link"
+                                    onClick={toggleContent}
+                                    icon={isContentCollapsed ? <DownOutlined/> : <UpOutlined/>}
+                                />
+                            </>
+                        )}
                     </>
                 }
+
             >
                 {/*<Divider />*/}
                 {/* 页面内容 */}
