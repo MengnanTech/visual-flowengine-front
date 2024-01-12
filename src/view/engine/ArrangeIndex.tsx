@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, message} from 'antd';
+import { Collapse, message} from 'antd';
 import {SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
@@ -104,6 +104,10 @@ const ArrangeIndex: React.FC = () => {
         path: `/${item.key}`,
     }));
 
+    const handleMenuSettingClick=(e: MenuDataItem) => {
+        message.success(e.name);
+    }
+
     return (
         <ProLayout
             logo={'src/assets/logo/logo.jpeg'}
@@ -111,10 +115,15 @@ const ArrangeIndex: React.FC = () => {
             menuItemRender={(item, dom) => (
                 <div className={styles.menuItemContainer} onClick={() => handleMenuClick(item)}>
                     {dom}
-                    <div className={styles.menuIcons}>
-                        <SettingOutlined/>
+                    <div className={styles.menuIcons} onClick={(e) => {
+                        e.stopPropagation(); // 阻止事件冒泡
+                        handleMenuSettingClick(item);
+                    }}>
+                        <SettingOutlined className={styles.icon}/>
+
                     </div>
                 </div>
+
             )
             }
             actionsRender={
@@ -147,6 +156,21 @@ const ArrangeIndex: React.FC = () => {
             }}
         >
             <PageContainer
+                // content={ <Collapse bordered={false} items={collapseItems}/>}
+
+                // extra={[
+                //     <Button key="3">Operation</Button>,
+                //     <Button key="2">Operation</Button>,
+                //     <Button key="1" type="primary">
+                //         Primary Action
+                //     </Button>,
+                // ]}
+                // footer={[
+                //     <Button key="rest">Reset</Button>,
+                //     <Button key="submit" type="primary">
+                //         submit
+                //     </Button>,
+                // ]}
                 title={
                     selectedMenuItem && (
                         <Collapse bordered={false} items={collapseItems}/>
