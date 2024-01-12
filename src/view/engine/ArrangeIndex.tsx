@@ -112,7 +112,7 @@ const ArrangeIndex: React.FC = () => {
      const collapseItems: CollapseProps['items'] = [
         {
             key: '1',
-            label: selectedMenuItem!.name,
+            label: selectedMenuItem===null?'':selectedMenuItem.name,
             children: <Descriptions layout="vertical" items={items}/>
         }
     ];
