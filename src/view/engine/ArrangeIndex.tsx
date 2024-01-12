@@ -180,7 +180,6 @@ const ArrangeIndex: React.FC = () => {
                 }
 
             >
-                {/*<Divider />*/}
                 {/* 页面内容 */}
                 {selectedMenuItem && treeData && (
                     <div className={styles.treeChartContainer}>
@@ -191,7 +190,8 @@ const ArrangeIndex: React.FC = () => {
                         />
                     </div>
                 )}
-                {!selectedMenuItem && <div>请选择左侧列表中的一个节点查看详情。</div>}
+                {!selectedMenuItem && <div style={{ marginLeft: '20px', marginTop: '50px' }}
+                >请选择左侧列表中的一个节点查看详情。</div>}
             </PageContainer>
         </ProLayout>
     );
