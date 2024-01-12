@@ -1,3 +1,4 @@
+
 $border-color: #d9d9d9;
 $background-color: #f0f2f5;
 $padding: 16px;
@@ -53,3 +54,34 @@ $margin-bottom: 16px;
     border-radius: 0 !important;
   }
 }
+
+.menuItemContainer {
+  position: relative;
+  padding-left: 1px; // 减少左侧内边距，根据需要调整
+  padding-right: 30px; // 确保右侧有足够空间放置图标
+
+  &:hover .menuIcons {
+    visibility: visible; // 悬浮时显示图标
+  }
+}
+
+.menuIcons {
+  position: absolute;
+  right: 0; // 图标靠右显示
+  top: 50%;
+  transform: translateY(-50%);
+  visibility: hidden; // 默认不显示
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
