@@ -176,6 +176,7 @@ const ArrangeIndex: React.FC = () => {
                         style={{
                             display:
                                 isContentCollapsed && selectedMenuItem ? 'block' : 'none',
+                            marginLeft: '20px',
                         }}
                     >
                         {/* 这里放入PageContainer的内容 */}
