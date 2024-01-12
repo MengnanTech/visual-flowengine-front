@@ -122,7 +122,7 @@ export const initialData2: NodeData = {
         }
     ]
 };
-const items: DescriptionsProps['items'] = [
+export const items: DescriptionsProps['items'] = [
     {
         key: '1',
         label: 'UserName',

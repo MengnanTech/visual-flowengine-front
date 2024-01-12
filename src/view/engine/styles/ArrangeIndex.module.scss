@@ -1,12 +1,6 @@
-
-$border-color: #d9d9d9;
-$background-color: #f0f2f5;
-$padding: 16px;
-$margin-bottom: 16px;
-
 .treeChartContainer {
-  border: 1px solid $border-color; // 边框颜色
-  background-color: $background-color; // 背景色
+  border-top: 3px solid #f3eeee; // 这会只设置元素的上边框
+  background-color: #f0f2f5; // 背景色
   //position: relative;
   max-width: 100%; // 限制最大宽度为视口宽度
   overflow: auto; // 内容太宽时，提供滚动条
@@ -53,6 +47,22 @@ $margin-bottom: 16px;
     cursor: none !important;
     border-radius: 0 !important;
   }
+
+  .ant-pro-page-container-children-container {
+    padding-inline: 0 !important
+  }
+  // 假设这是标题的选择器，您需要根据实际情况调整
+  .ant-pro-global-header-logo {
+    display: flex;
+    justify-content: flex-end; // 将内容推向右边
+    width: 100%; // 确保占满整个可用宽度
+
+    // 您可能还需要添加一些样式来调整间距、大小等
+  }
+  .css-dev-only-do-not-override-8sjyqt{
+    padding-inline: 0 !important;
+  }
+
 }
 
 .menuItemContainer {

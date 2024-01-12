@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import { Collapse, message} from 'antd';
-import {SettingOutlined} from '@ant-design/icons';
+import {Collapse, Descriptions, message} from 'antd';
+import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
-import {collapseItems, initialData, initialData2,} from '@/components/d3Helpers/D3mock.tsx';
+import {collapseItems, initialData, initialData2, items,} from '@/components/d3Helpers/D3mock.tsx';
 
 // import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
 
@@ -100,7 +100,7 @@ const ArrangeIndex: React.FC = () => {
     const menuData = menuItems.map((item) => ({
         key: item.key,
         name: item.label,
-        // icon: <EnvironmentOutlined/>, // 假设每个菜单项都使用这个图标
+        icon: <EnvironmentOutlined/>, // 假设每个菜单项都使用这个图标
         path: `/${item.key}`,
     }));
 
@@ -110,6 +110,7 @@ const ArrangeIndex: React.FC = () => {
 
     return (
         <ProLayout
+
             logo={'src/assets/logo/logo.jpeg'}
             title="可视化流程引擎"
             menuItemRender={(item, dom) => (
@@ -156,7 +157,7 @@ const ArrangeIndex: React.FC = () => {
             }}
         >
             <PageContainer
-                // content={ <Collapse bordered={false} items={collapseItems}/>}
+                content={ <Descriptions title="User Info" layout="vertical" items={items}/>}
 
                 // extra={[
                 //     <Button key="3">Operation</Button>,
@@ -173,10 +174,11 @@ const ArrangeIndex: React.FC = () => {
                 // ]}
                 title={
                     selectedMenuItem && (
-                        <Collapse bordered={false} items={collapseItems}/>
+                       "流程编辑"
                     )
                 }
             >
+                {/*<Divider />*/}
                 {/* 页面内容 */}
                 {selectedMenuItem && treeData && (
                     <div className={styles.treeChartContainer}>
