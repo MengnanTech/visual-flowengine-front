@@ -1,0 +1,15 @@
+.iconHover {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  //transform-origin: center; // 从中心放大
+
+  &:hover {
+    //transform: scale(2.1); // 轻微放大
+    //box-shadow: 0 0 20px rgba(203, 36, 36, 0.6); // 高光效果，类似玻璃光泽
+  }
+}
+
+.iconActive {
+  //transform: scale(3.05); // 点击时略微缩小，模仿按压效果
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); // 按压时的内阴影
+}

@@ -12,7 +12,7 @@ import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
 import {Modal} from "antd";
 import Editor from "@monaco-editor/react";
 // import {SyncOutlined} from "@ant-design/icons";
-// import styles from './styles/TreeChart.module.scss'
+import styles from './styles/TreeChart.module.scss'
 
 interface TreeChartProps {
     treeStore: TreeStore;
@@ -66,10 +66,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     // };
     //
     // // 处理锁定开关变化的函数
-    // const handleLockChange = (checked:boolean) => {
-    //     setIsLocked(checked);
-    //     // 锁定或解锁布局的逻辑
-    // };
     //
     // // 处理重置布局的函数
     // const handleResetLayout = () => {
@@ -102,14 +98,14 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     }
 
-    function toggleLock() {
-
-    }
+    const toggleLock = () => {
+        setIsLocked(prevState => !prevState);
+    };
 
     useEffect(() => {
 
         svgSelect.current = d3.select(svgRef.current)
-
+        svgRef.current!.classList.remove('ant-pro-sider-actions-list-item');
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
             // 点击页面任何其他地方时隐藏菜单
@@ -175,30 +171,35 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .attr('y', 0)
             .on('click', handleRefresh); // 添加刷新逻辑
 
-        iconGroup.append('image')
+        const lockIcon = iconGroup.append('image')
             .attr('href', isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg')
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
             .attr('y', 0)
-            .on('click', toggleLock); // 添加锁定逻辑
+            .attr('class', styles.iconHover) // 应用悬浮效果样式
+            .on('click', toggleLock);
 
-        iconGroup.append('image')
-            .attr('href', isLocked ? 'path/to/locked_icon.svg' : 'path/to/unlocked_icon.svg')
-            .attr('width', 30)
-            .attr('height', 30)
-            .attr('x', 2 * (iconWidth + iconSpacing)) // 第三个图标的x坐标
-            .attr('y', 0)
-            .on('click', () => {
-                // 锁定/解锁逻辑
+        lockIcon
+            .on('mousedown', function() {
+                d3.select(this).classed(styles.iconActive, true); // 添加按压样式
+            })
+            .on('mouseup', function() {
+                d3.select(this).classed(styles.iconActive, false); // 移除按压样式
+            })
+            .on('mouseleave', function() {
+                d3.select(this).classed(styles.iconActive, false); // 鼠标离开时移除样式
             });
+        // iconGroup.append('image')
+        //     .attr('href', isLocked ? 'path/to/locked_icon.svg' : 'path/to/unlocked_icon.svg')
+        //     .attr('width', 30)
+        //     .attr('height', 30)
+        //     .attr('x', 2 * (iconWidth + iconSpacing)) // 第三个图标的x坐标
+        //     .attr('y', 0)
+        //     .on('click', handleLockChange);
 
 
         iconGroup.attr('pointer-events', 'all'); // 确保图标可以交互
-        // window.addEventListener('resize', () => {
-        //     const newWidth = svgElement!.node()!.getBoundingClientRect().width;
-        //     iconGroup.attr('transform', `translate(${newWidth - 100}, 10)`);
-        // });
         window.addEventListener('click', closeContextMenu);
         return () => {
             window.removeEventListener('click', closeContextMenu);
@@ -206,6 +207,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
 
     }, [initialData, treeStore]);
+    useEffect(() => {
+        const lockIconHref = isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg';
+        svgSelect.current!
+            .select(`image.${styles.iconHover}`) // 使用模块化样式类选择元素
+            .attr('href', lockIconHref);
+    }, [isLocked, styles.lockIcon]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
 
 
     return (

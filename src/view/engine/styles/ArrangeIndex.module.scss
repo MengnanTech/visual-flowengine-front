@@ -12,6 +12,48 @@ $margin-bottom: 16px;
   overflow: auto; // 内容太宽时，提供滚动条
 }
 
+.circleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* 按钮的直径 */
+  height: 40px;
+  border-radius: 50%; /* 创建圆形 */
+  background-color: #1890ff; /* 按钮的背景颜色 */
+  color: white; /* 文字颜色 */
+  font-size: 24px; /* 加号的大小 */
+  border: none; /* 移除边框 */
+  cursor: pointer;
+  transition: transform 0.3s ease; /* 添加平滑的变换效果 */
+  outline: none; /* 移除焦点时的轮廓 */
+  box-shadow: none; /* 移除阴影 */
+  padding: 0; /* 移除内边距 */
+
+  &:hover, &:focus {
+    background-color: #1890ff; /* 悬浮时保持相同的背景色 */
+    transform: scale(1.35); /* 悬浮时放大 35% */
+  }
+}
+
+.circleButton.enlarged {
+  transform: scale(1.35); /* 放大 35% */
+}
+
+
+:global {
+  .ant-pro-sider-actions-list-item {
+    box-shadow: none !important;
+    padding-inline: 0 !important;
+    padding-block: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    cursor: none !important;
+    border-radius: 0 !important;
+  }
+
+}
+
+
 
 
 

@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Button, Collapse, CollapseProps, Descriptions, DescriptionsProps, message} from 'antd';
-import {EnvironmentOutlined, PlusOutlined} from '@ant-design/icons';
+import {Collapse, message} from 'antd';
+import {EnvironmentOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss'
+import {collapseItems, initialData, initialData2} from "@/components/d3Helpers/D3mock.tsx";
 
 
 // import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
@@ -15,167 +16,17 @@ interface MenuItem {
     label: string;
 }
 
-const initialData: NodeData = {
-    "id": "1",
-    "name": "Root",
-    "nodeType": "nodeType",
-    "scriptText": "开始节点定义好入参数",
-    "nodeDesc": "nodeDesc",
-    "children": [
-        {
-            "id": "root123",
-            "name": "Child 1冲冲冲",
-            "nodeType": "nodeType",
-            "scriptText": "root123scriptText是",
-            "nodeDesc": "nodeDesc",
-        },
-        {
-            "id": "root369",
-            "name": "Child 2诸葛",
-            "nodeType": "nodeType",
-            "scriptText": "scriptText",
-            "nodeDesc": "nodeDesc",
-            "children": [
-                {
-                    "id": "root456",
-                    "name": "Grandchild 2-1",
-                    "nodeType": "nodeType",
-                    "scriptText": "Grandchild 2-1scriptText收到",
-                    "nodeDesc": "nodeDesc",
-                },
-                {
-                    "id": "root789",
-                    "name": "Grandchild 2-2收到",
-                    "nodeType": "nodeType",
-                    "scriptText": "Grandchild 2-2scriptTextv啊",
-                    "nodeDesc": "nodeDesc",
-                },
-                {
-                    "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
-                    "name": "New Node355100",
-                    "nodeType": "nodeType",
-                    "scriptText": "scriptText",
-                    "nodeDesc": "nodeDesc"
-                },
-                {
-                    "id": "256f8cf4-db66-4c06-bce0-da7044538ec8",
-                    "name": "New Node892100",
-                    "nodeType": "nodeType",
-                    "scriptText": "scriptText",
-                    "nodeDesc": "nodeDesc"
-                }
-            ]
-        },
-        {
-            "id": "root857",
-            "name": "Child 3",
-            "nodeType": "nodeType",
-            "scriptText": "scriptText",
-            "nodeDesc": "nodeDesc"
-        }
-    ]
-};
-const initialData2: NodeData = {
-    "id": "initialData2",
-    "name": "initialData2",
-    "nodeType": "initialData2",
-    "scriptText": "initialData2",
-    "nodeDesc": "initialData2",
-    "children": [
-        {
-            "id": "root123",
-            "name": "Child 1冲冲冲",
-            "nodeType": "nodeType",
-            "scriptText": "root123scriptText是",
-            "nodeDesc": "nodeDesc",
-        },
-        {
-            "id": "root369",
-            "name": "Child 2诸葛",
-            "nodeType": "nodeType",
-            "scriptText": "scriptText",
-            "nodeDesc": "nodeDesc",
-            "children": [
-                {
-                    "id": "root456",
-                    "name": "Grandchild 2-1",
-                    "nodeType": "nodeType",
-                    "scriptText": "Grandchild 2-1scriptText收到",
-                    "nodeDesc": "nodeDesc",
-                },
-                {
-                    "id": "root789",
-                    "name": "Grandchild 2-2收到",
-                    "nodeType": "nodeType",
-                    "scriptText": "Grandchild 2-2scriptTextv啊",
-                    "nodeDesc": "nodeDesc",
-                },
-                {
-                    "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
-                    "name": "New Node355100",
-                    "nodeType": "nodeType",
-                    "scriptText": "scriptText",
-                    "nodeDesc": "nodeDesc"
-                },
-                {
-                    "id": "256f8cf4-db66-4c06-bce0-da7044538ec8",
-                    "name": "New Node892100",
-                    "nodeType": "nodeType",
-                    "scriptText": "scriptText",
-                    "nodeDesc": "nodeDesc"
-                }
-            ]
-        },
-        {
-            "id": "root857",
-            "name": "Child 3",
-            "nodeType": "nodeType",
-            "scriptText": "scriptText",
-            "nodeDesc": "nodeDesc"
-        }
-    ]
-};
-const items: DescriptionsProps['items'] = [
-    {
-        key: '1',
-        label: 'UserName',
-        children: 'Zhou Maomao',
-    },
-    {
-        key: '2',
-        label: 'Telephone',
-        children: '1810000000',
-    },
-    {
-        key: '3',
-        label: 'Live',
-        children: 'Hangzhou, Zhejiang',
-    },
-    {
-        key: '4',
-        label: 'Address',
-        span: 2,
-        children: 'No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China',
-    },
-    {
-        key: '5',
-        label: 'Remark',
-        children: 'empty',
-    },
-];
-const collapseItems: CollapseProps['items'] = [
-    {
-        key: '1',
-        label: '简介标题',
-        children: <Descriptions title="User Info" layout="vertical" items={items}/>
-    }
-];
+
 const ArrangeIndex: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [treeChartKey, setTreeChartKey] = useState<number>(0);
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(null);
+    const [isEnlarged, setIsEnlarged] = useState(false);
+    const handleButtonClick = () => {
+        setIsEnlarged(!isEnlarged);
+    };
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -255,6 +106,8 @@ const ArrangeIndex: React.FC = () => {
     }));
 
 
+
+
     return (
         <ProLayout
 
@@ -266,7 +119,14 @@ const ArrangeIndex: React.FC = () => {
                   </span>
             )}
             actionsRender={() => [
-                <Button key="1" type="primary"  className={styles.responsiveButton} icon={<PlusOutlined/>}>新增</Button>,
+
+                <button
+                    key="1"
+                    className={`${styles.circleButton} ${isEnlarged ? 'enlarged' : ''}`}
+                    onClick={handleButtonClick}
+                >
+                    +
+                </button>
             ]}
             avatarProps={{
                 src: 'src/assets/logo/logo.jpeg', // 您的头像图片路径
