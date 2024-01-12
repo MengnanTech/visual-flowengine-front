@@ -1,18 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Button, Collapse, CollapseProps, Descriptions, message} from 'antd';
+import {Collapse, CollapseProps, Descriptions, message} from 'antd';
 import {
-    DownOutlined,
     EnvironmentOutlined,
     SettingOutlined,
-    UpOutlined,
 } from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
 import {
-    collapseItems,
     initialData,
     initialData2,
     items,
