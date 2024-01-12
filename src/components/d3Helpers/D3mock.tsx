@@ -154,6 +154,6 @@ export const collapseItems: CollapseProps['items'] = [
     {
         key: '1',
         label: '简介标题',
-        children: <Descriptions title="User Info" layout="vertical" items={items}/>
+        children: <Descriptions layout="vertical" items={items}/>
 }
 ];

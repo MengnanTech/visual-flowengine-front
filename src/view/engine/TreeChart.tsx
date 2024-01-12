@@ -22,6 +22,7 @@ interface TreeChartProps {
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
+    console.log("TreeChart render")
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);

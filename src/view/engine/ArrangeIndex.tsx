@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Button, Descriptions, message} from 'antd';
+import {Button, Collapse, CollapseProps, Descriptions, message} from 'antd';
 import {
     DownOutlined,
     EnvironmentOutlined,
@@ -12,6 +12,7 @@ import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
 import {
+    collapseItems,
     initialData,
     initialData2,
     items,
@@ -25,18 +26,13 @@ interface MenuItem {
 }
 
 const ArrangeIndex: React.FC = () => {
-    const [isContentCollapsed, setIsContentCollapsed] = useState(false);
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [treeChartKey, setTreeChartKey] = useState<number>(0);
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
         null
     );
-    const toggleContent = () => {
-        setIsContentCollapsed(!isContentCollapsed);
-    };
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -77,7 +73,6 @@ const ArrangeIndex: React.FC = () => {
             return; // 直接返回，不执行后续逻辑
         }
         setSelectedMenuItem(e);
-        setTreeChartKey((prevKey) => prevKey + 1);
         try {
             setLoading(true);
             // const response = await fetch(`/api/tree-data/${e.key}`); // Replace with your actual API endpoint
@@ -117,6 +112,13 @@ const ArrangeIndex: React.FC = () => {
     const handleMenuSettingClick = (e: MenuDataItem) => {
         message.success(e.name);
     };
+     const collapseItems: CollapseProps['items'] = [
+        {
+            key: '1',
+            label: selectedMenuItem!.name,
+            children: <Descriptions layout="vertical" items={items}/>
+        }
+    ];
 
     return (
         <ProLayout
@@ -171,29 +173,23 @@ const ArrangeIndex: React.FC = () => {
                 token={{
                     paddingInlinePageContainerContent: 0,
                 }}
-                content={
-                    <div
-                        style={{
-                            display:
-                                isContentCollapsed && selectedMenuItem ? 'block' : 'none',
-                            marginLeft: '20px',
-                        }}
-                    >
-                        {/* 这里放入PageContainer的内容 */}
-                        <Descriptions layout="vertical" items={items}/>
-                    </div>
-                }
+                // content={
+                //     <div
+                //         style={{
+                //             marginLeft: '20px',
+                //         }}
+                //     >
+                //         {/* 这里放入PageContainer的内容 */}
+                //         <Descriptions layout="vertical" items={items}/>
+                //     </div>
+                // }
                 title={
                     <>
                         {selectedMenuItem && (
                             <>
                                 <div style={{marginLeft: '20px'}}>
-                                    {selectedMenuItem.name}
-                                    <Button
-                                        type="link"
-                                        onClick={toggleContent}
-                                        icon={isContentCollapsed ? <DownOutlined/> : <UpOutlined/>}
-                                    />
+                                    {/*{selectedMenuItem.name}*/}
+                                    <Collapse bordered={false} items={collapseItems} />
                                 </div>
 
                             </>
@@ -205,7 +201,7 @@ const ArrangeIndex: React.FC = () => {
                 {selectedMenuItem && treeData && (
                     <div className={styles.treeChartContainer}>
                         <TreeChart
-                            key={treeChartKey}
+                            key={selectedMenuItem.key}
                             treeStore={new TreeStore()}
                             initialData={treeData}
                         />
@@ -218,6 +214,10 @@ const ArrangeIndex: React.FC = () => {
                 )}
             </PageContainer>
         </ProLayout>
+
+
+
+
     );
 };
 
