@@ -61,18 +61,19 @@ const ArrangeIndex: React.FC = () => {
 
   const activateKey = useState(0);
   const [keyValue, setKeyValue] = activateKey;
-
+  const [treeChartKey, setTreeChartKey] = useState<number>(0);
   const handleMenuClick = async (e: MenuDataItem) => {
-    if (Number(e.key) === activateKey[0]) {
-      setKeyValue(Number(e.key));
-      return;
-    }
-    setKeyValue(Number(e.key));
+    // if (Number(e.key) === activateKey[0]) {
+    //   setKeyValue(Number(e.key));
+    //   return;
+    // }
+    // setKeyValue(Number(e.key));
     if (e.key === undefined) {
       // 处理 key 为 undefined 的情况
       message.error('Menu item key is undefined');
       return; // 直接返回，不执行后续逻辑
     }
+    setTreeChartKey((prevKey) => prevKey + 1);
     setSelectedMenuItem(e);
     try {
       setLoading(true);
@@ -201,7 +202,8 @@ const ArrangeIndex: React.FC = () => {
         {selectedMenuItem && treeData && (
           <div className={styles.treeChartContainer}>
             <TreeChart
-              key={selectedMenuItem.key}
+              // key={selectedMenuItem.key}
+              key={treeChartKey}
               treeStore={new TreeStore()}
               initialData={treeData}
             />
