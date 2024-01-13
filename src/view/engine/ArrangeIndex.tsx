@@ -26,6 +26,7 @@ const ArrangeIndex: React.FC = () => {
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
     null
   );
+  const [keyValue, setKeyValue] = useState(0);
 
   useEffect(() => {
     // Fetch menu items when the component mounts
@@ -59,11 +60,9 @@ const ArrangeIndex: React.FC = () => {
     fetchMenuItems().then((r) => r);
   }, []);
 
-  const activateKey = useState(0);
-  const [keyValue, setKeyValue] = activateKey;
 
   const handleMenuClick = async (e: MenuDataItem) => {
-    if (Number(e.key) === activateKey[0]) {
+    if (Number(e.key) === keyValue) {
       setKeyValue(Number(e.key));
       return;
     }
@@ -106,7 +105,7 @@ const ArrangeIndex: React.FC = () => {
   const menuData = menuItems.map((item) => ({
     key: item.key,
     name: item.label,
-    icon: <EnvironmentOutlined />, // 假设每个菜单项都使用这个图标
+    icon: <EnvironmentOutlined />,
     path: `/${item.key}`,
   }));
 
