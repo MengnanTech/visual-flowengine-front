@@ -170,8 +170,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     .duration(1000) // 旋转持续时间
                     .attrTween('transform', function() {
                         return d3.interpolateString(
-                            `rotate(0, ${x}, ${y})`,
-                            `rotate(360, ${x}, ${y})`
+                            `rotate(0, ${x+5}, ${y+9})`,
+                            `rotate(360, ${x+5}, ${y+9})`
                         );
                     });
         }) // 添加刷新逻辑
