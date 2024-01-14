@@ -212,7 +212,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         svgSelect.current!
             .select(`image.${styles.iconHover}`) // 使用模块化样式类选择元素
             .attr('href', lockIconHref);
-    }, [isLocked, styles.lockIcon]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
+    }, [isLocked]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
 
 
     return (
