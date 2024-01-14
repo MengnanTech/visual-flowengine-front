@@ -105,8 +105,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     useEffect(() => {
 
-        svgSelect.current = d3.select(svgRef.current)
-        svgRef.current!.classList.remove('ant-pro-sider-actions-list-item');
+        svgSelect.current = d3.select(svgRef.current);
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
             // 点击页面任何其他地方时隐藏菜单
@@ -218,7 +217,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
-            <svg ref={svgRef} width="1500" height="900" onContextMenu={handleContextMenu}>
+            <svg ref={svgRef} width="1900" height="900" onContextMenu={handleContextMenu}>
                 <MovingArrowPattern/>
             </svg>
 
