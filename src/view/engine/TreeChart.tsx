@@ -95,14 +95,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     };
 
 
-    function handleRefresh() {
-
-    }
-
-    const toggleLock = () => {
-        setIsLocked(prevState => !prevState);
-    };
-
     useEffect(() => {
 
         svgSelect.current = d3.select(svgRef.current);
@@ -164,12 +156,26 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
         // 添加图标到图标组
         iconGroup.append('image')
-            .attr('href', 'src/assets/logo/locked_icon.png')
+            .attr('href', 'src/assets/logo/refresh.svg')
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', 0) // 第一个图标的x坐标
             .attr('y', 0)
-            .on('click', handleRefresh); // 添加刷新逻辑
+            .on('click', function () {
+
+                const x = parseFloat(d3.select(this).attr('x')) + iconWidth / 2;
+                const y = parseFloat(d3.select(this).attr('y')) + iconWidth / 2;
+
+                d3.select(this).transition()
+                    .duration(1000) // 旋转持续时间
+                    .attrTween('transform', function() {
+                        return d3.interpolateString(
+                            `rotate(0, ${x}, ${y})`,
+                            `rotate(360, ${x}, ${y})`
+                        );
+                    });
+        }) // 添加刷新逻辑
+
 
         const lockIcon = iconGroup.append('image')
             .attr('href', isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg')
@@ -178,7 +184,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
             .attr('y', 0)
             .attr('class', styles.iconHover) // 应用悬浮效果样式
-            .on('click', toggleLock);
+            .on('click', () => {
+                setIsLocked(prevState => !prevState);
+            });
 
         lockIcon
             .on('mousedown', function() {
