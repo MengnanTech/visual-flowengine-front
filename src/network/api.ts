@@ -1,7 +1,7 @@
 import * as monaco from "monaco-editor";
 import HTTP from "@/network/HTTP.ts";
-import {initialData} from "@/components/d3Helpers/D3mock.tsx";
 import {NodeData} from "@/components/D3Node/NodeModel.ts";
+import {createInitialData} from "@/components/d3Helpers/D3mock.tsx";
 
 
 export interface Diagnostic {
@@ -33,7 +33,7 @@ export async function getWorkflowMetadata(workflowName: string): Promise<NodeDat
         if (response) {
             return response;
         } else {
-            return initialData;
+            return createInitialData();
         }
     } catch (error) {
         console.error("Error fetching script:", error);

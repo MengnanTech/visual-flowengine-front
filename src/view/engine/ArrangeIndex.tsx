@@ -6,7 +6,11 @@ import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
-import {initialData, initialData2, items,} from '@/components/d3Helpers/D3mock.tsx';
+import {
+    createInitialData,
+    createInitialData2,
+    items,
+} from '@/components/d3Helpers/D3mock.tsx';
 
 // import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
 
@@ -83,8 +87,8 @@ const ArrangeIndex: React.FC = () => {
             }
 
             const mockApiData: MockApiDataType = {
-                'uuid1': {...initialData},
-                'uuid2': {...initialData2},
+                'uuid1': createInitialData(),
+                'uuid2': createInitialData2(),
                 // ...其他数据
             };
             const newData = mockApiData[e.key];

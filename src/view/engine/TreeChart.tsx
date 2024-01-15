@@ -23,7 +23,7 @@ interface TreeChartProps {
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
-    console.log("TreeChart render")
+    console.log("TreeChart render",initialData)
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
@@ -100,6 +100,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
         d3.select(svgRef.current).selectAll("*").remove();
 
+        console.log("initialData",initialData)
         rootNode.current = d3.hierarchy(initialData) as D3Node;
         svgSelect.current = d3.select(svgRef.current);
         gRef.current = svgSelect.current.append("g");
@@ -230,7 +231,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
-            <svg ref={svgRef} width="1600" height="900" onContextMenu={handleContextMenu}></svg>
+            <svg ref={svgRef} width="1600" height="1300" onContextMenu={handleContextMenu}></svg>
             <svg>
                 <MovingArrowPattern/>
             </svg>
