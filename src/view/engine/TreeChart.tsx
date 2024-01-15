@@ -6,7 +6,7 @@ import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
+import {DrawCircle, DrawLinks, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
 import {Modal} from "antd";
@@ -15,8 +15,9 @@ import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
 
 interface TreeChartProps {
+    // workflowName: string;
     treeStore: TreeStore;
-    initialData: NodeData;
+    initialData?: NodeData;
 }
 
 
@@ -26,7 +27,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-    const rootNode = useRef(d3.hierarchy(initialData) as D3Node);
+    const rootNode = useRef< D3Node>();
     const treeLayout = useRef(d3.tree<NodeData>()
         .nodeSize([100, 250])
         /**
@@ -83,7 +84,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 options: [
                     {
                         label: '查看源代码',
-                        action: () => showModal(JSON.stringify(rootNode.current.data, null, 2))
+                        action: () => showModal(JSON.stringify(rootNode.current!.data, null, 2))
                     },
                     // ...更多选项
                 ]
@@ -97,6 +98,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     useEffect(() => {
 
+        if (rootNode.current) {
+            refresh(treeChartState.current!)
+            return
+        }
+
+        rootNode.current = d3.hierarchy(initialData) as D3Node;
         svgSelect.current = d3.select(svgRef.current);
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
@@ -168,13 +175,14 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
                 d3.select(this).transition()
                     .duration(1000) // 旋转持续时间
-                    .attrTween('transform', function() {
+                    .attrTween('transform', function () {
                         return d3.interpolateString(
-                            `rotate(0, ${x+5}, ${y+9})`,
-                            `rotate(360, ${x+5}, ${y+9})`
+                            `rotate(0, ${x + 5}, ${y + 9})`,
+                            `rotate(360, ${x + 5}, ${y + 9})`
                         );
                     });
-        }) // 添加刷新逻辑
+                refresh(initState)
+            }) // 添加刷新逻辑
 
 
         const lockIcon = iconGroup.append('image')
@@ -189,13 +197,13 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             });
 
         lockIcon
-            .on('mousedown', function() {
+            .on('mousedown', function () {
                 d3.select(this).classed(styles.iconActive, true); // 添加按压样式
             })
-            .on('mouseup', function() {
+            .on('mouseup', function () {
                 d3.select(this).classed(styles.iconActive, false); // 移除按压样式
             })
-            .on('mouseleave', function() {
+            .on('mouseleave', function () {
                 d3.select(this).classed(styles.iconActive, false); // 鼠标离开时移除样式
             });
         // iconGroup.append('image')
@@ -225,7 +233,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
-            <svg ref={svgRef} width="1900" height="900" onContextMenu={handleContextMenu}>
+            <svg ref={svgRef} width="1600" height="900" onContextMenu={handleContextMenu}>
                 <MovingArrowPattern/>
             </svg>
 

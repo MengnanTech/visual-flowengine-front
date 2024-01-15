@@ -1,5 +1,7 @@
 import * as monaco from "monaco-editor";
 import HTTP from "@/network/HTTP.ts";
+import {initialData} from "@/components/d3Helpers/D3mock.tsx";
+import {NodeData} from "@/components/D3Node/NodeModel.ts";
 
 
 export interface Diagnostic {
@@ -25,17 +27,17 @@ export async function compileGroovyScript(code: string): Promise<Diagnostic[]> {
     }
 }
 
-export async function getScript(scriptName: string): Promise<Diagnostic[]> {
+export async function getWorkflowMetadata(workflowName: string): Promise<NodeData | string> {
     try {
-        const response = await HTTP.get(`/api/engine/groovyScript/${scriptName}`);
+        const response = await HTTP.get(`/api/engine/groovyScript/${workflowName}`);
         if (response) {
             return response;
         } else {
-            return [];
+            return initialData;
         }
     } catch (error) {
         console.error("Error fetching script:", error);
-        return [];
+        return '';
     }
 }
 
