@@ -17,7 +17,7 @@ import styles from './styles/TreeChart.module.scss'
 interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
-    initialData?: NodeData;
+    initialData: NodeData;
 }
 
 
@@ -98,10 +98,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     useEffect(() => {
 
-        if (rootNode.current) {
-            refresh(treeChartState.current!)
-            return
-        }
+        d3.select(svgRef.current).selectAll("*").remove();
 
         rootNode.current = d3.hierarchy(initialData) as D3Node;
         svgSelect.current = d3.select(svgRef.current);
