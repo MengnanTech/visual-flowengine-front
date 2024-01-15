@@ -27,7 +27,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-    const rootNode = useRef< D3Node>();
+    const rootNode = useRef<D3Node>();
     const treeLayout = useRef(d3.tree<NodeData>()
         .nodeSize([100, 250])
         /**
@@ -230,7 +230,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
-            <svg ref={svgRef} width="1600" height="900" onContextMenu={handleContextMenu}>
+            <svg ref={svgRef} width="1600" height="900" onContextMenu={handleContextMenu}></svg>
+            <svg>
                 <MovingArrowPattern/>
             </svg>
 

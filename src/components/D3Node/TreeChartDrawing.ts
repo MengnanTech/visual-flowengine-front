@@ -160,11 +160,9 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
         .attr("stroke-width", 10)
         .attr('id', d => generateLinkId(d.source.data.id,d.target.data.id)) // 同时设置ID，用于后续选择
-        // .attr('marker-end', 'url(#arrow)')
         .lower()
         .transition()
         .duration(750)
-        // 新的连接线的动画效果，感觉可以在这里解决连接线断掉的问题
         .attrTween("d", function (d): (t: number) => string {
             // 插值生成器
             let nodePreviousPosition: number[] | null = null;
