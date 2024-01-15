@@ -6,7 +6,7 @@ import NodeMenuStyles from './styles/D3node.module.scss';
 import {TreeStore} from "@/store/TreeStore.ts";
 import * as d3 from "d3";
 import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {refresh} from "@/components/D3Node/TreeChartDrawing.ts";
+import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {v4 as uuid} from "uuid";
 import {observer} from "mobx-react";
 
@@ -219,7 +219,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 // 计算鼠标的相对移动距离
                 const dx = event.x - dragStart.x;
                 const dy = event.y - dragStart.y;
-                d3.select(`#link-${d.data.id}`)
+                d3.select(`#${generateLinkId(d.parent!.data.id, d.data.id)}`)
                     .transition()
                     .duration(30)
                     .style("opacity", 0)
@@ -242,7 +242,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 d.descendants().forEach(descendant => {
                     const linkData = {source: descendant.parent, target: descendant} as D3Link;
-                    d3.select(`#link-${descendant.data.id}`)
+                    d3.select(`#${generateLinkId(linkData.source.data.id, linkData.target.data.id)}`)
                         .attr("d", d3.linkHorizontal<D3Link, D3Node>().x(node => node.y).y(node => node.x)(linkData));
 
                 })

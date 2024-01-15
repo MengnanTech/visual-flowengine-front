@@ -139,7 +139,9 @@ export function refresh(treeChartState: TreeChartState) {
     DrawCircle(treeChartState);
     treeStore.setCurrentMenu(null)
 }
-
+export function generateLinkId(sourceId: string,targetId:string): string {
+    return `link--${sourceId}--${targetId}`;
+}
 export function DrawLinks(treeChartState: TreeChartState) {
     const rootNode = treeChartState.rootNode;
 
@@ -157,7 +159,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .attr("fill", "none")
         .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
         .attr("stroke-width", 10)
-        .attr('id', d => `link-${d.target.data.id}`) // 同时设置ID，用于后续选择
+        .attr('id', d => generateLinkId(d.source.data.id,d.target.data.id)) // 同时设置ID，用于后续选择
         // .attr('marker-end', 'url(#arrow)')
         .lower()
         .transition()
