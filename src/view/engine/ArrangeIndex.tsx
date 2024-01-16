@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, CollapseProps, Descriptions, message} from 'antd';
+import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message} from 'antd';
 import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
@@ -27,6 +27,9 @@ const ArrangeIndex: React.FC = () => {
         null
     );
     const [keyValue, setKeyValue] = useState<string>('');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [workflowForm] = Form.useForm();
+
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -121,10 +124,26 @@ const ArrangeIndex: React.FC = () => {
         },
     ];
 
-    function handleAddWorkflowClick() {
-        message.success('add workflow').then(r => r);
-    }
+    const handleAddWorkflowClick = () => {
+        setIsModalVisible(true);
+    };
 
+    const handleModalSubmit = () => {
+        workflowForm
+            .validateFields()
+            .then((values) => {
+                console.log(values); // 这里处理表单数据
+                setIsModalVisible(false);
+                workflowForm.resetFields();
+                message.success('Workflow added successfully!');
+            })
+            .catch((info) => {
+                console.log('Validate Failed:', info);
+            });
+    };
+    const handleModalCancel = () => {
+        setIsModalVisible(false);
+    };
     return (
         <ProLayout
             logo={'src/assets/logo/logo.jpeg'}
@@ -173,6 +192,31 @@ const ArrangeIndex: React.FC = () => {
                 // 页面变化时，如清除选中的菜单项
             }}
         >
+            <Modal
+                title="Add Workflow"
+                open={isModalVisible}
+                onOk={handleModalSubmit}
+                onCancel={handleModalCancel}
+                okText="Submit"
+                cancelText="Cancel"
+            >
+                <Form form={workflowForm} layout="vertical">
+                    <Form.Item
+                        name="workflowName"
+                        label="Workflow Name"
+                        rules={[{ required: true, message: 'Please input the workflow name!' }]}
+                    >
+                        <Input placeholder="Enter workflow name" />
+                    </Form.Item>
+                    <Form.Item
+                        name="decisionDescription"
+                        label="Decision Description"
+                        rules={[{ required: true, message: 'Please input the decision description!' }]}
+                    >
+                        <Input.TextArea placeholder="Enter decision description" />
+                    </Form.Item>
+                </Form>
+            </Modal>
             <PageContainer
                 token={{
                     paddingInlinePageContainerContent: 0,
