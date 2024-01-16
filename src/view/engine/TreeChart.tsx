@@ -229,8 +229,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     }, [isLocked]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
 
     // 计算svg窗口大小
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    const [windowWidth] = useState(window.innerWidth);
+    const [windowHeight] = useState(window.innerHeight);
     const svgHeight = windowWidth - 256
     const svgWidth = windowHeight - 62
 
