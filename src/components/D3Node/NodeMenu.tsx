@@ -176,7 +176,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             label: '删除当前树',
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()}
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: 'json批量创建节点', action: () => handDragNode()}
     ];
 
     function updateNodeDepth(node: D3Node, newDepth: number) {
