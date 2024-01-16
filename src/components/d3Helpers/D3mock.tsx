@@ -179,3 +179,86 @@ export const mockMenuItems: MenuItem[] = [
         label: 'reminderEventHandler',
     },
 ];
+export     const result = [
+    {
+        'key': 1,
+        'workflowName': 'Order Fulfillment',
+        'creator': 'Julia',
+        'createdAt': '2024-07-09',
+        'status': 'Active',
+        'lastModified': '2024-10-07'
+    },
+    {
+        'key': 2,
+        'workflowName': 'Customer Feedback',
+        'creator': 'Alice',
+        'createdAt': '2024-09-23',
+        'status': 'Pending',
+        'lastModified': '2024-11-27'
+    },
+    {
+        'key': 3,
+        'workflowName': 'Product Launch',
+        'creator': 'Alice',
+        'createdAt': '2024-12-23',
+        'status': 'Completed',
+        'lastModified': '2024-01-23'
+    },
+    {
+        'key': 4,
+        'workflowName': 'Equipment Maintenance',
+        'creator': 'Julia',
+        'createdAt': '2024-04-17',
+        'status': 'Pending',
+        'lastModified': '2024-09-12'
+    },
+    {
+        'key': 5,
+        'workflowName': 'Customer Feedback',
+        'creator': 'Charlie',
+        'createdAt': '2024-11-04',
+        'status': 'Completed',
+        'lastModified': '2024-12-11'
+    },
+    {
+        'key': 6,
+        'workflowName': 'Expense Reporting',
+        'creator': 'Frank',
+        'createdAt': '2024-06-05',
+        'status': 'Inactive',
+        'lastModified': '2024-09-22'
+    },
+    {
+        'key': 7,
+        'workflowName': 'User Onboarding',
+        'creator': 'Julia',
+        'createdAt': '2024-12-13',
+        'status': 'Failed',
+        'lastModified': '2024-05-03'
+    },
+    {
+        'key': 8,
+        'workflowName': 'Event Planning',
+        'creator': 'Hannah',
+        'createdAt': '2024-09-20',
+        'status': 'Active',
+        'lastModified': '2024-02-21'
+    },
+    {
+        'key': 9,
+        'workflowName': 'Data Processing',
+        'creator': 'Charlie',
+        'createdAt': '2024-07-23',
+        'status': 'Pending',
+        'lastModified': '2024-08-17'
+    },
+    {
+        'key': 10,
+        'workflowName': 'Customer Feedback',
+        'creator': 'Charlie',
+        'createdAt': '2024-10-06',
+        'status': 'Inactive',
+        'lastModified': '2024-10-23'
+    }
+    // ... 更多数据
+];

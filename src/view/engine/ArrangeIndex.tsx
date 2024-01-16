@@ -9,7 +9,7 @@ import styles from './styles/ArrangeIndex.module.scss';
 import {
     createInitialData,
     createInitialData2,
-    items, MenuItem, mockMenuItems,
+    items, MenuItem, mockMenuItems, result,
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import {ProColumns, ProTable} from '@ant-design/pro-table';
@@ -20,6 +20,7 @@ const tabList = [
     {
         key: 'tab1',
         tab: 'Editor',
+        // className: styles.customTab, // 添加自定义样式类
     },
     {
         key: 'tab2',
@@ -41,97 +42,17 @@ const ArrangeIndex: React.FC = () => {
     const [workflowForm] = Form.useForm();
 
     const [activeTabKey, setActiveTabKey] = useState<string>('');
-    const conditionalTabList = selectedMenuItem ? tabList : [];
     const [data, setData] = useState<WorkflowListItem[]>([]);
     const [selectedRows, setSelectedRows] = useState<WorkflowListItem[]>([]);
+
+
+    const conditionalTabList = selectedMenuItem ? tabList : [];
 
     useEffect(() => {
         // 模拟从 API 获取数据
         const fetchData = async () => {
             // 模拟 API 调用
-            const result = [
-                {
-                    'key': 1,
-                    'workflowName': 'Order Fulfillment',
-                    'creator': 'Julia',
-                    'createdAt': '2024-07-09',
-                    'status': 'Active',
-                    'lastModified': '2024-10-07'
-                },
-                {
-                    'key': 2,
-                    'workflowName': 'Customer Feedback',
-                    'creator': 'Alice',
-                    'createdAt': '2024-09-23',
-                    'status': 'Pending',
-                    'lastModified': '2024-11-27'
-                },
-                {
-                    'key': 3,
-                    'workflowName': 'Product Launch',
-                    'creator': 'Alice',
-                    'createdAt': '2024-12-23',
-                    'status': 'Completed',
-                    'lastModified': '2024-01-23'
-                },
-                {
-                    'key': 4,
-                    'workflowName': 'Equipment Maintenance',
-                    'creator': 'Julia',
-                    'createdAt': '2024-04-17',
-                    'status': 'Pending',
-                    'lastModified': '2024-09-12'
-                },
-                {
-                    'key': 5,
-                    'workflowName': 'Customer Feedback',
-                    'creator': 'Charlie',
-                    'createdAt': '2024-11-04',
-                    'status': 'Completed',
-                    'lastModified': '2024-12-11'
-                },
-                {
-                    'key': 6,
-                    'workflowName': 'Expense Reporting',
-                    'creator': 'Frank',
-                    'createdAt': '2024-06-05',
-                    'status': 'Inactive',
-                    'lastModified': '2024-09-22'
-                },
-                {
-                    'key': 7,
-                    'workflowName': 'User Onboarding',
-                    'creator': 'Julia',
-                    'createdAt': '2024-12-13',
-                    'status': 'Failed',
-                    'lastModified': '2024-05-03'
-                },
-                {
-                    'key': 8,
-                    'workflowName': 'Event Planning',
-                    'creator': 'Hannah',
-                    'createdAt': '2024-09-20',
-                    'status': 'Active',
-                    'lastModified': '2024-02-21'
-                },
-                {
-                    'key': 9,
-                    'workflowName': 'Data Processing',
-                    'creator': 'Charlie',
-                    'createdAt': '2024-07-23',
-                    'status': 'Pending',
-                    'lastModified': '2024-08-17'
-                },
-                {
-                    'key': 10,
-                    'workflowName': 'Customer Feedback',
-                    'creator': 'Charlie',
-                    'createdAt': '2024-10-06',
-                    'status': 'Inactive',
-                    'lastModified': '2024-10-23'
-                }
-                // ... 更多数据
-            ];
+
             setData(result);
         };
 
@@ -400,7 +321,7 @@ const ArrangeIndex: React.FC = () => {
             </Modal>
             <PageContainer
                 // content={ <Collapse bordered={false} items={collapseItems}/>}
-
+                // breadcrumb={'none'}
                 extra={[
                     <Button key="3"> 不确定用途</Button>,
                     <Button key="2"> 不确定用途</Button>,
@@ -408,10 +329,19 @@ const ArrangeIndex: React.FC = () => {
                         不确定用途
                     </Button>,
                 ]}
+
+                // tabActiveKey={activeTabKey}
+                tabProps={{
+                    type: 'card',
+                    hideAdd: true,
+                }}
+
                 tabList={conditionalTabList}
                 onTabChange={onTabChange}
+                ghost={true}
                 token={{
                     paddingInlinePageContainerContent: 0,
+                    paddingBlockPageContainerContent: 0,
                 }}
                 // content={
                 //     <div
@@ -436,7 +366,7 @@ const ArrangeIndex: React.FC = () => {
                     </>
                 }
             >
-                {activeTabKey === 'tab1' && selectedMenuItem && treeData && (
+                {(activeTabKey === 'tab1' || activeTabKey === '') && selectedMenuItem && treeData && (
                     // 这里是第二个标签页的内容
                     <div className={styles.treeChartContainer}>
                         <TreeChart
@@ -448,34 +378,34 @@ const ArrangeIndex: React.FC = () => {
                 )}
 
 
-                {(activeTabKey === 'tab2' || activeTabKey === '') && selectedMenuItem && (
+                {activeTabKey === 'tab2' && selectedMenuItem && (
                     // 这里是第一个标签页的内容
 
 
-                        <ProTable<WorkflowListItem>
-                            headerTitle="查询表格"
-                            columns={columns}
-                            dataSource={data}
-                            rowKey="key"
+                    <ProTable<WorkflowListItem>
+                        headerTitle="查询表格"
+                        columns={columns}
+                        dataSource={data}
+                        rowKey="key"
 
-                            search={{
-                                labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
-                                defaultCollapsed: true, // 搜索栏默认是否折叠
-                                // collapseRender: (collapsed, form) => {
-                                //     // 自定义折叠状态的展示内容
-                                //     return (
-                                //         <>
-                                //             {collapsed ? '展开' : '折叠'}
-                                //             <DownOutlined style={{ marginLeft: 8 }} />
-                                //         </>
-                                //     );
-                                // },
-                            }}
+                        search={{
+                            labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
+                            defaultCollapsed: true, // 搜索栏默认是否折叠
+                            // collapseRender: (collapsed, form) => {
+                            //     // 自定义折叠状态的展示内容
+                            //     return (
+                            //         <>
+                            //             {collapsed ? '展开' : '折叠'}
+                            //             <DownOutlined style={{ marginLeft: 8 }} />
+                            //         </>
+                            //     );
+                            // },
+                        }}
 
 
-                            rowSelection={rowSelection}
-                            // 可以添加其他 ProTable 的属性和配置
-                        />
+                        rowSelection={rowSelection}
+                        // 可以添加其他 ProTable 的属性和配置
+                    />
 
                 )}
 
