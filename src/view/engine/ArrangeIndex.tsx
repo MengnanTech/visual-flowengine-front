@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message, Button} from 'antd';
-import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
+import {EnvironmentOutlined, SearchOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
@@ -9,39 +9,28 @@ import styles from './styles/ArrangeIndex.module.scss';
 import {
     createInitialData,
     createInitialData2,
-    items,
+    items, MenuItem, mockMenuItems,
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import {ProColumns, ProTable} from '@ant-design/pro-table';
 import {TableRowSelection} from "antd/es/table/interface";
+import {WorkflowListItem} from "@/components/workflow/model/WorkflowModel.ts";
 
 
-interface MenuItem {
-    key: string;
-    label: string;
-}
 
 const tabList = [
     {
         key: 'tab1',
-        tab: 'Run log',
+        tab: 'Editor',
     },
     {
         key: 'tab2',
-        tab: 'Editor',
+        tab: 'Run log',
     },
     // 你可以根据需要添加更多的标签页
 ];
 
-interface WorkflowListItem {
-    key: number;
-    workflowName: string;
-    creator: string;
-    createdAt: string;
-    status: string;
-    lastModified: string;
-    // 可以根据需要添加其他字段
-}
+
 
 
 const ArrangeIndex: React.FC = () => {
@@ -163,17 +152,6 @@ const ArrangeIndex: React.FC = () => {
                 //     throw new Error('Network response was not ok');
                 // }
                 // const data: MenuItem[] = await response.json();
-                const mockMenuItems: MenuItem[] = [
-                    {
-                        key: 'uuid1',
-                        label: 'it.task-service.flow.custReminderGeneration',
-                    },
-                    {
-                        key: 'uuid2',
-                        label: 'reminderEventHandler',
-                    },
-                ];
-
                 setMenuItems(mockMenuItems);
             } catch (err: any) {
                 message.error(err.message);
@@ -211,6 +189,27 @@ const ArrangeIndex: React.FC = () => {
         {
             title: 'Workflow Name',
             dataIndex: 'workflowName',
+            // filterDropdown: (props) => (
+            //     <div style={{ padding: 8 }}>
+            //         <Input
+            //             placeholder="Search Workflow Name"
+            //             value={props.selectedKeys[0]}
+            //             onChange={(e) => props.setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            //             onPressEnter={props.confirm}
+            //             style={{ width: 188, marginBottom: 8, display: 'block' }}
+            //         />
+            //         <button
+            //             type="button"
+            //             onClick={props.clearFilters}
+            //             style={{ width: 90 }}
+            //         >
+            //             Reset
+            //         </button>
+            //     </div>
+            // ),
+            filterIcon: (filtered) => (
+                <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+            ),
         },
         {
             title: 'Creator',
@@ -441,19 +440,7 @@ const ArrangeIndex: React.FC = () => {
                     </>
                 }
             >
-                {(activeTabKey === 'tab1' || activeTabKey === '') && selectedMenuItem && (
-                    // 这里是第一个标签页的内容
-                    <ProTable<WorkflowListItem>
-                        columns={columns}
-                        dataSource={data}
-                        rowKey="key"
-                        search={{}}
-                        rowSelection={rowSelection}
-                        // 可以添加其他 ProTable 的属性和配置
-                    />
-                )}
-
-                {activeTabKey === 'tab2' && selectedMenuItem && treeData && (
+                {activeTabKey === 'tab1' && selectedMenuItem && treeData && (
                     // 这里是第二个标签页的内容
                     <div className={styles.treeChartContainer}>
                         <TreeChart
@@ -463,6 +450,35 @@ const ArrangeIndex: React.FC = () => {
                         />
                     </div>
                 )}
+
+
+                {(activeTabKey === 'tab2' || activeTabKey === '') && selectedMenuItem && (
+                    // 这里是第一个标签页的内容
+                    <ProTable<WorkflowListItem>
+                        columns={columns}
+                        dataSource={data}
+                        rowKey="key"
+
+                        search={{
+                            labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
+                            defaultCollapsed: false, // 搜索栏默认是否折叠
+                            // collapseRender: (collapsed, form) => {
+                            //     // 自定义折叠状态的展示内容
+                            //     return (
+                            //         <>
+                            //             {collapsed ? '展开' : '折叠'}
+                            //             <DownOutlined style={{ marginLeft: 8 }} />
+                            //         </>
+                            //     );
+                            // },
+                        }}
+
+
+                        rowSelection={rowSelection}
+                        // 可以添加其他 ProTable 的属性和配置
+                    />
+                )}
+
 
 
                 {!selectedMenuItem && (

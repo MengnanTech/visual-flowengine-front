@@ -163,3 +163,19 @@ export const collapseItems: CollapseProps['items'] = [
         children: <Descriptions layout="vertical" items={items}/>
 }
 ];
+
+
+export interface MenuItem {
+    key: string;
+    label: string;
+}
+export const mockMenuItems: MenuItem[] = [
+    {
+        key: 'uuid1',
+        label: 'it.task-service.flow.custReminderGeneration',
+    },
+    {
+        key: 'uuid2',
+        label: 'reminderEventHandler',
+    },
+];
