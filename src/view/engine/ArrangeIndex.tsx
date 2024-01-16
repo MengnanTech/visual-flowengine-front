@@ -15,8 +15,7 @@ import {
 import {ProColumns, ProTable} from '@ant-design/pro-table';
 import {TableRowSelection} from "antd/es/table/interface";
 import {WorkflowListItem} from "@/components/workflow/model/WorkflowModel.ts";
-
-
+import PageHeaderWrapper from '@ant-design/pro-layout';
 
 const tabList = [
     {
@@ -29,8 +28,6 @@ const tabList = [
     },
     // 你可以根据需要添加更多的标签页
 ];
-
-
 
 
 const ArrangeIndex: React.FC = () => {
@@ -164,12 +161,12 @@ const ArrangeIndex: React.FC = () => {
     }, []);
 
     function handleEdit(record: WorkflowListItem) {
-        message.success('Workflow edited successfully!' + record.workflowName).then(r  =>r);
+        message.success('Workflow edited successfully!' + record.workflowName).then(r => r);
     }
 
     function handleDelete(record: WorkflowListItem) {
 
-        message.success('Workflow deleted successfully!' + record.workflowName).then(r  =>r);
+        message.success('Workflow deleted successfully!' + record.workflowName).then(r => r);
     }
 
 
@@ -208,7 +205,7 @@ const ArrangeIndex: React.FC = () => {
             //     </div>
             // ),
             filterIcon: (filtered) => (
-                <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+                <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}}/>
             ),
         },
         {
@@ -454,31 +451,34 @@ const ArrangeIndex: React.FC = () => {
 
                 {(activeTabKey === 'tab2' || activeTabKey === '') && selectedMenuItem && (
                     // 这里是第一个标签页的内容
-                    <ProTable<WorkflowListItem>
-                        columns={columns}
-                        dataSource={data}
-                        rowKey="key"
-
-                        search={{
-                            labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
-                            defaultCollapsed: false, // 搜索栏默认是否折叠
-                            // collapseRender: (collapsed, form) => {
-                            //     // 自定义折叠状态的展示内容
-                            //     return (
-                            //         <>
-                            //             {collapsed ? '展开' : '折叠'}
-                            //             <DownOutlined style={{ marginLeft: 8 }} />
-                            //         </>
-                            //     );
-                            // },
-                        }}
 
 
-                        rowSelection={rowSelection}
-                        // 可以添加其他 ProTable 的属性和配置
-                    />
+                        <ProTable<WorkflowListItem>
+                            headerTitle="查询表格"
+                            columns={columns}
+                            dataSource={data}
+                            rowKey="key"
+
+                            search={{
+                                labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
+                                defaultCollapsed: true, // 搜索栏默认是否折叠
+                                // collapseRender: (collapsed, form) => {
+                                //     // 自定义折叠状态的展示内容
+                                //     return (
+                                //         <>
+                                //             {collapsed ? '展开' : '折叠'}
+                                //             <DownOutlined style={{ marginLeft: 8 }} />
+                                //         </>
+                                //     );
+                                // },
+                            }}
+
+
+                            rowSelection={rowSelection}
+                            // 可以添加其他 ProTable 的属性和配置
+                        />
+
                 )}
-
 
 
                 {!selectedMenuItem && (
