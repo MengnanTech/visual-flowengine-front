@@ -12,7 +12,9 @@ import {
     items,
 } from '@/components/d3Helpers/D3mock.tsx';
 
-// import logo from 'src/assets/logo/logo.jpeg'; // 您的logo路径
+import {ProColumns, ProTable} from '@ant-design/pro-table';
+import {TableRowSelection} from "antd/es/table/interface";
+
 
 interface MenuItem {
     key: string;
@@ -31,6 +33,17 @@ const tabList = [
     // 你可以根据需要添加更多的标签页
 ];
 
+interface WorkflowListItem {
+    key: number;
+    workflowName: string;
+    creator: string;
+    createdAt: string;
+    status: string;
+    lastModified: string;
+    // 可以根据需要添加其他字段
+}
+
+
 const ArrangeIndex: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
@@ -44,6 +57,101 @@ const ArrangeIndex: React.FC = () => {
 
     const [activeTabKey, setActiveTabKey] = useState<string>('');
     const conditionalTabList = selectedMenuItem ? tabList : [];
+    const [data, setData] = useState<WorkflowListItem[]>([]);
+    const [selectedRows, setSelectedRows] = useState<WorkflowListItem[]>([]);
+
+    useEffect(() => {
+        // 模拟从 API 获取数据
+        const fetchData = async () => {
+            // 模拟 API 调用
+            const result = [
+                {
+                    'key': 1,
+                    'workflowName': 'Order Fulfillment',
+                    'creator': 'Julia',
+                    'createdAt': '2024-07-09',
+                    'status': 'Active',
+                    'lastModified': '2024-10-07'
+                },
+                {
+                    'key': 2,
+                    'workflowName': 'Customer Feedback',
+                    'creator': 'Alice',
+                    'createdAt': '2024-09-23',
+                    'status': 'Pending',
+                    'lastModified': '2024-11-27'
+                },
+                {
+                    'key': 3,
+                    'workflowName': 'Product Launch',
+                    'creator': 'Alice',
+                    'createdAt': '2024-12-23',
+                    'status': 'Completed',
+                    'lastModified': '2024-01-23'
+                },
+                {
+                    'key': 4,
+                    'workflowName': 'Equipment Maintenance',
+                    'creator': 'Julia',
+                    'createdAt': '2024-04-17',
+                    'status': 'Pending',
+                    'lastModified': '2024-09-12'
+                },
+                {
+                    'key': 5,
+                    'workflowName': 'Customer Feedback',
+                    'creator': 'Charlie',
+                    'createdAt': '2024-11-04',
+                    'status': 'Completed',
+                    'lastModified': '2024-12-11'
+                },
+                {
+                    'key': 6,
+                    'workflowName': 'Expense Reporting',
+                    'creator': 'Frank',
+                    'createdAt': '2024-06-05',
+                    'status': 'Inactive',
+                    'lastModified': '2024-09-22'
+                },
+                {
+                    'key': 7,
+                    'workflowName': 'User Onboarding',
+                    'creator': 'Julia',
+                    'createdAt': '2024-12-13',
+                    'status': 'Failed',
+                    'lastModified': '2024-05-03'
+                },
+                {
+                    'key': 8,
+                    'workflowName': 'Event Planning',
+                    'creator': 'Hannah',
+                    'createdAt': '2024-09-20',
+                    'status': 'Active',
+                    'lastModified': '2024-02-21'
+                },
+                {
+                    'key': 9,
+                    'workflowName': 'Data Processing',
+                    'creator': 'Charlie',
+                    'createdAt': '2024-07-23',
+                    'status': 'Pending',
+                    'lastModified': '2024-08-17'
+                },
+                {
+                    'key': 10,
+                    'workflowName': 'Customer Feedback',
+                    'creator': 'Charlie',
+                    'createdAt': '2024-10-06',
+                    'status': 'Inactive',
+                    'lastModified': '2024-10-23'
+                }
+                // ... 更多数据
+            ];
+            setData(result);
+        };
+
+        fetchData();
+    }, []);
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -77,6 +185,52 @@ const ArrangeIndex: React.FC = () => {
         fetchMenuItems().then((r) => r);
     }, []);
 
+    function handleEdit(record: WorkflowListItem) {
+        message.success('Workflow edited successfully!' + record.workflowName).then(r  =>r);
+    }
+
+    function handleDelete(record: WorkflowListItem) {
+
+        message.success('Workflow deleted successfully!' + record.workflowName).then(r  =>r);
+    }
+
+
+    const actionsColumn: ProColumns<WorkflowListItem> = {
+        title: 'Actions',
+        dataIndex: 'actions', // 使用一个虚拟的 dataIndex，不需要在数据源中有对应的字段
+        width: 150,
+        render: (_, record) => (
+            <>
+                <Button onClick={() => handleEdit(record)}>Edit</Button>
+                <Button onClick={() => handleDelete(record)}>Delete</Button>
+            </>
+        ),
+    };
+
+    const columns: ProColumns<WorkflowListItem>[] = [
+        {
+            title: 'Workflow Name',
+            dataIndex: 'workflowName',
+        },
+        {
+            title: 'Creator',
+            dataIndex: 'creator',
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAt',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+        },
+        {
+            title: 'Last Modified',
+            dataIndex: 'lastModified',
+        },
+        // ... 可以添加更多列
+        actionsColumn, // 将操作列添加到列定义中
+    ];
 
     const handleMenuClick = async (e: MenuDataItem) => {
 
@@ -160,10 +314,22 @@ const ArrangeIndex: React.FC = () => {
     };
 
     // 处理标签页切换
-    const onTabChange = (key:string) => {
+    const onTabChange = (key: string) => {
         console.log('选中的标签页:', key);
         setActiveTabKey(key);
     };
+
+    const rowSelection: TableRowSelection<WorkflowListItem> = {
+        onChange: (_selectedRowKeys, selectedRows) => {
+            setSelectedRows(selectedRows);
+        },
+        selectedRowKeys: selectedRows.map((row) => row.key),
+
+        getCheckboxProps: (record) => ({
+            disabled: record.status === 'Inactive', // 根据需要禁用复选框
+        }),
+    };
+
     return (
         <ProLayout
             logo={'src/assets/logo/logo.jpeg'}
@@ -224,16 +390,16 @@ const ArrangeIndex: React.FC = () => {
                     <Form.Item
                         name="workflowName"
                         label="Workflow Name"
-                        rules={[{ required: true, message: 'Please input the workflow name!' }]}
+                        rules={[{required: true, message: 'Please input the workflow name!'}]}
                     >
-                        <Input placeholder="Enter workflow name" />
+                        <Input placeholder="Enter workflow name"/>
                     </Form.Item>
                     <Form.Item
                         name="decisionDescription"
                         label="Decision Description"
-                        rules={[{ required: true, message: 'Please input the decision description!' }]}
+                        rules={[{required: true, message: 'Please input the decision description!'}]}
                     >
-                        <Input.TextArea placeholder="Enter decision description" />
+                        <Input.TextArea placeholder="Enter decision description"/>
                     </Form.Item>
                 </Form>
             </Modal>
@@ -244,7 +410,7 @@ const ArrangeIndex: React.FC = () => {
                     <Button key="3"> 不确定用途</Button>,
                     <Button key="2"> 不确定用途</Button>,
                     <Button key="1" type="primary">
-                       不确定用途
+                        不确定用途
                     </Button>,
                 ]}
                 tabList={conditionalTabList}
@@ -277,7 +443,14 @@ const ArrangeIndex: React.FC = () => {
             >
                 {(activeTabKey === 'tab1' || activeTabKey === '') && selectedMenuItem && (
                     // 这里是第一个标签页的内容
-                    <div>第一个标签页的内容</div>
+                    <ProTable<WorkflowListItem>
+                        columns={columns}
+                        dataSource={data}
+                        rowKey="key"
+                        search={{}}
+                        rowSelection={rowSelection}
+                        // 可以添加其他 ProTable 的属性和配置
+                    />
                 )}
 
                 {activeTabKey === 'tab2' && selectedMenuItem && treeData && (
