@@ -22,11 +22,11 @@ interface MenuItem {
 const tabList = [
     {
         key: 'tab1',
-        tab: 'editor',
+        tab: 'Run log',
     },
     {
         key: 'tab2',
-        tab: 'log',
+        tab: 'Editor',
     },
     // 你可以根据需要添加更多的标签页
 ];
