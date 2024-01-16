@@ -228,10 +228,15 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             .attr('href', lockIconHref);
     }, [isLocked]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
 
+    // 计算svg窗口大小
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    const svgHeight = windowWidth - 256
+    const svgWidth = windowHeight - 62
 
     return (
         <div>
-            <svg ref={svgRef} width="1600" height="1300" onContextMenu={handleContextMenu}></svg>
+            <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
             <svg>
                 <MovingArrowPattern/>
             </svg>
