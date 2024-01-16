@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message} from 'antd';
+import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message, Button} from 'antd';
 import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
@@ -19,6 +19,18 @@ interface MenuItem {
     label: string;
 }
 
+const tabList = [
+    {
+        key: 'tab1',
+        tab: 'editor',
+    },
+    {
+        key: 'tab2',
+        tab: 'log',
+    },
+    // 你可以根据需要添加更多的标签页
+];
+
 const ArrangeIndex: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
@@ -30,6 +42,8 @@ const ArrangeIndex: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [workflowForm] = Form.useForm();
 
+    const [activeTabKey, setActiveTabKey] = useState<string>('');
+    const conditionalTabList = selectedMenuItem ? tabList : [];
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -144,6 +158,12 @@ const ArrangeIndex: React.FC = () => {
     const handleModalCancel = () => {
         setIsModalVisible(false);
     };
+
+    // 处理标签页切换
+    const onTabChange = (key:string) => {
+        console.log('选中的标签页:', key);
+        setActiveTabKey(key);
+    };
     return (
         <ProLayout
             logo={'src/assets/logo/logo.jpeg'}
@@ -174,7 +194,7 @@ const ArrangeIndex: React.FC = () => {
                     >
                         +
                     </button>
-                </div>,
+                </div>
             ]}
             avatarProps={{
                 src: 'src/assets/logo/logo.jpeg', // 您的头像图片路径
@@ -218,6 +238,17 @@ const ArrangeIndex: React.FC = () => {
                 </Form>
             </Modal>
             <PageContainer
+                // content={ <Collapse bordered={false} items={collapseItems}/>}
+
+                extra={[
+                    <Button key="3"> 不确定用途</Button>,
+                    <Button key="2"> 不确定用途</Button>,
+                    <Button key="1" type="primary">
+                       不确定用途
+                    </Button>,
+                ]}
+                tabList={conditionalTabList}
+                onTabChange={onTabChange}
                 token={{
                     paddingInlinePageContainerContent: 0,
                 }}
@@ -245,6 +276,7 @@ const ArrangeIndex: React.FC = () => {
                 }
             >
                 {/* 页面内容 */}
+
                 {selectedMenuItem && treeData && (
                     <div className={styles.treeChartContainer}>
                         <TreeChart
@@ -254,6 +286,23 @@ const ArrangeIndex: React.FC = () => {
                         />
                     </div>
                 )}
+                {activeTabKey === 'tab1' && (
+                    // 这里是第一个标签页的内容
+                    <div>第一个标签页的内容</div>
+                )}
+
+                {activeTabKey === 'tab2' && selectedMenuItem && treeData && (
+                    // 这里是第二个标签页的内容
+                    <div className={styles.treeChartContainer}>
+                        <TreeChart
+                            key={selectedMenuItem.key}
+                            treeStore={new TreeStore()}
+                            initialData={treeData}
+                        />
+                    </div>
+                )}
+
+
                 {!selectedMenuItem && (
                     <div style={{marginLeft: '20px', marginTop: '50px'}}>
                         请选择左侧列表中的一个节点查看详情。
