@@ -275,18 +275,7 @@ const ArrangeIndex: React.FC = () => {
                     </>
                 }
             >
-                {/* 页面内容 */}
-
-                {selectedMenuItem && treeData && (
-                    <div className={styles.treeChartContainer}>
-                        <TreeChart
-                            key={selectedMenuItem.key}
-                            treeStore={new TreeStore()}
-                            initialData={treeData}
-                        />
-                    </div>
-                )}
-                {activeTabKey === 'tab1' && (
+                {(activeTabKey === 'tab1' || activeTabKey === '') && selectedMenuItem && (
                     // 这里是第一个标签页的内容
                     <div>第一个标签页的内容</div>
                 )}
@@ -304,7 +293,7 @@ const ArrangeIndex: React.FC = () => {
 
 
                 {!selectedMenuItem && (
-                    <div style={{marginLeft: '20px', marginTop: '50px'}}>
+                    <div style={{marginLeft: '20px', marginTop: '15px'}}>
                         请选择左侧列表中的一个节点查看详情。
                     </div>
                 )}
