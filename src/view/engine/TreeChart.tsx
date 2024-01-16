@@ -36,13 +36,11 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         .separation(function () {
             return 1;
         }));
-    // const currentTransform = useRef<d3.ZoomTransform | null>(null);
-
 
     const closestNodeRef = useRef<D3Node | null>();
     const treeChartState = useRef<TreeChartState | null>();
     // 新增状态来跟踪treeChartState是否准备好
-    const [isTreeChartStateReady, setIsTreeChartStateReady] = useState(false);
+    const isTreeChartStateReady = useRef<boolean>(false);
 
     const [contextMenu, setContextMenu] = useState<{
         x: number;
@@ -151,7 +149,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
         DrawLinks(initState);
         DrawCircle(initState);
-        setIsTreeChartStateReady(true);
+        isTreeChartStateReady.current=true;
 
 
         const iconWidth = 15; // 每个图标的宽度
@@ -244,7 +242,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             {/* 编辑器 */}
             <ManageModalEditor treeStore={treeStore}/>
             {/*悬浮菜单*/}
-            {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
+            {isTreeChartStateReady.current && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
             <Modal
                 title="源代码"
                 open={isModalVisible}
