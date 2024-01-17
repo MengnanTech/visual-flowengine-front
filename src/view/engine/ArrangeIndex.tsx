@@ -15,7 +15,6 @@ import {
 import {ProColumns, ProTable} from '@ant-design/pro-table';
 import {TableRowSelection} from "antd/es/table/interface";
 import {WorkflowListItem} from "@/components/workflow/model/WorkflowModel.ts";
-import {GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
 
 const tabList = [
     {
@@ -371,7 +370,7 @@ const ArrangeIndex: React.FC = () => {
                     // 这里是第二个标签页的内容
                     <div className={styles.treeChartContainer}>
                         <TreeChart
-                            key={GenerateUUID()}
+                            key={Math.random()}
                             treeStore={new TreeStore()}
                             initialData={treeData}
                         />

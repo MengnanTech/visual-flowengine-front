@@ -2,16 +2,14 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {observer} from 'mobx-react';
-import {centerTree, GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
+import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
-import ContextMenu from "@/components/d3Helpers/ContextMenu.tsx";
-import {Modal} from "antd";
+import {Dropdown, MenuProps, Modal} from "antd";
 import Editor from "@monaco-editor/react";
-// import {SyncOutlined} from "@ant-design/icons";
 import styles from './styles/TreeChart.module.scss'
 
 interface TreeChartProps {
@@ -44,11 +42,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     // 新增状态来跟踪treeChartState是否准备好
     const [isTreeChartStateReady, setIsTreeChartStateReady] = useState(false);
 
-    const [contextMenu, setContextMenu] = useState<{
-        x: number;
-        y: number;
-        options: { label: string; action: () => void }[]
-    } | null>(null);
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; } | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [jsonData, setJsonData] = useState('');
 
@@ -80,14 +74,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         if (event.target === svgRef.current) {
             setContextMenu({
                 x: event.clientX,
-                y: event.clientY,
-                options: [
-                    {
-                        label: '查看源代码',
-                        action: () => showModal(JSON.stringify(rootNode.current!.data, null, 2))
-                    },
-                    // ...更多选项
-                ]
+                y: event.clientY
             });
         }
     };
@@ -232,6 +219,19 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const svgHeight = windowWidth - 256
     const svgWidth = windowHeight - 62
 
+    const items: MenuProps['items'] = [
+        {
+            key: '1',
+            label: (
+                <div>
+                    查看源代码
+                </div>
+            ),
+            onClick: () => {
+                showModal(JSON.stringify(rootNode.current!.data, null, 2))
+            }
+        }
+    ];
     return (
         <div>
             <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
@@ -253,7 +253,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 width={1000}
             >
                 <Editor
-                    key={GenerateUUID()}
+                    key={Math.random()}
                     height="70vh"
                     defaultLanguage="json"
                     defaultValue={jsonData}
@@ -263,14 +263,27 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 />
             </Modal>
 
+            {/*{contextMenu && (*/}
+            {/*    <ContextMenu*/}
+            {/*        x={contextMenu.x - 255}*/}
+            {/*        y={contextMenu.y}*/}
+            {/*        options={contextMenu.options}*/}
+            {/*        onClose={closeContextMenu}*/}
+            {/*    />*/}
+            {/*)}*/}
             {contextMenu && (
-                <ContextMenu
-                    x={contextMenu.x - 255}
-                    y={contextMenu.y}
-                    options={contextMenu.options}
-                    onClose={closeContextMenu}
-                />
+                <Dropdown menu={{items}} open={true} key={Math.random()}>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: `${contextMenu.x-255}px`,
+                            top: `${contextMenu.y}px`,
+                        }}
+                        onClick={closeContextMenu}
+                    />
+                </Dropdown>
             )}
+
         </div>
 
     )
