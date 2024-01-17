@@ -263,16 +263,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 />
             </Modal>
 
-            {/*{contextMenu && (*/}
-            {/*    <ContextMenu*/}
-            {/*        x={contextMenu.x - 255}*/}
-            {/*        y={contextMenu.y}*/}
-            {/*        options={contextMenu.options}*/}
-            {/*        onClose={closeContextMenu}*/}
-            {/*    />*/}
-            {/*)}*/}
             {contextMenu && (
-                <Dropdown menu={{items}} open={true} key={Math.random()}>
+                <Dropdown menu={{items}}
+                          open={true}
+                          key={Math.random()}
+                          className={styles.dropdownCustom}
+                >
                     <div
                         style={{
                             position: 'absolute',

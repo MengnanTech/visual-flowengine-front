@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message, Button} from 'antd';
-import {EnvironmentOutlined, SearchOutlined, SettingOutlined} from '@ant-design/icons';
+import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
@@ -124,9 +124,9 @@ const ArrangeIndex: React.FC = () => {
             //         </button>
             //     </div>
             // ),
-            filterIcon: (filtered) => (
-                <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}}/>
-            ),
+            // filterIcon: (filtered) => (
+            //     <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}}/>
+            // ),
         },
         {
             title: 'Creator',

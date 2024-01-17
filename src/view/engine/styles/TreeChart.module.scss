@@ -13,3 +13,22 @@
   //transform: scale(3.05); // 点击时略微缩小，模仿按压效果
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); // 按压时的内阴影
 }
+.dropdownCustom {
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+  background-color: white;
+  transition: opacity 0.3s ease-in-out;
+
+  .dropdownMenu {
+    border-radius: 8px;
+
+    .dropdownMenuItem {
+      padding: 10px 15px;
+
+      &:hover {
+        background-color: #15159a;
+      }
+    }
+  }
+}
