@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {observer} from 'mobx-react';
-import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
+import {centerTree, GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
 import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
@@ -99,8 +99,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     useEffect(() => {
 
         d3.select(svgRef.current).selectAll("*").remove();
-
-        console.log("initialData",initialData)
         rootNode.current = d3.hierarchy(initialData) as D3Node;
         svgSelect.current = d3.select(svgRef.current);
         gRef.current = svgSelect.current.append("g");
@@ -255,7 +253,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 width={1000}
             >
                 <Editor
-                    key={new Date().getTime()}
+                    key={GenerateUUID()}
                     height="70vh"
                     defaultLanguage="json"
                     defaultValue={jsonData}

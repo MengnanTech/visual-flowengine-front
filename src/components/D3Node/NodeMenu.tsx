@@ -7,8 +7,8 @@ import {TreeStore} from "@/store/TreeStore.ts";
 import * as d3 from "d3";
 import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
-import {v4 as uuid} from "uuid";
 import {observer} from "mobx-react";
+import {GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
 
 interface NodeAction {
     icon: React.JSX.Element;
@@ -107,7 +107,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         const newNodeData: NodeData =
             {
 
-                id: uuid(),
+                id: GenerateUUID(),
                 name: "New Node" + Math.floor(Math.random() * 90) + 100,
                 nodeType: "script",
                 nodeDesc: "",

@@ -1,4 +1,5 @@
 import {D3Node} from "@/components/D3Node/NodeModel.ts";
+import {v4 as uuid} from "uuid";
 
 
 export const centerTree = (rootNode: D3Node, width: number, height: number) => {
@@ -28,3 +29,6 @@ export const centerTree = (rootNode: D3Node, width: number, height: number) => {
     // 返回平移量
     return [translateX, translateY];
 };
+export const GenerateUUID =()=> {
+    return uuid();
+}
