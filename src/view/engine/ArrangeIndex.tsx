@@ -29,13 +29,9 @@ const tabList = [
     // 你可以根据需要添加更多的标签页
 ];
 
-
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js 网络环境不好。这里会报错。
 const ArrangeIndex: React.FC = () => {
 
-
-    const apiPath = window.apiPath; // 如果 apiPath 未定义，使用 'defaultPath'
-
-    console.log('apiPath', apiPath);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
