@@ -15,6 +15,8 @@ import {
 import {ProColumns, ProTable} from '@ant-design/pro-table';
 import {TableRowSelection} from "antd/es/table/interface";
 import {WorkflowListItem} from "@/components/workflow/model/WorkflowModel.ts";
+import logo from '@/assets/logo/logo.jpeg';
+
 
 const tabList = [
     {
@@ -249,7 +251,7 @@ const ArrangeIndex: React.FC = () => {
 
     return (
         <ProLayout
-            logo={'src/assets/logo/logo.jpeg'}
+            logo={logo}
             title="可视化流程引擎"
             menuItemRender={(item, dom) => (
                 <div
@@ -280,7 +282,7 @@ const ArrangeIndex: React.FC = () => {
                 </div>
             ]}
             avatarProps={{
-                src: 'src/assets/logo/logo.jpeg', // 您的头像图片路径
+                src: logo, // 您的头像图片路径
                 size: 'large',
                 // 如果您想要头像点击事件:
                 onClick: () => {

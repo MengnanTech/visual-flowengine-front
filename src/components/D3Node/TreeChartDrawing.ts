@@ -1,6 +1,6 @@
 import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
-
+import circleIcon from '@/assets/logo/321.svg';
 
 export function DrawCircle(treeChartState: TreeChartState) {
 
@@ -103,7 +103,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 .style("font-weight", "normal"); // 文字恢复正常
         });
     nodesEnter.append('image')
-        .attr('xlink:href', 'src/assets/logo/321.svg') // 替换为你的图标路径
+        .attr('xlink:href', circleIcon) // 替换为你的图标路径
         .attr('width', 16)  // 图标宽度
         .attr('height', 16) // 图标高度
         .attr('x', -8)  // 图标相对于节点中心的 x 偏移

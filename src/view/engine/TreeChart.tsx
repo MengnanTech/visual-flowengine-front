@@ -11,7 +11,9 @@ import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import {Dropdown, MenuProps, Modal} from "antd";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
-
+import lockedIcon from '@/assets/logo/locked_icon.svg'
+import unlockedIcon from '@/assets/logo/unlocked_icon.svg'
+import refreshIcon from '@/assets/logo/refresh.svg'
 interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
@@ -21,7 +23,7 @@ interface TreeChartProps {
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
-    console.log("TreeChart render",initialData)
+    console.log("TreeChart render", initialData)
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
@@ -146,7 +148,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
         // 添加图标到图标组
         iconGroup.append('image')
-            .attr('href', 'src/assets/logo/refresh.svg')
+            .attr('href', refreshIcon)
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', 0) // 第一个图标的x坐标
@@ -169,7 +171,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
 
         const lockIcon = iconGroup.append('image')
-            .attr('href', isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg')
+            .attr('href', isLocked ?  lockedIcon : unlockedIcon)
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
@@ -207,7 +209,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     }, [initialData, treeStore]);
     useEffect(() => {
-        const lockIconHref = isLocked ? 'src/assets/logo/locked_icon.svg' : 'src/assets/logo/unlocked_icon.svg';
+        const lockIconHref = isLocked ? lockedIcon : unlockedIcon;
         svgSelect.current!
             .select(`image.${styles.iconHover}`) // 使用模块化样式类选择元素
             .attr('href', lockIconHref);
@@ -272,7 +274,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     <div
                         style={{
                             position: 'absolute',
-                            left: `${contextMenu.x-255}px`,
+                            left: `${contextMenu.x - 255}px`,
                             top: `${contextMenu.y}px`,
                         }}
                         onClick={closeContextMenu}
