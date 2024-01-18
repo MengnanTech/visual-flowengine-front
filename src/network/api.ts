@@ -15,7 +15,8 @@ export interface Diagnostic {
 
 export async function compileGroovyScript(code: string): Promise<Diagnostic[]> {
     try {
-        const response = await HTTP.post('/api/engine/groovyScript/compile', code);
+
+        const response = await HTTP.post( window.compileGroovyScript, code);
         if (response) {
             return response;
         } else {

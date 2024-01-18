@@ -31,6 +31,11 @@ const tabList = [
 
 
 const ArrangeIndex: React.FC = () => {
+
+
+    const apiPath = window.apiPath; // 如果 apiPath 未定义，使用 'defaultPath'
+
+    console.log('apiPath', apiPath);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
