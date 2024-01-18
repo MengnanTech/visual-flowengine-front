@@ -2,7 +2,9 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Badge, Button, Descriptions, Modal, Tooltip} from 'antd';
 import Editor from '@monaco-editor/react';
 import {compileGroovyScript} from "@/network/api.ts";
-import * as monaco from 'monaco-editor';
+// import * as monaco from 'monaco-editor';
+//这样导入少包体积少2M
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
 import {CopyFilled, EditFilled} from "@ant-design/icons";
