@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = '';
 
 class HTTP {
     static async request(url:string, options = {}) {
@@ -30,7 +30,7 @@ class HTTP {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body)
+            body: body
         });
     }
 
@@ -40,7 +40,7 @@ class HTTP {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body)
+            body: body
         });
     }
 

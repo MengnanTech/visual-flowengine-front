@@ -92,6 +92,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         editor.onDidChangeModelContent(async () => {
             const code = editor.getValue();
             setEditorCode(code);
+            console.log('onDidChangeModelContent:', code);
         });
     };
 
