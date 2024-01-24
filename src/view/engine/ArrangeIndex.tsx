@@ -329,7 +329,7 @@ const ArrangeIndex: React.FC = () => {
                     <Button key="3"> 不确定用途</Button>,
                     <Button key="2"> 不确定用途</Button>,
                     <Button key="1" type="primary">
-                        不确定用途
+                        运行workflow
                     </Button>,
                 ]}
 
