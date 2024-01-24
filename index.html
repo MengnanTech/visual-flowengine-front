@@ -1,24 +1,31 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <script type="text/javascript" th:inline="javascript">
 
-      window.compileScriptApiPath = "/api/engine/groovyScript/compile";
-      window.runGroovyScriptApiPath = "/api/engine/groovyScript/run";
-      // window.createWorkflowApiPath = [[${visualFlowProperties.createWorkflowApiPath}]] || "/api/engine/createWorkflow";
-      // window.deleteWorkflowApiPath = [[${visualFlowProperties.deleteWorkflowApiPath}]] || "/api/engine/workflow";
-      // window.listWorkflowsApiPath = [[${visualFlowProperties.listWorkflowsApiPath}]] || "/api/engine/workflowList";
-      // window.runGroovyScriptApiPath = [[${visualFlowProperties.runGroovyScriptApiPath}]] || "/api/engine/groovyScript/run";
-      // window.getWorkflowMetadataApiPath = [[${visualFlowProperties.getWorkflowMetadataApiPath}]] || "/api/engine/workflow";
+        window.compileScriptApiPath = "/api/engine/groovyScript/compile";
+        window.runGroovyScriptApiPath = "/api/engine/groovyScript/run";
+        window.createWorkflowApiPath = "/api/engine/createWorkflow";
+        window.deleteWorkflowApiPath = "/api/engine/workflow";
+        window.listWorkflowsApiPath = "/api/engine/workflowList";
+        window.getWorkflowMetadataApiPath = "/api/engine/workflow";
+
+
+        // window.compileScriptApiPath = [[${visualFlowProperties.compileScriptApiPath}]];
+        // window.createWorkflowApiPath = [[${visualFlowProperties.createWorkflowApiPath}]];
+        // window.deleteWorkflowApiPath = [[${visualFlowProperties.deleteWorkflowApiPath}]];
+        // window.listWorkflowsApiPath = [[${visualFlowProperties.listWorkflowsApiPath}]];
+        // window.runGroovyScriptApiPath = [[${visualFlowProperties.runGroovyScriptApiPath}]];
+        // window.getWorkflowMetadataApiPath = [[${visualFlowProperties.getWorkflowMetadataApiPath}]];
 
 
     </script>
     <title>manage-man</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
 </html>
