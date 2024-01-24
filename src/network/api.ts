@@ -17,7 +17,20 @@ export async function compileGroovyScript(code: string): Promise<Diagnostic[]> {
     try {
 
         const response = await HTTP.post( window.compileScriptApiPath, JSON.stringify({code: code}));
-        // const response = await HTTP.post( window.runGroovyScriptApiPath, JSON.stringify({code: code}));
+        if (response) {
+            return response;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error("Error compiling groovy script:", error);
+        return [];
+    }
+}
+export async function debugGroovyScript(code: string): Promise<any> {
+    try {
+
+         const response = await HTTP.post( window.runGroovyScriptApiPath, JSON.stringify({code: code}));
         if (response) {
             return response;
         } else {

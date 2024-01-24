@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Badge, Button, Descriptions, Modal, Tooltip} from 'antd';
+import {Badge, Button, Descriptions, message, Modal, Tooltip} from 'antd';
 import Editor, {Monaco} from '@monaco-editor/react';
-import {compileGroovyScript} from "@/network/api.ts";
+import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
 //这样导入少包体积少2M
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -10,7 +10,7 @@ import {observer} from "mobx-react";
 import {CopyFilled, EditFilled} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/groovy-language-definition-for-monaco.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
@@ -59,13 +59,13 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             monaco.editor.setModelMarkers(editorRef.current.getModel()!, 'groovy', diagnostics);
         }
     };
-
     const handleCompile = async () => {
         await compileCode(editorCode);
     };
 
-    const handleDebug = () => {
-
+    const handleDebug = async () => {
+        const res = await debugGroovyScript(editorCode);
+        message.success(res);
     };
 
     const handleSave = () => {
@@ -120,18 +120,18 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 title={
                     <Descriptions size="small" column={1}>
                         <Descriptions.Item label="Node ID">
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{display: 'flex', alignItems: 'center'}}>
                                 <span>{clickNode?.data.id}</span>
                                 <Tooltip title="复制">
                                     <CopyToClipboard text={clickNode?.data.id || ''}>
-                                        <Button size="small" type="link" icon={<CopyFilled style={{ color: 'gray' }}/>} />
+                                        <Button size="small" type="link" icon={<CopyFilled style={{color: 'gray'}}/>}/>
                                     </CopyToClipboard>
                                 </Tooltip>
                             </div>
                         </Descriptions.Item>
 
                         <Descriptions.Item label="Node Name">
-                            <div style={{ display: 'flex', alignItems: 'center', height: '22px' }}>
+                            <div style={{display: 'flex', alignItems: 'center', height: '22px'}}>
                                 {isEditing ? (
                                     <AutoWidthInput
                                         value={title}
@@ -140,9 +140,10 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                     />
                                 ) : (
                                     <>
-                                        <span style={{ lineHeight: '32px' }}>{title}</span>
-                                        <Button size="small" type="link" onClick={toggleEditing} style={{ marginLeft: 'auto' }}>
-                                            <EditFilled />
+                                        <span style={{lineHeight: '32px'}}>{title}</span>
+                                        <Button size="small" type="link" onClick={toggleEditing}
+                                                style={{marginLeft: 'auto'}}>
+                                            <EditFilled/>
                                         </Button>
                                     </>
                                 )}
@@ -152,11 +153,11 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         {/* 在这里添加其他节点信息 */}
                         <Descriptions.Item label="Node Type">{clickNode?.data.nodeType}</Descriptions.Item>
                         <Descriptions.Item label="Node Status">
-                            <Badge status="processing" text="Running" color="green" />
+                            <Badge status="processing" text="Running" color="green"/>
                         </Descriptions.Item>
                         {/* 如果有更多信息，继续添加 */}
                     </Descriptions>
-            }
+                }
                 centered
                 maskClosable={false}
                 open={treeStore.clickNode !== null}
