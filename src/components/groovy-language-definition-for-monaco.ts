@@ -301,10 +301,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
         surroundingPairs,
         wordPattern,
     });
-    // 为 Groovy 语言添加自动完成功能
 
-
-    // 为 Groovy 语言添加自动完成功能
     const completionItemProvider: languages.CompletionItemProvider = {
         provideCompletionItems: function (model, position) {
             // 根据当前模型和位置提供自动完成建议
@@ -344,8 +341,4 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
     };
 
     monaco.languages.registerCompletionItemProvider('groovy', completionItemProvider);
-
-
-    monaco.languages.registerCompletionItemProvider('groovy', completionItemProvider);
-
 };
