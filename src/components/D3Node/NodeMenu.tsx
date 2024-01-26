@@ -102,14 +102,14 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         }, 500);
     }
 
-    function handleAddNode(clickedNode: D3Node) {
+    function handleAddNode(clickedNode: D3Node, nodeType: string) {
 
         const newNodeData: NodeData =
             {
 
                 id: GenerateUUID(),
-                name: "New Node" + Math.floor(Math.random() * 90) + 100,
-                nodeType: "script",
+                name: nodeType === "end" ? "结束节点" : "New Node" + Math.floor(Math.random() * 90) + 100,
+                nodeType: nodeType,
                 nodeDesc: "",
                 scriptText: '',
             };
@@ -154,17 +154,17 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
-            action: () => handleAddNode(treeStore.menuNode!)
+            action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '条件节点todo',
-            action: () => handleAddNode(treeStore.menuNode!)
+            action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
-            action: () => handleAddNode(treeStore.menuNode!)
+            action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
@@ -177,6 +177,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {
+            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            label: '结束节点',
+            action: () => handleAddNode(treeStore.menuNode!, 'end')
+        },
         {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: 'json批量创建节点', action: () => handDragNode()}
     ];
 

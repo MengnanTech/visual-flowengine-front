@@ -2,6 +2,8 @@ import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
 import circleIcon from '@/assets/logo/321.svg';
 
+
+
 export function DrawCircle(treeChartState: TreeChartState) {
 
     const rootNode = treeChartState.rootNode;
@@ -11,6 +13,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
     const nodeSelection = gRef.selectAll<SVGGElement, D3Node>(".node");
     const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.id);
+    console.log("nodes", nodes)
     const nodesEnter: d3.Selection<SVGGElement, D3Node, any, any> = nodes.enter()
         .append("g")
         .attr("class", "node")
@@ -20,67 +23,102 @@ export function DrawCircle(treeChartState: TreeChartState) {
             return `translate(${d.y},${d.x})`
         })
         .attr('id', d => `node-${d.data.id}`);  // 同时设置ID，用于后续选择
-    nodesEnter.append("circle")
-        .attr("r", 20)
-        .style("fill", "#c0f1b0") // 设置初始化灰白色，掩盖连接线
-        .style("stroke", "#999")
-        .style("stroke-width", 1.5)
-        .style("opacity", 1)
-        .raise()
 
-        .on('mouseover', function (_event, node) {
-            const circleRadius = 10; // 圆的半径
-            const popoverHeight = 10; // Popover 的高度
-            // const popoverWidth = 10; // 假设的 Popover 宽度
+    nodesEnter.each(function (d) {
+        const nodeGroup: d3.Selection<SVGGElement, D3Node, null, undefined> = d3.select(this);
 
-            // 获取当前的缩放变换
-            const transform = d3.zoomTransform(svgRef);
+        // 检查节点类型，绘制相应的形状
+        if (d.data.nodeType === 'end') {
 
-            // 计算变换后的位置
-            const transformedX = transform.applyX(node.y);
-            const transformedY = transform.applyY(node.x) - circleRadius - popoverHeight;
+            // 如果节点是 'end' 类型，则绘制正方形
+             nodeGroup.append("rect")
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("x", -10)
+                .attr("y", -10)
+                .style("fill", "red")
+                .style("stroke", "#999")
+                .style("stroke-width", 1.5)
+                .style("opacity", 1)
+                .raise();
 
-            const boundingClientRect = svgRef.getBoundingClientRect();
 
-            // 计算 Popover 在文档中的位置
-            const x = boundingClientRect.left + window.scrollX + transformedX; // 调整 X 坐标
-            // const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
-            const y = boundingClientRect.top + window.scrollY + transformedY;
+        } else {
+            // 否则，绘制圆形
+            const circle: d3.Selection<SVGCircleElement, D3Node, null, undefined> = nodeGroup.append<SVGCircleElement>("circle")
+                .attr("r", 20)
+                .style("fill", "#c0f1b0")
+                .style("stroke", "#999")
+                .style("stroke-width", 1.5)
+                .style("opacity", 1)
+                .raise();
+            circle.on('mouseover', function (_event, node) {
+                const circleRadius = 10; // 圆的半径
+                const popoverHeight = 10; // Popover 的高度
+                // const popoverWidth = 10; // 假设的 Popover 宽度
 
-            d3.select(this)
-                .transition()
-                .duration(5)
-                .attr("r", 25)
-                .style("fill", "#a9db80");
-            treeStore.setCurrentMenu(null)
+                // 获取当前的缩放变换
+                const transform = d3.zoomTransform(svgRef);
 
-            setTimeout(() => {
-                treeStore.setCurrentMenu({x: x, y: y});
-                treeStore.setMenuNode(node);
-            }, 1);
-        })
-        .on('mouseout', function () {
-            d3.select(this) // 选择当前的圆
-                .transition() // 开始一个过渡效果
-                .duration(50) // 持续时间
-                .attr("r", 20) // 恢复圆的半径
-                .style("fill", "#c0f1b0"); // 恢复填充色
-        })
-        .on('click', function (_event, d) {
-            d3.select(this)
-                .transition()
-                .duration(50) // 闪烁效果快速发生
-                .style('fill', '#a1c26f') // 临时变为新颜色
-                .transition()
-                .duration(10)
-                .style('fill', '#c0f1b0'); // 然后迅速变回原色
-            // 继续执行添加节点的函数或其他操作
-            treeStore.setClickNode(d)
-        })
-        .on('contextmenu', function (event,) {
-            event.preventDefault(); // 阻止默认的右键菜单
+                // 计算变换后的位置
+                const transformedX = transform.applyX(node.y);
+                const transformedY = transform.applyY(node.x) - circleRadius - popoverHeight;
 
-        });
+                const boundingClientRect = svgRef.getBoundingClientRect();
+
+                // 计算 Popover 在文档中的位置
+                const x = boundingClientRect.left + window.scrollX + transformedX; // 调整 X 坐标
+                // const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
+                const y = boundingClientRect.top + window.scrollY + transformedY;
+
+                d3.select(this)
+                    .transition()
+                    .duration(5)
+                    .attr("r", 25)
+                    .style("fill", "#a9db80");
+                treeStore.setCurrentMenu(null)
+
+                setTimeout(() => {
+                    treeStore.setCurrentMenu({x: x, y: y});
+                    treeStore.setMenuNode(node);
+                }, 1);
+            })
+                .on('mouseout', function () {
+                    d3.select(this) // 选择当前的圆
+                        .transition() // 开始一个过渡效果
+                        .duration(50) // 持续时间
+                        .attr("r", 20) // 恢复圆的半径
+                        .style("fill", "#c0f1b0"); // 恢复填充色
+                })
+                .on('click', function (_event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(50) // 闪烁效果快速发生
+                        .style('fill', '#a1c26f') // 临时变为新颜色
+                        .transition()
+                        .duration(10)
+                        .style('fill', '#c0f1b0'); // 然后迅速变回原色
+                    // 继续执行添加节点的函数或其他操作
+                    treeStore.setClickNode(d)
+                })
+                .on('contextmenu', function (event,) {
+                    event.preventDefault(); // 阻止默认的右键菜单
+
+                });
+
+        }
+    });
+
+
+    // nodesEnter.append("circle")
+    //     .attr("r", 20)
+    //     .style("fill", "#c0f1b0") // 设置初始化灰白色，掩盖连接线
+    //     .style("stroke", "#999")
+    //     .style("stroke-width", 1.5)
+    //     .style("opacity", 1)
+    //     .raise()
+
+
 
     nodesEnter.append("text")
         .attr("dy", "-2em")
@@ -139,9 +177,11 @@ export function refresh(treeChartState: TreeChartState) {
     DrawCircle(treeChartState);
     treeStore.setCurrentMenu(null)
 }
-export function generateLinkId(sourceId: string,targetId:string): string {
+
+export function generateLinkId(sourceId: string, targetId: string): string {
     return `link--${sourceId}--${targetId}`;
 }
+
 export function DrawLinks(treeChartState: TreeChartState) {
     const rootNode = treeChartState.rootNode;
 
@@ -159,7 +199,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .attr("fill", "none")
         .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
         .attr("stroke-width", 10)
-        .attr('id', d => generateLinkId(d.source.data.id,d.target.data.id)) // 同时设置ID，用于后续选择
+        .attr('id', d => generateLinkId(d.source.data.id, d.target.data.id)) // 同时设置ID，用于后续选择
         .lower()
         .transition()
         .duration(750)
