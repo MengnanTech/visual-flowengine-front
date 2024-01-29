@@ -115,7 +115,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             {
 
                 id: GenerateUUID(),
-                name: nodeType === "End" ? "结束节点" : "New Node" + Math.floor(Math.random() * 90) + 100,
+                name: nodeType === "End" ? "" : "New Node" + Math.floor(Math.random() * 90) + 100,
                 nodeType: nodeType,
                 nodeDesc: "",
                 scriptText: '',

@@ -19,7 +19,7 @@ export function createInitialData(): NodeData  {
                 "children": [
                     {
                         "id": "c00b92b0-00f8-4999-b5a0-c0bab728ca20",
-                        "name": "结束节点",
+                        "name": "End",
                         "nodeType": "End",
                         "nodeDesc": "",
                         "scriptText": ""
