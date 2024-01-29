@@ -19,8 +19,15 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .attr("class", "node")
 
         .attr("transform", d => {
-            //新节点移动到新位置
-            return `translate(${d.y},${d.x})`
+
+            if (d.data.nodeType === 'End') {
+                console.log("d.y", d.y)
+                return `translate(${d.y-200},${d.x})`;
+            } else {
+                return `translate(${d.y},${d.x})`;
+            }
+
+            // return `translate(${d.y},${d.x})`
         })
         .attr('id', d => `node-${d.data.id}`);  // 同时设置ID，用于后续选择
 
@@ -28,10 +35,10 @@ export function DrawCircle(treeChartState: TreeChartState) {
         const nodeGroup: d3.Selection<SVGGElement, D3Node, null, undefined> = d3.select(this);
 
         // 检查节点类型，绘制相应的形状
-        if (d.data.nodeType === 'end') {
+        if (d.data.nodeType === 'End') {
 
             // 如果节点是 'end' 类型，则绘制正方形
-             nodeGroup.append("rect")
+             const selection = nodeGroup.append("rect")
                 .attr("width", 20)
                 .attr("height", 20)
                 .attr("x", -10)
@@ -41,6 +48,27 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 .style("stroke-width", 1.5)
                 .style("opacity", 1)
                 .raise();
+
+            selection.on('mouseover', function (_event, d) {
+                const transform = d3.zoomTransform(svgRef);
+
+                // 计算变换后的位置
+                const transformedX = transform.applyX(d.y);
+                const transformedY = transform.applyY(d.x) ;
+
+                const boundingClientRect = svgRef.getBoundingClientRect();
+
+                // 计算 Popover 在文档中的位置
+                const x = boundingClientRect.left + window.scrollX + transformedX; // 调整 X 坐标
+                // const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
+                const y = boundingClientRect.top + window.scrollY + transformedY;
+                treeStore.setCurrentMenu(null)
+
+                setTimeout(() => {
+                    treeStore.setCurrentMenu({x: x-200, y: y});
+                    treeStore.setMenuNode(d);
+                }, 1);
+            })
 
 
         } else {
@@ -106,6 +134,35 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
                 });
 
+
+            nodesEnter.append("text")
+                .attr("dy", "-2em")
+                .attr("x", 0)
+                .style("text-anchor", "middle")
+                // .style("pointer-events", "none") 取消所有事件
+                .text(d => d.data.name)
+                .on('mouseover', function () {
+                    d3.select(this)
+                        .transition()
+                        .duration(150)
+                        .style("fill", "#000") // 鼠标悬停时的文本颜色
+                        .style("font-weight", "bold"); // 文字加粗
+                })
+                .on('mouseout', function () {
+                    d3.select(this)
+                        .transition()
+                        .duration(250)
+                        .style("fill", "#555") // 恢复默认文本颜色
+                        .style("font-weight", "normal"); // 文字恢复正常
+                });
+            nodesEnter.append('image')
+                .attr('xlink:href', circleIcon) // 替换为你的图标路径
+                .attr('width', 16)  // 图标宽度
+                .attr('height', 16) // 图标高度
+                .attr('x', -8)  // 图标相对于节点中心的 x 偏移
+                .attr('y', -8) // 图标相对于节点中心的 y 偏移
+                .style("pointer-events", "none");
+
         }
     });
 
@@ -120,37 +177,13 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
 
 
-    nodesEnter.append("text")
-        .attr("dy", "-2em")
-        .attr("x", 0)
-        .style("text-anchor", "middle")
-        // .style("pointer-events", "none") 取消所有事件
-        .text(d => d.data.name)
-        .on('mouseover', function () {
-            d3.select(this)
-                .transition()
-                .duration(150)
-                .style("fill", "#000") // 鼠标悬停时的文本颜色
-                .style("font-weight", "bold"); // 文字加粗
-        })
-        .on('mouseout', function () {
-            d3.select(this)
-                .transition()
-                .duration(250)
-                .style("fill", "#555") // 恢复默认文本颜色
-                .style("font-weight", "normal"); // 文字恢复正常
-        });
-    nodesEnter.append('image')
-        .attr('xlink:href', circleIcon) // 替换为你的图标路径
-        .attr('width', 16)  // 图标宽度
-        .attr('height', 16) // 图标高度
-        .attr('x', -8)  // 图标相对于节点中心的 x 偏移
-        .attr('y', -8) // 图标相对于节点中心的 y 偏移
-        .style("pointer-events", "none");
 
     nodes.transition()
         .duration(750)
         .attr("transform", d => {
+            if (d.data.nodeType === 'End') {
+                return `translate(${d.y-200},${d.x})`;
+            }
             return `translate(${d.y},${d.x})`
         });
 }
@@ -212,10 +245,15 @@ export function DrawLinks(treeChartState: TreeChartState) {
             }
 
 
+
             if (nodePreviousPosition == null) {
 
                 return function (t: number): string {
-                    const interpolateY = d3.interpolate(d.source.y, d.target.y);
+                    let interpolateY = d3.interpolate(d.source.y, d.target.y);
+
+                    if (d.target.data.nodeType === 'End') {
+                        interpolateY = d3.interpolate(d.source.y, d.target.y-200);
+                    }
                     const interpolateX = d3.interpolate(d.source.x, d.target.x);
 
                     const tempD: D3Link = {
@@ -230,7 +268,11 @@ export function DrawLinks(treeChartState: TreeChartState) {
 
                 const previousY = nodePreviousPosition[1];
                 const previousX = nodePreviousPosition[0];
-                const interpolateY = d3.interpolate(previousY, d.target.y);
+                let interpolateY = d3.interpolate(previousY, d.target.y);
+
+                if (d.target.data.nodeType === 'End') {
+                    interpolateY = d3.interpolate(d.source.y, d.target.y-200);
+                }
                 const interpolateX = d3.interpolate(previousX, d.target.x);
 
                 const sourceY = d3.interpolate(previousY, d.source.y);
@@ -260,5 +302,13 @@ export function DrawLinks(treeChartState: TreeChartState) {
     // 旧的连接线的动画效果
     links.transition()
         .duration(750)
-        .attr("d", d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x));
+        .attr("d",
+            d3.linkHorizontal<D3Link, D3Node>().x(function(d) {
+              if (d.data.nodeType === 'End') {
+                  return  d.y-200;
+              }
+              return d.y;
+
+            }).y(d => d.x)
+        );
 }

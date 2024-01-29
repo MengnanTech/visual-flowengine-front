@@ -16,6 +16,15 @@ export function createInitialData(): NodeData  {
                 "nodeType": "nodeType",
                 "scriptText": "root123scriptText是",
                 "nodeDesc": "nodeDesc",
+                "children": [
+                    {
+                        "id": "c00b92b0-00f8-4999-b5a0-c0bab728ca20",
+                        "name": "结束节点",
+                        "nodeType": "End",
+                        "nodeDesc": "",
+                        "scriptText": ""
+                    }
+                ]
             },
             {
                 "id": "root369",
@@ -29,14 +38,14 @@ export function createInitialData(): NodeData  {
                         "name": "Grandchild 2-1",
                         "nodeType": "nodeType",
                         "scriptText": "Grandchild 2-1scriptText收到",
-                        "nodeDesc": "nodeDesc",
+                        "nodeDesc": "nodeDesc"
                     },
                     {
                         "id": "root789",
                         "name": "Grandchild 2-2收到",
                         "nodeType": "nodeType",
                         "scriptText": "Grandchild 2-2scriptTextv啊",
-                        "nodeDesc": "nodeDesc",
+                        "nodeDesc": "nodeDesc"
                     },
                     {
                         "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
@@ -64,7 +73,7 @@ export function createInitialData(): NodeData  {
         ]
     }
 
-};
+}
 export function createInitialData2(): NodeData  {
     return {
         "id": "initialData2",

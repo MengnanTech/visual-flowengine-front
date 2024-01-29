@@ -13,6 +13,7 @@ import {GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
 interface NodeAction {
     icon: React.JSX.Element;
     label: string;
+    nodeType?: string;
     action: () => void;
 }
 
@@ -27,8 +28,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
 
+
     if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
+        console.log("handleDeleteCurrentTree", nodeToRemove)
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
             message.error('根节点无法删除').then(r => r)
@@ -58,10 +61,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             .style('opacity', 0)
             .attrTween("d", function (d): (t: number) => string {
                 const o = {x: nodeToRemove.parent!.x, y: nodeToRemove.parent!.y}; // 父节点的位置
+
+
                 const interpolateSourceX = d3.interpolate(d.source.x, o.x);
                 const interpolateSourceY = d3.interpolate(d.source.y, o.y);
                 const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.y, o.y);
+                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - 200 : d.target.y, o.y);
 
                 return function (t: number): string {
                     // 计算当前插值状态
@@ -75,7 +80,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                         source: {x: sourceX, y: sourceY} as D3Node,
                         target: {x: targetX, y: targetY} as D3Node
                     };
-                    return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(spreadElements)!;
+                    return d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
+                        return d.y;
+                    }).y(d => d.x)(spreadElements)!;
                 };
             })
             .remove();
@@ -108,7 +115,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             {
 
                 id: GenerateUUID(),
-                name: nodeType === "end" ? "结束节点" : "New Node" + Math.floor(Math.random() * 90) + 100,
+                name: nodeType === "End" ? "结束节点" : "New Node" + Math.floor(Math.random() * 90) + 100,
                 nodeType: nodeType,
                 nodeDesc: "",
                 scriptText: '',
@@ -140,7 +147,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const parentY = d.parent.previousY;
 
                 const interpolateSourceX = d3.interpolate(parentX, d.x);
-                const interpolateSourceY = d3.interpolate(parentY, d.y);
+
+                let interpolateSourceY = d3.interpolate(parentY, d.y);
+                if (nodeType === "End") {
+                    interpolateSourceY = d3.interpolate(parentY, d.y - 200);
+                }
 
                 return function (t: number): string {
                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
@@ -154,21 +165,25 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
+            nodeType: "Script",
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '条件节点todo',
+            nodeType: "Condition",
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
+            nodeType: "Rule",
             action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '删除此节点todo',
+            label: '删除此节点',
+            nodeType: "Delete",
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {
@@ -180,7 +195,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '结束节点',
-            action: () => handleAddNode(treeStore.menuNode!, 'end')
+            nodeType: "End",
+            action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: 'json批量创建节点', action: () => handDragNode()}
     ];
@@ -348,21 +364,59 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
 
+    function isNextNodeEnd(menuNode: D3Node | null) {
+        const children = menuNode?.data.children;
+
+        return !!(children && children.length > 0 && children[0].nodeType === "End");
+
+
+    }
+
     return (
         <div style={{position: 'absolute', left: menuPosition.x - 255, top: menuPosition.y}}>
             <Popover content={(
-                <div className={NodeMenuStyles.nodePopup}>
-                    {nodeActions.map((nodeAction, index) => (
-                        <div key={index} className={NodeMenuStyles.node} onClick={nodeAction.action}>
-                            {nodeAction.icon}
-                            <span className={NodeMenuStyles.span}>{nodeAction.label}</span>
-                        </div>
-                    ))}
+                <div>
+                    {treeStore.menuNode?.data.nodeType === "End" ? (
+
+                                <div key={Math.random()} className={NodeMenuStyles.deleteNode}
+                                     onClick={nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.action}>
+                                    {nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.icon}
+                                    <span>{nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.label}</span>
+                                </div>
+
+                        ) :
+                        (
+                            <div className={NodeMenuStyles.nodePopup}>
+                                {/* 循环应该是每个节点动作的内部 <div> */}
+                                {nodeActions.map((nodeAction, index) => {
+                                    // 获取当前节点的下一个节点是否是 "End"
+                                    const nodeEnd = isNextNodeEnd(treeStore.menuNode); // 假设有一个函数来获取下一个节点
+
+                                    // 判断是否应该禁用图标
+                                    const shouldDisableIcon = nodeEnd && (nodeAction.nodeType === "Script" || nodeAction.nodeType === "Condition"
+                                        || nodeAction.nodeType === "Rule" || nodeAction.nodeType === "End");
+
+                                    // 渲染节点图标，并根据条件添加禁用样式类
+                                    return (
+                                        <div key={index} className={NodeMenuStyles.node}>
+                                        <span className={`${NodeMenuStyles.icon} `}
+                                              onClick={nodeAction.action}>
+                                            {nodeAction.icon}
+                                        </span>
+                                            <span className={NodeMenuStyles.span}>{nodeAction.label}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )
+                    }
                 </div>
             )} open={treeStore.draggingNode == null}>
             </Popover>
         </div>
     );
+
+
 });
 
 export default NodeMenu;
