@@ -14,6 +14,7 @@ interface NodeAction {
     icon: React.JSX.Element;
     label: string;
     nodeType?: string;
+    disabled?: boolean;
     action: () => void;
 }
 
@@ -23,6 +24,7 @@ interface NodeMenuProps {
 }
 
 
+const END_LENGTH = 200;
 const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
     const menuPosition = treeStore.menuPosition;
     const rootNode = treeChartState.rootNode;
@@ -66,7 +68,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const interpolateSourceX = d3.interpolate(d.source.x, o.x);
                 const interpolateSourceY = d3.interpolate(d.source.y, o.y);
                 const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - 200 : d.target.y, o.y);
+                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_LENGTH : d.target.y, o.y);
 
                 return function (t: number): string {
                     // 计算当前插值状态
@@ -150,7 +152,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 let interpolateSourceY = d3.interpolate(parentY, d.y);
                 if (nodeType === "End") {
-                    interpolateSourceY = d3.interpolate(parentY, d.y - 200);
+                    interpolateSourceY = d3.interpolate(parentY, d.y - END_LENGTH);
                 }
 
                 return function (t: number): string {
@@ -166,18 +168,21 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
+            disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '条件节点todo',
             nodeType: "Condition",
+            disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
             nodeType: "Rule",
+            disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
         {
@@ -189,9 +194,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '删除当前树',
+            nodeType: "deleteTree",
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: '拖拽节点', action: () => handDragNode()},
+        {icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            label: '拖拽节点',
+            nodeType: "drag",
+            action: () => handDragNode()},
         {
             icon: <SmileFilled className={NodeMenuStyles.icon}/>,
             label: '结束节点',
@@ -243,11 +252,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const dy = event.y - dragStart.y;
                 d3.select(`#${generateLinkId(d.parent!.data.id, d.data.id)}`)
                     .transition()
-                    .duration(30)
+                    .duration(130)
                     .style("opacity", 0)
                     .on("end", function () {
                         d3.select(this).remove();
                     });
+
+
 
                 d.x = dragStart.x + dy;  // 垂直方向移动
                 d.y = dragStart.y + dx;  // 水平方向移动
@@ -256,24 +267,59 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     descendant.x = d.x + descendant.relativeX;
                     descendant.y = d.y + descendant.relativeY;
                     d3.select(`#node-${descendant.data.id}`)
-                        .attr("transform", `translate(${descendant.y},${descendant.x})`);
+                        .attr("transform", descendant.data.nodeType=="End"? `translate(${descendant.y-END_LENGTH},${descendant.x})`:`translate(${descendant.y},${descendant.x})`);
                 });
 
                 // 移动节点
                 d3.select(this).attr("transform", `translate(${d.y},${d.x})`);
 
+                // d.descendants().forEach(descendant => {
+                //     const linkData = {source: descendant.parent, target: descendant} as D3Link;
+                //     d3.select(`#${generateLinkId(linkData.source.data.id, linkData.target.data.id)}`)
+                //         .attr("d", function() {
+                //             const sourceX = linkData.source.x;
+                //             const sourceY = linkData.source.y;
+                //             const targetX = linkData.target.x;
+                //             let targetY = linkData.target.y;
+                //
+                //             if (descendant.data.nodeType === "End") {
+                //                 // 如果目标节点是 'End' 类型，调整连接线的结束点位置
+                //                 targetY -= END_LENGTH; // 这里减去一个固定长度
+                //             }
+                //
+                //             // 使用定制的绘制函数
+                //             return `M${sourceY},${sourceX}C${(sourceY + targetY) / 2},${sourceX} ${(sourceY + targetY) / 2},${targetX} ${targetY},${targetX}`;
+                //         });
+                // });
+
                 d.descendants().forEach(descendant => {
                     const linkData = {source: descendant.parent, target: descendant} as D3Link;
                     d3.select(`#${generateLinkId(linkData.source.data.id, linkData.target.data.id)}`)
-                        .attr("d", d3.linkHorizontal<D3Link, D3Node>().x(node => node.y).y(node => node.x)(linkData));
+                        .attr("d", function() {
+                            if (descendant.data.nodeType === "End") {
+                                // 如果目标节点是 'End' 类型，调整连接线的长度
+                                const intermediatePointY = linkData.target.y - END_LENGTH;
+                                const modifiedTarget = { x: linkData.target.x, y: intermediatePointY } as D3Node;
 
-                })
+                                // 使用 d3.linkHorizontal() 但是用修改后的目标点
+                                return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
+                                    source: linkData.source,
+                                    target: modifiedTarget
+                                });
+                            } else {
+                                // 否则，保持原样
+                                return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(linkData);
+                            }
+                        });
+                });
+
+
 
 
                 let closestNode = null;
                 let minDistance = Infinity;
                 rootNode.descendants().forEach(node => {
-                    if (node !== d) {
+                    if (node !== d && node.data.nodeType !== "End") {
                         //计算和其他节点的距离
                         const distance = Math.sqrt((d.x - node.x) ** 2 + (d.y - node.y) ** 2);
                         if (distance < minDistance) {
@@ -364,6 +410,27 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
 
+    const isEndNodeType = treeStore.menuNode?.data.nodeType === "End";
+    const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
+    const hasChildren = treeStore.menuNode?.children?.length > 0;
+
+    const filteredNodeActions = nodeActions.filter(action => {
+        if (isEndNodeType) {
+            // 如果当前节点是 'End' 类型，只保留删除动作
+            return action.nodeType === "Delete";
+        } else if (hasChildren && nextNodeIsEnd) {
+            // 如果当前节点已有子节点且子节点中有 'End' 节点，则禁用添加节点的选项，但允许删除和拖拽
+            return action.nodeType === "Delete" || action.nodeType === 'drag'||action.nodeType === "deleteTree";
+        } else if (hasChildren && !nextNodeIsEnd) {
+            // 如果当前节点已有子节点且子节点中没有 'End' 节点，则禁用添加 'End' 节点的选项
+            return action.nodeType !== "End";
+        } else {
+            // 如果当前节点没有子节点，允许所有添加节点的选项
+            return true;
+        }
+    });
+
+
     function isNextNodeEnd(menuNode: D3Node | null) {
         const children = menuNode?.data.children;
 
@@ -375,41 +442,15 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     return (
         <div style={{position: 'absolute', left: menuPosition.x - 255, top: menuPosition.y}}>
             <Popover content={(
-                <div>
-                    {treeStore.menuNode?.data.nodeType === "End" ? (
-
-                                <div key={Math.random()} className={NodeMenuStyles.deleteNode}
-                                     onClick={nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.action}>
-                                    {nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.icon}
-                                    <span>{nodeActions.find(nodeAction => nodeAction.nodeType === "Delete")!.label}</span>
-                                </div>
-
-                        ) :
-                        (
-                            <div className={NodeMenuStyles.nodePopup}>
-                                {/* 循环应该是每个节点动作的内部 <div> */}
-                                {nodeActions.map((nodeAction, index) => {
-                                    // 获取当前节点的下一个节点是否是 "End"
-                                    const nodeEnd = isNextNodeEnd(treeStore.menuNode); // 假设有一个函数来获取下一个节点
-
-                                    // 判断是否应该禁用图标
-                                    const shouldDisableIcon = nodeEnd && (nodeAction.nodeType === "Script" || nodeAction.nodeType === "Condition"
-                                        || nodeAction.nodeType === "Rule" || nodeAction.nodeType === "End");
-
-                                    // 渲染节点图标，并根据条件添加禁用样式类
-                                    return (
-                                        <div key={index} className={NodeMenuStyles.node}>
-                                        <span className={`${NodeMenuStyles.icon} `}
-                                              onClick={nodeAction.action}>
-                                            {nodeAction.icon}
-                                        </span>
-                                            <span className={NodeMenuStyles.span}>{nodeAction.label}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )
-                    }
+                <div className={NodeMenuStyles.nodePopup}>
+                    {filteredNodeActions.map((nodeAction, index) => (
+                        <div key={index}
+                             className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
+                             onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
+                            {nodeAction.icon}
+                            <span>{nodeAction.label}</span>
+                        </div>
+                    ))}
                 </div>
             )} open={treeStore.draggingNode == null}>
             </Popover>

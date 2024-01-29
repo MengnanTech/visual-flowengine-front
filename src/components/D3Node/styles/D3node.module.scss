@@ -10,7 +10,7 @@
   pointer-events: none; /* 禁用鼠标事件，使其不可点击 */
 }
 
-.deleteNode{
+.node, .deleteNode {
   cursor: pointer;
   width: 65px; // 增加宽度以适应更大的图标
   height: 40px; // 高度可以根据内容自适应
@@ -55,4 +55,9 @@
     white-space: nowrap;
     margin-top: 2px; // 增加图标和文本之间的间距
   }
+}
+
+.disabledIcon {
+  color: #888; // 将颜色置为灰色
+  pointer-events: none; // 禁用鼠标事件，使其不可点击
 }
