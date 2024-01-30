@@ -319,9 +319,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             }
         }
 
+        //这里设置延时是为了 前面的一些删除操作有延时。要等前面的操作完毕之后再更新 不然会被覆盖
         setTimeout(() => {
             refresh(treeChartState);
         }, 600);
+
 
     }
 
