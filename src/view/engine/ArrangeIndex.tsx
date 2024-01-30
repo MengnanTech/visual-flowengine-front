@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message, Button} from 'antd';
+import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message} from 'antd';
 import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
@@ -247,25 +247,14 @@ const ArrangeIndex: React.FC = () => {
                 content={
                     <div
                         style={{
-                            marginLeft: '20px',
+                            // marginLeft: '20px',
                         }}
                     >
                         {/* 这里放入PageContainer的内容 */}
                         <Collapse bordered={false} items={collapseItems}/>
                     </div>
                 }
-                title={
-                    <>
-                        {selectedMenuItem && (
-                            <>
-                                <div style={{marginLeft: '20px'}}>
-                                    {/*{selectedMenuItem.name}*/}
-                                    <Collapse bordered={false} items={collapseItems}/>
-                                </div>
-                            </>
-                        )}
-                    </>
-                }
+                // title={<> 3瓦大大我打的大晚上大大21</>}
             >
                 {selectedMenuItem && treeData && (
                     // 这里是第二个标签页的内容

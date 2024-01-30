@@ -38,6 +38,13 @@
 }
 
 :global {
+
+
+  .ant-page-header-heading {
+    display: none  !important;
+  }
+
+
   .ant-pro-sider-actions-list-item {
     box-shadow: none !important;
     padding-inline: 0 !important;
