@@ -16,6 +16,7 @@ import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/Node
 import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {observer} from "mobx-react";
 import {GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
+import {Transition} from "d3";
 
 interface NodeAction {
     icon: React.JSX.Element;
@@ -66,35 +67,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             .attr("transform", `translate(${nodeToRemove.parent.y},${nodeToRemove.parent.x})`)
             .remove();
 
-        linksToRemove.transition().duration(750)
-            .style('opacity', 0)
-            .attrTween("d", function (d): (t: number) => string {
-                const o = {x: nodeToRemove.parent!.x, y: nodeToRemove.parent!.y}; // 父节点的位置
-
-
-                const interpolateSourceX = d3.interpolate(d.source.x, o.x);
-                const interpolateSourceY = d3.interpolate(d.source.y, o.y);
-                const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_LENGTH : d.target.y, o.y);
-
-                return function (t: number): string {
-                    // 计算当前插值状态
-                    const sourceX = interpolateSourceX(t);
-                    const sourceY = interpolateSourceY(t);
-                    const targetX = interpolateTargetX(t);
-                    const targetY = interpolateTargetY(t);
-
-                    // 返回当前的路径
-                    const spreadElements: D3Link = {
-                        source: {x: sourceX, y: sourceY} as D3Node,
-                        target: {x: targetX, y: targetY} as D3Node
-                    };
-                    return d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
-                        return d.y;
-                    }).y(d => d.x)(spreadElements)!;
-                };
-            })
-            .remove();
+        removeLink(linksToRemove.transition().duration(750), nodeToRemove);
 
 
         const parentChildren = nodeToRemove.parent.children;
@@ -171,26 +144,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
 
-    function removeNodeAndLinks(nodeToRemove: D3Node) {
-        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.id}`);
-        // 视图上移除和这个节点相关的node 和link
-        nodesEnter.transition().duration(500)
-            .style('opacity', 0)
-            .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
-            .on('end', function () {
-                d3.select(this).remove(); // 在动画结束后移除节点
-            });
-
-
-        const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
-            .filter((d: D3Link) => {
-                const descendants = nodeToRemove.descendants();
-                const descendantIds = new Set(descendants.map(d => d.data.id));
-                return descendantIds.has(d.target.data.id);
-            });
-
-        linksToRemove.transition().duration(500)
-            .style('opacity', 0)
+    function removeLink(transition: Transition<SVGCircleElement, D3Link, any, any>, nodeToRemove: D3Node) {
+        transition.style('opacity', 0)
             .attrTween("d", function (d): (t: number) => string {
                 const o = {x: nodeToRemove.parent!.x, y: nodeToRemove.parent!.y}; // 父节点的位置
 
@@ -198,7 +153,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const interpolateSourceX = d3.interpolate(d.source.x, o.x);
                 const interpolateSourceY = d3.interpolate(d.source.y, o.y);
                 const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.y, o.y);
+                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_LENGTH : d.target.y, o.y);
+
 
                 return function (t: number): string {
                     // 计算当前插值状态
@@ -218,9 +174,30 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 };
             })
             .on('end', function () {
-                console.log('Link transition ended, removing link.');
                 d3.select(this).remove(); // 在动画结束后移除链接
             });
+    }
+
+    function removeNodeAndLinks(nodeToRemove: D3Node) {
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.id}`);
+        // 视图上移除和这个节点相关的node 和link
+        nodesEnter.transition().duration(500)
+            .style('opacity', 0)
+            .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
+            .on('end', function () {
+                d3.select(this).remove(); // 在动画结束后移除节点
+            });
+
+
+        const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
+            .filter((d: D3Link) => {
+                const descendants = nodeToRemove.descendants();
+                const descendantIds = new Set(descendants.map(d => d.data.id));
+                return descendantIds.has(d.target.data.id);
+            });
+
+        const transition = linksToRemove.transition().duration(500);
+        removeLink(transition, nodeToRemove);
 
     }
 
@@ -305,11 +282,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
             } else {
                 // 如果nodeToRemove没有子节点，正常移除
-                nodeToRemove.parent.children = parentChildren.filter(child => child !== nodeToRemove);
 
+                nodeToRemove.parent.children = parentChildren.filter(child => child !== nodeToRemove);
+                console.log(" nodeToRemove.parent.children",  nodeToRemove.parent.children)
                 if (nodeToRemove.parent.children.length === 0) {
                     delete nodeToRemove.parent.children;
                 }
+                console.log(" nodeToRemove.parent.children",  nodeToRemove.parent.children)
             }
         }
         //
@@ -331,7 +310,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 parentDataChildren!.splice(nodeIndex, 1, firstChildData);
             }
 
-
+        }else {
+            // 如果 nodeToRemove 没有子节点，正常移除
+            const parentDataChildren = nodeToRemove.parent.data.children;
+            const nodeIndex = parentDataChildren!.findIndex(child => child.id === nodeToRemove.data.id);
+            if (nodeIndex !== -1) {
+                parentDataChildren!.splice(nodeIndex, 1);
+            }
         }
 
         setTimeout(() => {
