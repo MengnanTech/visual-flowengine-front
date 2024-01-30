@@ -6,8 +6,7 @@ import {
     DeleteOutlined,
     DragOutlined,
     FileOutlined, PlusCircleOutlined,
-    ShrinkOutlined,
-    SmileFilled
+    ShrinkOutlined
 } from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
@@ -327,9 +326,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             // 更新 nodeToRemove.parent.data.children 数组
             const parentDataChildren = nodeToRemove.parent.data.children;
 
-            const nodeIndex = parentDataChildren.findIndex(child => child.id === nodeToRemove.data.id);
+            const nodeIndex = parentDataChildren!.findIndex(child => child.id === nodeToRemove.data.id);
             if (nodeIndex !== -1) {
-                parentDataChildren.splice(nodeIndex, 1, firstChildData);
+                parentDataChildren!.splice(nodeIndex, 1, firstChildData);
             }
 
 
