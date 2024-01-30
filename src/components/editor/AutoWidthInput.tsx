@@ -14,7 +14,7 @@ const AutoWidthInput: React.FC<AutoWidthInputProps> = ({value, onChange, onFinis
     const [inputWidth, setInputWidth] = useState(0);
     useEffect(() => {
         let spanWidth = spanRef.current?.offsetWidth || 0
-        console.log("spanWidth", spanWidth)
+
         if (spanWidth < 80) {
             spanWidth = 80;
         }

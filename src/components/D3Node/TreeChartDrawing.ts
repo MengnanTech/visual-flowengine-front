@@ -12,7 +12,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
     const nodeSelection = gRef.selectAll<SVGGElement, D3Node>(".node");
     const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.id);
-    console.log("nodes", nodes)
+
     const nodesEnter: d3.Selection<SVGGElement, D3Node, any, any> = nodes.enter()
         .append("g")
         .attr("class", "node")
@@ -20,7 +20,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .attr("transform", d => {
 
             if (d.data.nodeType === 'End') {
-                console.log("d.y", d.y)
+
                 return `translate(${d.y - 200},${d.x})`;
             } else {
                 return `translate(${d.y},${d.x})`;
@@ -204,7 +204,7 @@ export function refresh(treeChartState: TreeChartState) {
     });
 
 
-    console.log("data", JSON.stringify(rootNode.data))
+
     treeLayout(rootNode);
     gRef.attr("transform", treeStore.currentTransform?.toString()!);
 

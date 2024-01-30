@@ -41,7 +41,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
-        console.log("handleDeleteCurrentTree", nodeToRemove)
+
         // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
             message.error('根节点无法删除').then(r => r)
@@ -284,11 +284,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 // 如果nodeToRemove没有子节点，正常移除
 
                 nodeToRemove.parent.children = parentChildren.filter(child => child !== nodeToRemove);
-                console.log(" nodeToRemove.parent.children",  nodeToRemove.parent.children)
+
                 if (nodeToRemove.parent.children.length === 0) {
                     delete nodeToRemove.parent.children;
                 }
-                console.log(" nodeToRemove.parent.children",  nodeToRemove.parent.children)
+
             }
         }
         //
