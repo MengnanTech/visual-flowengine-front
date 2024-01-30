@@ -39,11 +39,15 @@
   border-radius: 8px;
   transition: box-shadow 0.2s, transform 0.2s; // 添加变换效果以平滑过渡
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // 正常状态下的阴影
-
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
   &:active {
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); // 点击时添加内阴影
     transform: translateY(2px); // 稍微向下移动模仿按下效果
   }
+
 
   .icon {
     font-size: 22px;
