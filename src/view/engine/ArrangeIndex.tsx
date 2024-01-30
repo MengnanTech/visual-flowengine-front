@@ -9,27 +9,12 @@ import styles from './styles/ArrangeIndex.module.scss';
 import {
     createInitialData,
     createInitialData2,
-    items, MenuItem, mockMenuItems, result,
+    items, MenuItem, mockMenuItems,
 } from '@/components/d3Helpers/D3mock.tsx';
 
-import {ProColumns, ProTable} from '@ant-design/pro-table';
-import {TableRowSelection} from "antd/es/table/interface";
-import {WorkflowListItem} from "@/components/workflow/model/WorkflowModel.ts";
 import logo from '@/assets/logo/logo.jpeg';
 
 
-const tabList = [
-    {
-        key: 'tab1',
-        tab: 'Editor',
-        // className: styles.customTab, // 添加自定义样式类
-    },
-    {
-        key: 'tab2',
-        tab: 'Run log',
-    },
-    // 你可以根据需要添加更多的标签页
-];
 
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js 网络环境不好。这里会报错。
 const ArrangeIndex: React.FC = () => {
@@ -44,23 +29,23 @@ const ArrangeIndex: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [workflowForm] = Form.useForm();
 
-    const [activeTabKey, setActiveTabKey] = useState<string>('');
-    const [data, setData] = useState<WorkflowListItem[]>([]);
-    const [selectedRows, setSelectedRows] = useState<WorkflowListItem[]>([]);
+    // const [activeTabKey, setActiveTabKey] = useState<string>('');
+    // const [data, setData] = useState<WorkflowListItem[]>([]);
+    // const [selectedRows, setSelectedRows] = useState<WorkflowListItem[]>([]);
+    //
 
-
-    const conditionalTabList = selectedMenuItem ? tabList : [];
-
-    useEffect(() => {
-        // 模拟从 API 获取数据
-        const fetchData = async () => {
-            // 模拟 API 调用
-
-            setData(result);
-        };
-
-        fetchData();
-    }, []);
+    // const conditionalTabList = selectedMenuItem ? tabList : [];
+    //
+    // useEffect(() => {
+    //     // 模拟从 API 获取数据
+    //     const fetchData = async () => {
+    //         // 模拟 API 调用
+    //
+    //         setData(result);
+    //     };
+    //
+    //     fetchData();
+    // }, []);
 
     useEffect(() => {
         // Fetch menu items when the component mounts
@@ -83,73 +68,6 @@ const ArrangeIndex: React.FC = () => {
         fetchMenuItems().then((r) => r);
     }, []);
 
-    function handleEdit(record: WorkflowListItem) {
-        message.success('Workflow edited successfully!' + record.workflowName).then(r => r);
-    }
-
-    function handleDelete(record: WorkflowListItem) {
-
-        message.success('Workflow deleted successfully!' + record.workflowName).then(r => r);
-    }
-
-
-    const actionsColumn: ProColumns<WorkflowListItem> = {
-        title: 'Actions',
-        dataIndex: 'actions', // 使用一个虚拟的 dataIndex，不需要在数据源中有对应的字段
-        width: 150,
-        render: (_, record) => (
-            <>
-                <Button onClick={() => handleEdit(record)}>Edit</Button>
-                <Button onClick={() => handleDelete(record)}>Delete</Button>
-            </>
-        ),
-    };
-
-    const columns: ProColumns<WorkflowListItem>[] = [
-        {
-            title: 'Workflow Name',
-            dataIndex: 'workflowName',
-            // filterDropdown: (props) => (
-            //     <div style={{ padding: 8 }}>
-            //         <Input
-            //             placeholder="Search Workflow Name"
-            //             value={props.selectedKeys[0]}
-            //             onChange={(e) => props.setSelectedKeys(e.target.value ? [e.target.value] : [])}
-            //             onPressEnter={props.confirm}
-            //             style={{ width: 188, marginBottom: 8, display: 'block' }}
-            //         />
-            //         <button
-            //             type="button"
-            //             onClick={props.clearFilters}
-            //             style={{ width: 90 }}
-            //         >
-            //             Reset
-            //         </button>
-            //     </div>
-            // ),
-            // filterIcon: (filtered) => (
-            //     <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}}/>
-            // ),
-        },
-        {
-            title: 'Creator',
-            dataIndex: 'creator',
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'createdAt',
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-        },
-        {
-            title: 'Last Modified',
-            dataIndex: 'lastModified',
-        },
-        // ... 可以添加更多列
-        actionsColumn, // 将操作列添加到列定义中
-    ];
 
     const handleMenuClick = async (e: MenuDataItem) => {
 
@@ -232,23 +150,6 @@ const ArrangeIndex: React.FC = () => {
         setIsModalVisible(false);
     };
 
-    // 处理标签页切换
-    const onTabChange = (key: string) => {
-        console.log('选中的标签页:', key);
-        setActiveTabKey(key);
-    };
-
-    const rowSelection: TableRowSelection<WorkflowListItem> = {
-        onChange: (_selectedRowKeys, selectedRows) => {
-            setSelectedRows(selectedRows);
-        },
-        selectedRowKeys: selectedRows.map((row) => row.key),
-
-        getCheckboxProps: (record) => ({
-            disabled: record.status === 'Inactive', // 根据需要禁用复选框
-        }),
-    };
-
     return (
         <ProLayout
             logo={logo}
@@ -325,37 +226,34 @@ const ArrangeIndex: React.FC = () => {
             <PageContainer
                 // content={ <Collapse bordered={false} items={collapseItems}/>}
                 // breadcrumb={'none'}
-                extra={[
-                    <Button key="3"> 不确定用途</Button>,
-                    <Button key="2"> 不确定用途</Button>,
-                    <Button key="1" type="primary">
-                        运行workflow
-                    </Button>,
-                ]}
+                // extra={[
+                //     <Button key="3"> 不确定用途</Button>,
+                //     <Button key="2"> 不确定用途</Button>,
+                //     <Button key="1" type="primary">
+                //         运行workflow
+                //     </Button>,
+                // ]}
 
                 // tabActiveKey={activeTabKey}
                 tabProps={{
                     type: 'card',
                     hideAdd: true,
                 }}
-
-                tabList={conditionalTabList}
-                onTabChange={onTabChange}
                 ghost={true}
                 token={{
                     paddingInlinePageContainerContent: 0,
                     paddingBlockPageContainerContent: 0,
                 }}
-                // content={
-                //     <div
-                //         style={{
-                //             marginLeft: '20px',
-                //         }}
-                //     >
-                //         {/* 这里放入PageContainer的内容 */}
-                //         <Descriptions layout="vertical" items={items}/>
-                //     </div>
-                // }
+                content={
+                    <div
+                        style={{
+                            marginLeft: '20px',
+                        }}
+                    >
+                        {/* 这里放入PageContainer的内容 */}
+                        <Collapse bordered={false} items={collapseItems}/>
+                    </div>
+                }
                 title={
                     <>
                         {selectedMenuItem && (
@@ -369,7 +267,7 @@ const ArrangeIndex: React.FC = () => {
                     </>
                 }
             >
-                {(activeTabKey === 'tab1' || activeTabKey === '') && selectedMenuItem && treeData && (
+                {selectedMenuItem && treeData && (
                     // 这里是第二个标签页的内容
                     <div className={styles.treeChartContainer}>
                         <TreeChart
@@ -379,40 +277,6 @@ const ArrangeIndex: React.FC = () => {
                         />
                     </div>
                 )}
-
-
-                {activeTabKey === 'tab2' && selectedMenuItem && (
-                    // 这里是第一个标签页的内容
-
-
-                    <ProTable<WorkflowListItem>
-                        headerTitle="查询表格"
-                        columns={columns}
-                        dataSource={data}
-                        rowKey="key"
-
-                        search={{
-                            labelWidth: 'auto', // 标签宽度，可以是数字或 'auto'
-                            defaultCollapsed: true, // 搜索栏默认是否折叠
-                            // collapseRender: (collapsed, form) => {
-                            //     // 自定义折叠状态的展示内容
-                            //     return (
-                            //         <>
-                            //             {collapsed ? '展开' : '折叠'}
-                            //             <DownOutlined style={{ marginLeft: 8 }} />
-                            //         </>
-                            //     );
-                            // },
-                        }}
-
-
-                        rowSelection={rowSelection}
-                        // 可以添加其他 ProTable 的属性和配置
-                    />
-
-                )}
-
-
                 {!selectedMenuItem && (
                     <div style={{marginLeft: '20px', marginTop: '15px'}}>
                         请选择左侧列表中的一个节点查看详情。

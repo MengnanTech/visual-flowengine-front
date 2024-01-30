@@ -412,7 +412,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     const isEndNodeType = treeStore.menuNode?.data.nodeType === "End";
     const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
-    const hasChildren = treeStore.menuNode?.children?.length > 0;
+    const hasChildren = treeStore.menuNode && treeStore.menuNode.data.children && treeStore.menuNode.data.children.length > 0;
 
     const filteredNodeActions = nodeActions.filter(action => {
         if (isEndNodeType) {
