@@ -245,6 +245,7 @@ const ArrangeIndex: React.FC = () => {
                     paddingBlockPageContainerContent: 0,
                 }}
                 content={
+                    selectedMenuItem &&
                     <div
                         style={{
                             // marginLeft: '20px',
@@ -257,7 +258,6 @@ const ArrangeIndex: React.FC = () => {
                 // title={<> 3瓦大大我打的大晚上大大21</>}
             >
                 {selectedMenuItem && treeData && (
-                    // 这里是第二个标签页的内容
                     <div className={styles.treeChartContainer}>
                         <TreeChart
                             key={Math.random()}

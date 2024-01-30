@@ -12,7 +12,7 @@ export function createInitialData(): NodeData  {
         "children": [
             {
                 "id": "root123",
-                "name": "Child 1冲冲冲",
+                "name": "root123",
                 "nodeType": "nodeType",
                 "scriptText": "root123scriptText是",
                 "nodeDesc": "nodeDesc",
@@ -28,35 +28,35 @@ export function createInitialData(): NodeData  {
             },
             {
                 "id": "root369",
-                "name": "Child 2诸葛",
+                "name": "root369",
                 "nodeType": "nodeType",
                 "scriptText": "scriptText",
                 "nodeDesc": "nodeDesc",
                 "children": [
                     {
                         "id": "root456",
-                        "name": "Grandchild 2-1",
+                        "name": "root456",
                         "nodeType": "nodeType",
                         "scriptText": "Grandchild 2-1scriptText收到",
                         "nodeDesc": "nodeDesc"
                     },
                     {
                         "id": "root789",
-                        "name": "Grandchild 2-2收到",
+                        "name": "root789",
                         "nodeType": "nodeType",
                         "scriptText": "Grandchild 2-2scriptTextv啊",
                         "nodeDesc": "nodeDesc"
                     },
                     {
-                        "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
-                        "name": "New Node355100",
+                        "id": "root110",
+                        "name": "root110",
                         "nodeType": "nodeType",
                         "scriptText": "scriptText",
                         "nodeDesc": "nodeDesc"
                     },
                     {
-                        "id": "256f8cf4-db66-4c06-bce0-da7044538ec8",
-                        "name": "New Node892100",
+                        "id": "root120",
+                        "name": "root120",
                         "nodeType": "nodeType",
                         "scriptText": "scriptText",
                         "nodeDesc": "nodeDesc"
@@ -65,7 +65,7 @@ export function createInitialData(): NodeData  {
             },
             {
                 "id": "root857",
-                "name": "Child 3",
+                "name": "root857",
                 "nodeType": "nodeType",
                 "scriptText": "scriptText",
                 "nodeDesc": "nodeDesc"

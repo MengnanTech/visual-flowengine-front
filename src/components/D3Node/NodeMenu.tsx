@@ -114,6 +114,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             }
         }
 
+
         setTimeout(() => {
             refresh(treeChartState);
         }, 500);
@@ -171,52 +172,233 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
 
+    function removeNodeAndLinks(nodeToRemove: D3Node) {
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.id}`);
+        // 视图上移除和这个节点相关的node 和link
+        nodesEnter.transition().duration(500)
+            .style('opacity', 0)
+            .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
+            .on('end', function () {
+                d3.select(this).remove(); // 在动画结束后移除节点
+            });
+
+
+        const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
+            .filter((d: D3Link) => {
+                const descendants = nodeToRemove.descendants();
+                const descendantIds = new Set(descendants.map(d => d.data.id));
+                return descendantIds.has(d.target.data.id);
+            });
+
+        linksToRemove.transition().duration(500)
+            .style('opacity', 0)
+            .attrTween("d", function (d): (t: number) => string {
+                const o = {x: nodeToRemove.parent!.x, y: nodeToRemove.parent!.y}; // 父节点的位置
+
+
+                const interpolateSourceX = d3.interpolate(d.source.x, o.x);
+                const interpolateSourceY = d3.interpolate(d.source.y, o.y);
+                const interpolateTargetX = d3.interpolate(d.target.x, o.x);
+                const interpolateTargetY = d3.interpolate(d.target.y, o.y);
+
+                return function (t: number): string {
+                    // 计算当前插值状态
+                    const sourceX = interpolateSourceX(t);
+                    const sourceY = interpolateSourceY(t);
+                    const targetX = interpolateTargetX(t);
+                    const targetY = interpolateTargetY(t);
+
+                    // 返回当前的路径
+                    const spreadElements: D3Link = {
+                        source: {x: sourceX, y: sourceY} as D3Node,
+                        target: {x: targetX, y: targetY} as D3Node
+                    };
+                    return d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
+                        return d.y;
+                    }).y(d => d.x)(spreadElements)!;
+                };
+            })
+            .on('end', function () {
+                console.log('Link transition ended, removing link.');
+                d3.select(this).remove(); // 在动画结束后移除链接
+            });
+
+    }
+
+    function handleDeleteNode(nodeToRemove: D3Node) {
+        if (!nodeToRemove.parent) {
+            message.error('根节点无法删除').then(r => r);
+            return;
+        }
+        removeNodeAndLinks(nodeToRemove);
+
+        // 2. 处理动画和样式
+        if (nodeToRemove.children && nodeToRemove.children.length > 0) {
+            // 重新定位第一个子节点和其子孙节点
+            const firstChild = nodeToRemove.children[0];
+
+            const nodesEnter = gRef.select<SVGGElement>(`#node-${firstChild.data.id}`);
+
+            nodesEnter.transition()
+                .duration(750)
+                // .style('opacity', 1)
+                .attrTween("transform", function (d): (t: number) => string {
+
+                    const interpolateSourceX = d3.interpolate(d.x, nodeToRemove.x);
+                    const interpolateSourceY = d3.interpolate(d.y, nodeToRemove.y);
+                    return function (t: number): string {
+                        return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                    };
+                })
+            //
+            // gRef.select(`#node-${firstChild.data.id}`)
+            //     .style('opacity', 1)
+            //     .transition().duration(750)
+            //     .attr("transform", `translate(${firstChild.parent.y},${firstChild.parent.x})`);
+            //
+            const descendants = firstChild.descendants();
+            descendants.forEach(descendant => {
+
+                if (descendant !== firstChild) {
+                    gRef.select(`#node-${descendant.data.id}`)
+                        // .style('opacity', 1)
+                        .transition().duration(750)
+                        .attrTween("transform", function (d): (t: number) => string {
+
+                            const interpolateSourceX = d3.interpolate(d.x, d.parent.x);
+                            const interpolateSourceY = d3.interpolate(d.y, d.parent.y);
+                            return function (t: number): string {
+                                return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                            };
+                        })
+                }
+            });
+        }
+
+
+        const parentChildren = nodeToRemove.parent.children;
+        if (parentChildren) {
+            // 检查nodeToRemove是否有子节点
+            if (nodeToRemove.children && nodeToRemove.children.length > 0) {
+                // 获取nodeToRemove的第一个子节点
+                const firstChild = nodeToRemove.children[0];
+                // 这个非常重要！！！！！！！！！！！！！
+                updateNodeDepth(firstChild, firstChild.depth - 1);
+
+                // 用第一个子节点替换nodeToRemove
+                nodeToRemove.parent.children = parentChildren.map(child =>
+                    child === nodeToRemove ? firstChild : child);
+
+                //   如果nodeToRemove有多个子节点，则将其余子节点添加到替换节点的children数组
+                if (nodeToRemove.children.length > 1) {
+                    const remainingChildren = nodeToRemove.children.slice(1);
+                    firstChild.children = firstChild.children ? firstChild.children.concat(remainingChildren) : remainingChildren;
+
+                    // 更新剩余子节点的parent属性
+                    remainingChildren.forEach(child => {
+                        child.parent = firstChild;
+                    });
+                }
+
+                // 更新替换节点的parent属性
+                firstChild.parent = nodeToRemove.parent;
+
+
+            } else {
+                // 如果nodeToRemove没有子节点，正常移除
+                nodeToRemove.parent.children = parentChildren.filter(child => child !== nodeToRemove);
+
+                if (nodeToRemove.parent.children.length === 0) {
+                    delete nodeToRemove.parent.children;
+                }
+            }
+        }
+        //
+        if (nodeToRemove.data.children && nodeToRemove.data.children.length > 0) {
+            // 获取 nodeToRemove 的第一个子节点的数据
+            const firstChildData = nodeToRemove.data.children[0];
+
+            // 如果 nodeToRemove 有更多的子节点，将它们的数据添加到 firstChildData 的子节点数据列表中
+            if (nodeToRemove.data.children.length > 1) {
+                const remainingChildrenData = nodeToRemove.data.children.slice(1);
+                firstChildData.children = (firstChildData.children || []).concat(remainingChildrenData);
+            }
+
+            // 更新 nodeToRemove.parent.data.children 数组
+            const parentDataChildren = nodeToRemove.parent.data.children;
+
+            const nodeIndex = parentDataChildren.findIndex(child => child.id === nodeToRemove.data.id);
+            if (nodeIndex !== -1) {
+                parentDataChildren.splice(nodeIndex, 1, firstChildData);
+            }
+
+
+        }
+
+
+        console.log("root", rootNode)
+
+        setTimeout(() => {
+            refresh(treeChartState);
+        }, 600);
+
+    }
+
+
     const nodeActions: NodeAction[] = [
         {
-            icon: <PlusCircleOutlined className={NodeMenuStyles.icon} />,
+            icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
-            icon: <CheckCircleOutlined className={NodeMenuStyles.icon} />,
+            icon: <CheckCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '条件节点todo',
             nodeType: "Condition",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
         {
-            icon: <ShrinkOutlined className={NodeMenuStyles.icon} />,
+            icon: <ShrinkOutlined className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
             nodeType: "Rule",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
         {
-            icon: <DeleteOutlined className={NodeMenuStyles.icon} />,
-            label: '删除此节点',
-            nodeType: "Delete",
+            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
+            label: '删除节点树',
+            nodeType: "DeleteTree",
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {
-            icon: <CloseCircleOutlined className={NodeMenuStyles.icon} />,
+            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>, // 假设 TreeDeleteOutlined 是一个垃圾桶图标，带有树枝形状
+            label: '删除当前节点',
+            nodeType: "Delete",
+            action: () => handleDeleteNode(treeStore.menuNode!)
+        },
+
+        {
+            icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
             nodeType: "End",
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         {
-            icon: <DragOutlined className={NodeMenuStyles.icon} />,
+            icon: <DragOutlined className={NodeMenuStyles.icon}/>,
             label: '拖拽节点',
             nodeType: "drag",
             action: () => handDragNode()
         },
         {
-            icon: <FileOutlined className={NodeMenuStyles.icon} />,
+            icon: <FileOutlined className={NodeMenuStyles.icon}/>,
             label: 'json批量创建节点',
             action: () => handDragNode()
         }
     ];
+
     function updateNodeDepth(node: D3Node, newDepth: number) {
         node.depth = newDepth;
         if (node.children) {
@@ -266,7 +448,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     });
 
 
-
                 d.x = dragStart.x + dy;  // 垂直方向移动
                 d.y = dragStart.y + dx;  // 水平方向移动
 
@@ -274,7 +455,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     descendant.x = d.x + descendant.relativeX;
                     descendant.y = d.y + descendant.relativeY;
                     d3.select(`#node-${descendant.data.id}`)
-                        .attr("transform", descendant.data.nodeType=="End"? `translate(${descendant.y-END_LENGTH},${descendant.x})`:`translate(${descendant.y},${descendant.x})`);
+                        .attr("transform", descendant.data.nodeType == "End" ? `translate(${descendant.y - END_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
                 });
 
                 // 移动节点
@@ -302,11 +483,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 d.descendants().forEach(descendant => {
                     const linkData = {source: descendant.parent, target: descendant} as D3Link;
                     d3.select(`#${generateLinkId(linkData.source.data.id, linkData.target.data.id)}`)
-                        .attr("d", function() {
+                        .attr("d", function () {
                             if (descendant.data.nodeType === "End") {
                                 // 如果目标节点是 'End' 类型，调整连接线的长度
                                 const intermediatePointY = linkData.target.y - END_LENGTH;
-                                const modifiedTarget = { x: linkData.target.x, y: intermediatePointY } as D3Node;
+                                const modifiedTarget = {x: linkData.target.x, y: intermediatePointY} as D3Node;
 
                                 // 使用 d3.linkHorizontal() 但是用修改后的目标点
                                 return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
@@ -319,8 +500,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                             }
                         });
                 });
-
-
 
 
                 let closestNode = null;
@@ -427,7 +606,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             return action.nodeType === "Delete";
         } else if (hasChildren && nextNodeIsEnd) {
             // 如果当前节点已有子节点且子节点中有 'End' 节点，则禁用添加节点的选项，但允许删除和拖拽
-            return action.nodeType === "Delete" || action.nodeType === 'drag'||action.nodeType === "deleteTree";
+            return action.nodeType === "Delete" || action.nodeType === 'drag' || action.nodeType === "deleteTree";
         } else if (hasChildren && !nextNodeIsEnd) {
             // 如果当前节点已有子节点且子节点中没有 'End' 节点，则禁用添加 'End' 节点的选项
             return action.nodeType !== "End";
