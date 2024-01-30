@@ -334,9 +334,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
         }
 
-
-        console.log("root", rootNode)
-
         setTimeout(() => {
             refresh(treeChartState);
         }, 600);
