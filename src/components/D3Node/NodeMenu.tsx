@@ -1,6 +1,14 @@
 // NodeMenu.tsx
 import React from 'react';
-import {SmileFilled} from "@ant-design/icons";
+import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    DeleteOutlined,
+    DragOutlined,
+    FileOutlined, PlusCircleOutlined,
+    ShrinkOutlined,
+    SmileFilled
+} from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import {TreeStore} from "@/store/TreeStore.ts";
@@ -165,51 +173,50 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     const nodeActions: NodeAction[] = [
         {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            icon: <PlusCircleOutlined className={NodeMenuStyles.icon} />,
             label: '添加代码节点',
             nodeType: "Script",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            icon: <CheckCircleOutlined className={NodeMenuStyles.icon} />,
             label: '条件节点todo',
             nodeType: "Condition",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
         {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            icon: <ShrinkOutlined className={NodeMenuStyles.icon} />,
             label: '规则节点todo',
             nodeType: "Rule",
             disabled: isNextNodeEnd(treeStore.menuNode),
             action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
         {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            icon: <DeleteOutlined className={NodeMenuStyles.icon} />,
             label: '删除此节点',
             nodeType: "Delete",
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '删除当前树',
-            nodeType: "deleteTree",
-            action: () => handleDeleteCurrentTree(treeStore.menuNode!)
-        },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>,
-            label: '拖拽节点',
-            nodeType: "drag",
-            action: () => handDragNode()},
-        {
-            icon: <SmileFilled className={NodeMenuStyles.icon}/>,
+            icon: <CloseCircleOutlined className={NodeMenuStyles.icon} />,
             label: '结束节点',
             nodeType: "End",
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
-        {icon: <SmileFilled className={NodeMenuStyles.icon}/>, label: 'json批量创建节点', action: () => handDragNode()}
+        {
+            icon: <DragOutlined className={NodeMenuStyles.icon} />,
+            label: '拖拽节点',
+            nodeType: "drag",
+            action: () => handDragNode()
+        },
+        {
+            icon: <FileOutlined className={NodeMenuStyles.icon} />,
+            label: 'json批量创建节点',
+            action: () => handDragNode()
+        }
     ];
-
     function updateNodeDepth(node: D3Node, newDepth: number) {
         node.depth = newDepth;
         if (node.children) {
