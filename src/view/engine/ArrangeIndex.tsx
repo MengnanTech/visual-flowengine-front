@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, message} from 'antd';
-import {EnvironmentOutlined, SettingOutlined} from '@ant-design/icons';
+import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, Space, message, Button, Select} from 'antd';
+import {EnvironmentOutlined, MinusCircleOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
@@ -22,6 +22,32 @@ import logo from '@/assets/logo/logo.jpeg';
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.nls.js
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.js
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css
+const javaTypes = [
+    'Object', // 可以让用户输入自定义的类名
+    'String',
+    'Integer',
+    'Long',
+    'Short',
+    'Double',
+    'Float',
+    'Boolean',
+    'Byte',
+    'Character',
+    'BigDecimal',
+    'BigInteger',
+    'Date', // 用于日期
+    'LocalDate', // Java 8 新增的用于日期的类
+    'LocalDateTime', // Java 8 新增的用于日期和时间的类
+    'ZonedDateTime', // Java 8 新增的用于带时区的日期和时间的类
+    'Instant', // Java 8 新增的用于时间戳
+    'List', // 如 List<String>
+    'Set', // 如 Set<Integer>
+    'Map', // 如 Map<String, Object>
+    'Queue', // 如 Queue<Double>
+    'Deque', // 如 ArrayDeque, LinkedList
+    'Array', // 如 String[], int[]
+
+];
 
 const ArrangeIndex: React.FC = () => {
 
@@ -149,6 +175,7 @@ const ArrangeIndex: React.FC = () => {
                 message.success('Workflow added successfully!');
             })
             .catch((info) => {
+                // workflowForm.resetFields();
                 console.log('Validate Failed:', info);
             });
     };
@@ -213,6 +240,7 @@ const ArrangeIndex: React.FC = () => {
                 cancelText="Cancel"
             >
                 <Form form={workflowForm} layout="vertical">
+                    {/* 工作流名称、目的和备注的表单项保持不变 */}
                     <Form.Item
                         name="workflowName"
                         label="Workflow Name"
@@ -221,26 +249,96 @@ const ArrangeIndex: React.FC = () => {
                         <Input placeholder="Enter workflow name"/>
                     </Form.Item>
                     <Form.Item
-                        name="decisionDescription"
-                        label="Decision Description"
-                        rules={[{required: true, message: 'Please input the decision description!'}]}
+                        name="purpose"
+                        label="Purpose"
+                        rules={[{required: true, message: 'Please input the purpose of the workflow!'}]}
                     >
-                        <Input.TextArea placeholder="Enter decision description"/>
+                        <Input placeholder="Describe the purpose and use case of the workflow"/>
                     </Form.Item>
+
+
+
+
+                    <Form.Item
+                        required
+                        label="Dynamic Parameters"
+                    >
+                        {/* 这里使用Form.List，不再额外嵌套Form.Item */}
+                        <Form.List
+                            name="parameters"
+                            rules={[
+                                {
+                                    validator: async (_, parameters) => {
+                                        if (!parameters || parameters.length < 1) {
+                                            return Promise.reject(new Error('At least one dynamic parameter is required.'));
+                                        }
+                                    },
+                                },
+                            ]}
+                        >
+                            {(fields, { add, remove }, { errors }) => (
+                                <>
+                                    {fields.map(({ key, name, ...restField }) => (
+                                        <Space key={key} align="baseline">
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'parameterType']}
+
+                                                rules={[{ required: true, message: 'Missing parameter type' }]}
+                                            >
+                                                <Select
+                                                    showSearch
+                                                    allowClear
+                                                    placeholder="Select or type a type"
+                                                    optionFilterProp="children"
+                                                    style={{ width: 160 }}
+                                                    options={javaTypes.map(type => ({ value: type, label: type }))}
+                                                    filterOption={(input: string, option?: { label: string; value: string }) =>
+                                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                    }
+                                                >
+
+                                                </Select>
+                                            </Form.Item>
+                                            <Form.Item
+                                                {...restField}
+                                                name={[name, 'parameterName']}
+
+                                                rules={[{ required: true, message: 'Missing parameter name' }]}
+                                            >
+                                                <Input placeholder="Parameter Name" />
+                                            </Form.Item>
+
+                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                        </Space>
+                                    ))}
+                                    <Form.Item>
+                                        <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                                            Add Parameter
+                                        </Button>
+                                    </Form.Item>
+                                    {/* 在这里显示Form.List相关的错误消息 */}
+                                    <Form.ErrorList errors={errors} />
+                                </>
+                            )}
+                        </Form.List>
+                        <Form.Item
+                            name="remarks"
+                            label="Remarks"
+                        >
+                            <Input.TextArea placeholder="Any additional notes or remarks"/>
+                        </Form.Item>
+                    </Form.Item>
+
+
+
+
                 </Form>
+
+
             </Modal>
             <PageContainer
-                // content={ <Collapse bordered={false} items={collapseItems}/>}
-                // breadcrumb={'none'}
-                // extra={[
-                //     <Button key="3"> 不确定用途</Button>,
-                //     <Button key="2"> 不确定用途</Button>,
-                //     <Button key="1" type="primary">
-                //         运行workflow
-                //     </Button>,
-                // ]}
 
-                // tabActiveKey={activeTabKey}
                 tabProps={{
                     type: 'card',
                     hideAdd: true,
@@ -251,17 +349,8 @@ const ArrangeIndex: React.FC = () => {
                     paddingBlockPageContainerContent: 0,
                 }}
                 content={
-                    selectedMenuItem &&
-                    <div
-                        style={{
-                            // marginLeft: '20px',
-                        }}
-                    >
-                        {/* 这里放入PageContainer的内容 */}
-                        <Collapse bordered={false} items={collapseItems}/>
-                    </div>
+                    selectedMenuItem && <Collapse bordered={false} items={collapseItems}/>
                 }
-                // title={<> 3瓦大大我打的大晚上大大21</>}
             >
                 {selectedMenuItem && treeData && (
                     <div className={styles.treeChartContainer}>
