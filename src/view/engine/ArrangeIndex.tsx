@@ -1,6 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
-import {Collapse, CollapseProps, Descriptions, Form, Input, Modal, Space, message, Button, Select} from 'antd';
+import {
+    Collapse,
+    CollapseProps,
+    Descriptions,
+    Form,
+    Input,
+    Modal,
+    Space,
+    message,
+    Button,
+    Select,
+    Typography
+} from 'antd';
 import {EnvironmentOutlined, MinusCircleOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
 import {TreeStore} from '@/store/TreeStore';
@@ -13,7 +25,6 @@ import {
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
-
 
 
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js 网络环境不好。这里会报错。
@@ -244,24 +255,26 @@ const ArrangeIndex: React.FC = () => {
                     <Form.Item
                         name="workflowName"
                         label="Workflow Name"
+                        tooltip= '建议用连贯的文字或者英文,考虑用下划线、横线和 " . " 英文句点分割'
+
                         rules={[{required: true, message: 'Please input the workflow name!'}]}
                     >
                         <Input placeholder="Enter workflow name"/>
                     </Form.Item>
                     <Form.Item
-                        name="purpose"
-                        label="Purpose"
+                        name="Purpose"
+                        label=" workflow 用途"
+                        tooltip="简明扼要描述使用场景和作用"
                         rules={[{required: true, message: 'Please input the purpose of the workflow!'}]}
                     >
                         <Input placeholder="Describe the purpose and use case of the workflow"/>
                     </Form.Item>
 
 
-
-
                     <Form.Item
                         required
-                        label="Dynamic Parameters"
+                        label="定义workflow 输入参数"
+                        tooltip="只是定义,不会增加代码的逻辑。只是文字性描述,规范使用"
                     >
                         {/* 这里使用Form.List，不再额外嵌套Form.Item */}
                         <Form.List
@@ -270,30 +283,33 @@ const ArrangeIndex: React.FC = () => {
                                 {
                                     validator: async (_, parameters) => {
                                         if (!parameters || parameters.length < 1) {
-                                            return Promise.reject(new Error('At least one dynamic parameter is required.'));
+                                            return Promise.reject(new Error('至少需要一个入参定义'));
                                         }
                                     },
                                 },
                             ]}
                         >
-                            {(fields, { add, remove }, { errors }) => (
+                            {(fields, {add, remove}, {errors}) => (
                                 <>
-                                    {fields.map(({ key, name, ...restField }) => (
+                                    {fields.map(({key, name, ...restField}) => (
                                         <Space key={key} align="baseline">
                                             <Form.Item
                                                 {...restField}
                                                 name={[name, 'parameterType']}
 
-                                                rules={[{ required: true, message: 'Missing parameter type' }]}
+                                                rules={[{required: true, message: 'Missing parameter type'}]}
                                             >
                                                 <Select
                                                     showSearch
                                                     allowClear
                                                     placeholder="Select or type a type"
                                                     optionFilterProp="children"
-                                                    style={{ width: 160 }}
-                                                    options={javaTypes.map(type => ({ value: type, label: type }))}
-                                                    filterOption={(input: string, option?: { label: string; value: string }) =>
+                                                    style={{width: 160}}
+                                                    options={javaTypes.map(type => ({value: type, label: type}))}
+                                                    filterOption={(input: string, option?: {
+                                                        label: string;
+                                                        value: string
+                                                    }) =>
                                                         (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                                     }
                                                 >
@@ -304,33 +320,31 @@ const ArrangeIndex: React.FC = () => {
                                                 {...restField}
                                                 name={[name, 'parameterName']}
 
-                                                rules={[{ required: true, message: 'Missing parameter name' }]}
+                                                rules={[{required: true, message: 'Missing parameter name'}]}
                                             >
-                                                <Input placeholder="Parameter Name" />
+                                                <Input placeholder="Parameter Name"/>
                                             </Form.Item>
 
-                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                            <MinusCircleOutlined onClick={() => remove(name)}/>
                                         </Space>
                                     ))}
                                     <Form.Item>
-                                        <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                                        <Button type="dashed" onClick={() => add()} icon={<PlusOutlined/>}>
                                             Add Parameter
                                         </Button>
                                     </Form.Item>
                                     {/* 在这里显示Form.List相关的错误消息 */}
-                                    <Form.ErrorList errors={errors} />
+                                    <Form.ErrorList errors={errors}/>
                                 </>
                             )}
                         </Form.List>
                         <Form.Item
                             name="remarks"
-                            label="Remarks"
+                            label="备注"
                         >
-                            <Input.TextArea placeholder="Any additional notes or remarks"/>
+                            <Input.TextArea placeholder="详细备注内容"/>
                         </Form.Item>
                     </Form.Item>
-
-
 
 
                 </Form>
