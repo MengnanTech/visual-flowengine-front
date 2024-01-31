@@ -10,8 +10,7 @@ import {
     Space,
     message,
     Button,
-    Select,
-    Typography
+    Select
 } from 'antd';
 import {EnvironmentOutlined, MinusCircleOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
 import TreeChart from './TreeChart';
