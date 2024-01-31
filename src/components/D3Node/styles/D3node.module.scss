@@ -3,7 +3,7 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   border-radius: 12px;
-  width: calc(75px * 4); // 增加宽度，以便容纳更大的图标
+  width: calc(75px * 5); // 增加宽度，以便容纳更大的图标
 }
 .disabledIcon {
   color: #888; /* 将颜色置为灰色 */
@@ -37,9 +37,9 @@
   padding: 8px 3px;
   flex: 0 0 auto;
   text-align: center; // 确保文本居中对齐
-  border-radius: 8px;
+  // border-radius: 8px;
   transition: box-shadow 0.2s, transform 0.2s; // 添加变换效果以平滑过渡
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // 正常状态下的阴影
+  // box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // 正常状态下的阴影
   &:hover {
     // transform: translateY(-5px);
     // box-shadow: 0 6px 12px rgba(0,0,0,0.1);
