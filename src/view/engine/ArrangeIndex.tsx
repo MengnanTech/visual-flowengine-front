@@ -17,6 +17,12 @@ import logo from '@/assets/logo/logo.jpeg';
 
 
 //https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js 网络环境不好。这里会报错。
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/base/common/worker/simpleWorker.nls.js
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/base/worker/workerMain.js
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.nls.js
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.js
+//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css
+
 const ArrangeIndex: React.FC = () => {
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);

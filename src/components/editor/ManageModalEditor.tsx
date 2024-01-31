@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Badge, Button, Descriptions, message, Modal, Tooltip} from 'antd';
-import Editor, {Monaco} from '@monaco-editor/react';
+import Editor, {Monaco,loader} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
 //这样导入少包体积少2M
@@ -14,7 +14,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/groovy-language-definition-for-monaco.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
-
+loader.config({ monaco });
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
