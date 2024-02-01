@@ -9,11 +9,15 @@ export class TreeStore {
     clickNode: D3Node | null = null;
     menuPosition: { x: number; y: number } | null = null;
     currentTransform : d3.ZoomTransform | null = null;
-
+    siderWidth : number =320;
     constructor() {
         makeAutoObservable(this);
     }
-
+    @action
+    setSiderWidth(siderWidth: number) {
+        this.siderWidth = siderWidth;
+        return this
+    }
 
     @action
     setCurrentMenu(menuPosition: { x: number; y: number } | null) {

@@ -7,7 +7,13 @@ import {NodeData} from "@/components/D3Node/NodeModel.ts";
 export interface WorkflowCreateRequest {
     workflowName: string;
     workflowDescription: string;
+    workflowParameters: Parameter[];
     remark: string;
+}
+
+export interface Parameter {
+    parameterName: string;
+    parameterType: string;
 }
 
 export interface WorkflowMetadata {

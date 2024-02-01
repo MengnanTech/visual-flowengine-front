@@ -19,13 +19,15 @@ export async function compileGroovyScript(code: string): Promise<Diagnostic[]> {
 }
 
 export async function createWorkflow(workflowCreateRequest: WorkflowCreateRequest): Promise<WorkflowMetadata> {
-    try {
-
-        return await HTTP.post(window.createWorkflowApiPath, JSON.stringify(workflowCreateRequest));
-    } catch (error) {
-        throw error;
-    }
+    return await HTTP.post(window.createWorkflowApiPath, JSON.stringify(workflowCreateRequest));
 }
+
+export async function ListWorkflow(): Promise<WorkflowMetadata[]> {
+    return await HTTP.get(window.listWorkflowsApiPath);
+}
+// export async function ListWorkflow(): Promise<WorkflowMetadata[]> {
+//     return await HTTP.get(window.listWorkflowsApiPath);
+// }
 
 export async function deleteWorkflow(workflowName: string): Promise<any> {
     try {

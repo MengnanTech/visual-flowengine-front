@@ -18,56 +18,34 @@ import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
 import {
-    createInitialData,
-    createInitialData2,
-    items, MenuItem, mockMenuItems,
+    items,
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
+import {createWorkflow, ListWorkflow} from "@/network/api.ts";
+import {WorkflowCreateRequest, WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
 
 const ArrangeIndex: React.FC = () => {
 
-    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+    const [menuItems, setMenuItems] = useState<WorkflowMetadata[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
         null
     );
+    const [siderWidth, setSiderWidth] = useState(320);
     const [keyValue, setKeyValue] = useState<string>('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [workflowForm] = Form.useForm();
-
-    // const [activeTabKey, setActiveTabKey] = useState<string>('');
-    // const [data, setData] = useState<WorkflowListItem[]>([]);
-    // const [selectedRows, setSelectedRows] = useState<WorkflowListItem[]>([]);
-    //
-
-    // const conditionalTabList = selectedMenuItem ? tabList : [];
-    //
-    // useEffect(() => {
-    //     // 模拟从 API 获取数据
-    //     const fetchData = async () => {
-    //         // 模拟 API 调用
-    //
-    //         setData(result);
-    //     };
-    //
-    //     fetchData();
-    // }, []);
 
     useEffect(() => {
         // Fetch menu items when the component mounts
         const fetchMenuItems = async () => {
             try {
-
-                // const response = await fetch('/api/menu-items'); // Replace with your actual API endpoint
-                // if (!response.ok) {
-                //     throw new Error('Network response was not ok');
-                // }
-                // const data: MenuItem[] = await response.json();
-                setMenuItems(mockMenuItems);
+                let workflowMetadata = await ListWorkflow();
+                setMenuItems(workflowMetadata);
             } catch (err: any) {
                 message.error(err.message);
             }
@@ -78,49 +56,25 @@ const ArrangeIndex: React.FC = () => {
 
 
     const handleMenuClick = async (e: MenuDataItem) => {
-
         if (e.key === keyValue) {
             setKeyValue(e.key);
             return;
         }
         if (e.key === undefined) {
-            // 处理 key 为 undefined 的情况
             message.error('Menu item key is undefined');
-            return; // 直接返回，不执行后续逻辑
+            return;
         }
         setKeyValue(e.key);
         setSelectedMenuItem(e);
-
-        try {
-            // setLoading(true);
-            // const response = await fetch(`/api/tree-data/${e.key}`); // Replace with your actual API endpoint
-            // if (!response.ok) {
-            //     throw new Error('Network response was not ok');
-            // }
-            // const data: NodeData = await response.json();
-            interface MockApiDataType {
-                [key: string]: NodeData; // 定义索引签名
-            }
-
-            const mockApiData: MockApiDataType = {
-                'uuid1': createInitialData(),
-                'uuid2': createInitialData2(),
-                // ...其他数据
-            };
-            const newData = mockApiData[e.key];
-
-            setTreeData(newData);
-
-        } catch (err: any) {
-            message.error(err.message);
-        }
+        let newVar = menuItems.find(item => item.workflowName == e.key)
+        setTreeData(newVar!.scriptMetadata);
     };
 
     const menuData = menuItems.map((item) => ({
-        key: item.key,
-        name: item.label,
+        key: item.workflowName,
+        name: item.workflowName,
         icon: <EnvironmentOutlined/>,
-        path: `/${item.key}`,
+        path: `/${item.workflowName}`,
     }));
 
     const handleMenuSettingClick = (e: MenuDataItem) => {
@@ -141,22 +95,13 @@ const ArrangeIndex: React.FC = () => {
     const handleModalSubmit = () => {
         workflowForm
             .validateFields()
-            .then((values) => {
-                console.log(values); // 这里处理表单数据
-
-
+            .then(async (values) => {
+                await createWorkflow(values as WorkflowCreateRequest);
+                let workflowMetadata = await ListWorkflow();
+                setMenuItems(workflowMetadata);
                 setIsModalVisible(false);
                 workflowForm.resetFields();
-                message.success('Workflow added successfully!');
             })
-            .catch((info) => {
-                // workflowForm.resetFields();
-                console.log('Validate Failed:', info);
-            }).finally(
-                () => {
-                    setIsModalVisible(false);
-                }
-        )
         ;
     };
     const handleModalCancel = () => {
@@ -165,6 +110,7 @@ const ArrangeIndex: React.FC = () => {
 
     return (
         <ProLayout
+            siderWidth={siderWidth}
             logo={logo}
             title="可视化流程引擎"
             menuItemRender={(item, dom) => (
@@ -224,14 +170,14 @@ const ArrangeIndex: React.FC = () => {
                     <Form.Item
                         name="workflowName"
                         label="Workflow Name"
-                        tooltip= '建议用连贯的文字或者英文,考虑用下划线、横线和 " . " 英文句点分割'
+                        tooltip='建议用连贯的文字或者英文,考虑用下划线、横线和 " . " 英文句点分割'
 
                         rules={[{required: true, message: 'Please input the workflow name!'}]}
                     >
                         <Input placeholder="Enter workflow name"/>
                     </Form.Item>
                     <Form.Item
-                        name="Purpose"
+                        name="workflowDescription"
                         label=" workflow 用途"
                         tooltip="简明扼要描述使用场景和作用"
                         rules={[{required: true, message: 'Please input the purpose of the workflow!'}]}
@@ -247,7 +193,7 @@ const ArrangeIndex: React.FC = () => {
                     >
                         {/* 这里使用Form.List，不再额外嵌套Form.Item */}
                         <Form.List
-                            name="parameters"
+                            name="workflowParameters"
                             rules={[
                                 {
                                     validator: async (_, parameters) => {
@@ -308,8 +254,9 @@ const ArrangeIndex: React.FC = () => {
                             )}
                         </Form.List>
                         <Form.Item
-                            name="remarks"
+                            name="remark"
                             label="备注"
+                            tooltip="可选,对工作流的详细描述"
                         >
                             <Input.TextArea placeholder="详细备注内容"/>
                         </Form.Item>
@@ -340,7 +287,7 @@ const ArrangeIndex: React.FC = () => {
                         <div className={styles.treeChartContainer}>
                             <TreeChart
                                 key={Math.random()}
-                                treeStore={new TreeStore()}
+                                treeStore={new TreeStore().setSiderWidth(siderWidth)}
                                 initialData={treeData}
                             />
                         </div>

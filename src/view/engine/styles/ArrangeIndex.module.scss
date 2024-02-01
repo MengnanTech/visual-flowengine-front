@@ -96,6 +96,7 @@
 }
 
 .menuIcons {
+  padding: 5px;
   opacity: 0; // 默认透明
   transition: opacity 0.3s ease;
   position: absolute;
@@ -106,6 +107,7 @@
 }
 
 .menuItemContainer:hover .menuIcons {
+  background-color: #eaeae9;
   opacity: 1;
 }
 

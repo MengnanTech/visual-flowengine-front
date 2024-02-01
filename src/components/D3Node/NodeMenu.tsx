@@ -35,6 +35,7 @@ interface NodeMenuProps {
 
 const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
     const menuPosition = treeStore.menuPosition;
+    let siderWidth = treeStore.siderWidth;
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
     // treeStore.
@@ -604,7 +605,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
     return (
-        <div style={{position: 'absolute', left: menuPosition.x - 255, top: menuPosition.y}}>
+        <div style={{position: 'absolute', left: menuPosition.x - siderWidth, top: menuPosition.y}}>
             <Popover content={(
                 <div className={NodeMenuStyles.nodePopup}>
                     {nodeActions.map((nodeAction, index) => (
