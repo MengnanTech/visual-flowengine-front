@@ -24,15 +24,7 @@ import {
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
-import {loader} from "@monaco-editor/react";
 
-
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js 网络环境不好。这里会报错。
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/base/common/worker/simpleWorker.nls.js
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/base/worker/workerMain.js
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.nls.js
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.js
-//https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/editor/editor.main.css
 const javaTypes = [
     'Object', // 可以让用户输入自定义的类名
     'String',
@@ -91,11 +83,6 @@ const ArrangeIndex: React.FC = () => {
     // }, []);
 
     useEffect(() => {
-        loader.config({
-            paths: {
-                vs: 'src/components/editor/vs'
-            }
-        });
         // Fetch menu items when the component mounts
         const fetchMenuItems = async () => {
             try {
