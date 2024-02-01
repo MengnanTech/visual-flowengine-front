@@ -32,7 +32,7 @@ export const centerTree = (rootNode: D3Node, width: number, height: number) => {
 export const GenerateUUID =()=> {
     return uuid();
 }
-
+export const END_NODE_LENGTH = 200;
 export const javaTypes = [
     'Object', // 可以让用户输入自定义的类名
     'String',

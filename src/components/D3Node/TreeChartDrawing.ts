@@ -1,6 +1,7 @@
 import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
 import circleIcon from '@/assets/logo/321.svg';
+import {END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
 
 
 export function DrawCircle(treeChartState: TreeChartState) {
@@ -21,7 +22,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
             if (d.data.nodeType === 'End') {
 
-                return `translate(${d.y - 200},${d.x})`;
+                return `translate(${d.y - END_NODE_LENGTH},${d.x})`;
             } else {
                 return `translate(${d.y},${d.x})`;
             }
@@ -184,7 +185,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .duration(750)
         .attr("transform", d => {
             if (d.data.nodeType === 'End') {
-                return `translate(${d.y - 200},${d.x})`;
+                return `translate(${d.y - END_NODE_LENGTH},${d.x})`;
             }
             return `translate(${d.y},${d.x})`
         });
@@ -253,7 +254,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
                     let interpolateY = d3.interpolate(d.source.y, d.target.y);
 
                     if (d.target.data.nodeType === 'End') {
-                        interpolateY = d3.interpolate(d.source.y, d.target.y - 200);
+                        interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                     }
                     const interpolateX = d3.interpolate(d.source.x, d.target.x);
 
@@ -272,7 +273,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
                 let interpolateY = d3.interpolate(previousY, d.target.y);
 
                 if (d.target.data.nodeType === 'End') {
-                    interpolateY = d3.interpolate(d.source.y, d.target.y - 200);
+                    interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                 }
                 const interpolateX = d3.interpolate(previousX, d.target.x);
 
@@ -306,7 +307,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .attr("d",
             d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
                 if (d.data.nodeType === 'End') {
-                    return d.y - 200;
+                    return d.y - END_NODE_LENGTH;
                 }
                 return d.y;
 

@@ -15,7 +15,7 @@ import * as d3 from "d3";
 import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {observer} from "mobx-react";
-import {GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
+import {END_NODE_LENGTH, GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
 import {Transition} from "d3";
 
 interface NodeAction {
@@ -32,7 +32,7 @@ interface NodeMenuProps {
 }
 
 
-const END_LENGTH = 200;
+
 const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
     const menuPosition = treeStore.menuPosition;
     const rootNode = treeChartState.rootNode;
@@ -134,7 +134,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 let interpolateSourceY = d3.interpolate(parentY, d.y);
                 if (nodeType === "End") {
-                    interpolateSourceY = d3.interpolate(parentY, d.y - END_LENGTH);
+                    interpolateSourceY = d3.interpolate(parentY, d.y - END_NODE_LENGTH);
                 }
 
                 return function (t: number): string {
@@ -154,7 +154,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const interpolateSourceX = d3.interpolate(d.source.x, o.x);
                 const interpolateSourceY = d3.interpolate(d.source.y, o.y);
                 const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_LENGTH : d.target.y, o.y);
+                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_NODE_LENGTH : d.target.y, o.y);
 
 
                 return function (t: number): string {
@@ -458,7 +458,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     descendant.x = d.x + descendant.relativeX;
                     descendant.y = d.y + descendant.relativeY;
                     d3.select(`#node-${descendant.data.id}`)
-                        .attr("transform", descendant.data.nodeType == "End" ? `translate(${descendant.y - END_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
+                        .attr("transform", descendant.data.nodeType == "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
                 });
 
                 // 移动节点
@@ -489,7 +489,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                         .attr("d", function () {
                             if (descendant.data.nodeType === "End") {
                                 // 如果目标节点是 'End' 类型，调整连接线的长度
-                                const intermediatePointY = linkData.target.y - END_LENGTH;
+                                const intermediatePointY = linkData.target.y - END_NODE_LENGTH;
                                 const modifiedTarget = {x: linkData.target.x, y: intermediatePointY} as D3Node;
 
                                 // 使用 d3.linkHorizontal() 但是用修改后的目标点
