@@ -32,7 +32,6 @@ const ArrangeIndex: React.FC = () => {
 
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [treeData, setTreeData] = useState<NodeData | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
         null
     );
@@ -62,7 +61,7 @@ const ArrangeIndex: React.FC = () => {
         // Fetch menu items when the component mounts
         const fetchMenuItems = async () => {
             try {
-                setLoading(true);
+
                 // const response = await fetch('/api/menu-items'); // Replace with your actual API endpoint
                 // if (!response.ok) {
                 //     throw new Error('Network response was not ok');
@@ -71,8 +70,6 @@ const ArrangeIndex: React.FC = () => {
                 setMenuItems(mockMenuItems);
             } catch (err: any) {
                 message.error(err.message);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -119,9 +116,6 @@ const ArrangeIndex: React.FC = () => {
         }
     };
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
     const menuData = menuItems.map((item) => ({
         key: item.key,
         name: item.label,
@@ -149,6 +143,8 @@ const ArrangeIndex: React.FC = () => {
             .validateFields()
             .then((values) => {
                 console.log(values); // 这里处理表单数据
+
+
                 setIsModalVisible(false);
                 workflowForm.resetFields();
                 message.success('Workflow added successfully!');
@@ -156,7 +152,12 @@ const ArrangeIndex: React.FC = () => {
             .catch((info) => {
                 // workflowForm.resetFields();
                 console.log('Validate Failed:', info);
-            });
+            }).finally(
+                () => {
+                    setIsModalVisible(false);
+                }
+        )
+        ;
     };
     const handleModalCancel = () => {
         setIsModalVisible(false);

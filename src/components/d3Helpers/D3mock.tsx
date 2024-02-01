@@ -4,71 +4,71 @@ import {CollapseProps, Descriptions, DescriptionsProps} from "antd";
 
 export function createInitialData(): NodeData  {
     return {
-        "id": "1",
-        "name": "Root",
-        "nodeType": "Start",
+        "scriptId": "1",
+        "scriptName": "Root",
+        "scriptType": "Start",
         "scriptText": "开始节点定义好入参数",
-        "nodeDesc": "nodeDesc",
+        "scriptDesc": "nodeDesc",
         "children": [
             {
-                "id": "root123",
-                "name": "root123",
-                "nodeType": "nodeType",
+                "scriptId": "root123",
+                "scriptName": "root123",
+                "scriptType": "nodeType",
                 "scriptText": "root123scriptText是",
-                "nodeDesc": "nodeDesc",
+                "scriptDesc": "nodeDesc",
                 "children": [
                     {
-                        "id": "c00b92b0-00f8-4999-b5a0-c0bab728ca20",
-                        "name": "End",
-                        "nodeType": "End",
-                        "nodeDesc": "",
+                        "scriptId": "c00b92b0-00f8-4999-b5a0-c0bab728ca20",
+                        "scriptName": "End",
+                        "scriptType": "End",
+                        "scriptDesc": "",
                         "scriptText": ""
                     }
                 ]
             },
             {
-                "id": "root369",
-                "name": "root369",
-                "nodeType": "nodeType",
+                "scriptId": "root369",
+                "scriptName": "root369",
+                "scriptType": "nodeType",
                 "scriptText": "scriptText",
-                "nodeDesc": "nodeDesc",
+                "scriptDesc": "nodeDesc",
                 "children": [
                     {
-                        "id": "root456",
-                        "name": "root456",
-                        "nodeType": "nodeType",
+                        "scriptId": "root456",
+                        "scriptName": "root456",
+                        "scriptType": "nodeType",
                         "scriptText": "Grandchild 2-1scriptText收到",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     },
                     {
-                        "id": "root789",
-                        "name": "root789",
-                        "nodeType": "nodeType",
+                        "scriptId": "root789",
+                        "scriptName": "root789",
+                        "scriptType": "nodeType",
                         "scriptText": "Grandchild 2-2scriptTextv啊",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     },
                     {
-                        "id": "root110",
-                        "name": "root110",
-                        "nodeType": "nodeType",
+                        "scriptId": "root110",
+                        "scriptName": "root110",
+                        "scriptType": "nodeType",
                         "scriptText": "scriptText",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     },
                     {
-                        "id": "root120",
-                        "name": "root120",
-                        "nodeType": "nodeType",
+                        "scriptId": "root120",
+                        "scriptName": "root120",
+                        "scriptType": "nodeType",
                         "scriptText": "scriptText",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     }
                 ]
             },
             {
-                "id": "root857",
-                "name": "root857",
-                "nodeType": "nodeType",
+                "scriptId": "root857",
+                "scriptName": "root857",
+                "scriptType": "nodeType",
                 "scriptText": "scriptText",
-                "nodeDesc": "nodeDesc"
+                "scriptDesc": "nodeDesc"
             }
         ]
     }
@@ -76,62 +76,62 @@ export function createInitialData(): NodeData  {
 }
 export function createInitialData2(): NodeData  {
     return {
-        "id": "initialData2",
-        "name": "initialData2",
-        "nodeType": "Start",
+        "scriptId": "initialData2",
+        "scriptName": "initialData2",
+        "scriptType": "Start",
         "scriptText": "initialData2",
-        "nodeDesc": "initialData2",
+        "scriptDesc": "initialData2",
         "children": [
             {
-                "id": "root123",
-                "name": "Child 1冲冲冲",
-                "nodeType": "nodeType",
+                "scriptId": "root123",
+                "scriptName": "Child 1冲冲冲",
+                "scriptType": "nodeType",
                 "scriptText": "root123scriptText是",
-                "nodeDesc": "nodeDesc",
+                "scriptDesc": "nodeDesc",
             },
             {
-                "id": "root369",
-                "name": "Child 2诸葛",
-                "nodeType": "nodeType",
+                "scriptId": "root369",
+                "scriptName": "Child 2诸葛",
+                "scriptType": "nodeType",
                 "scriptText": "scriptText",
-                "nodeDesc": "nodeDesc",
+                "scriptDesc": "nodeDesc",
                 "children": [
                     {
-                        "id": "root456",
-                        "name": "Grandchild 2-1",
-                        "nodeType": "nodeType",
+                        "scriptId": "root456",
+                        "scriptName": "Grandchild 2-1",
+                        "scriptType": "nodeType",
                         "scriptText": "Grandchild 2-1scriptText收到",
-                        "nodeDesc": "nodeDesc",
+                        "scriptDesc": "nodeDesc",
                     },
                     {
-                        "id": "root789",
-                        "name": "Grandchild 2-2收到",
-                        "nodeType": "nodeType",
+                        "scriptId": "root789",
+                        "scriptName": "Grandchild 2-2收到",
+                        "scriptType": "nodeType",
                         "scriptText": "Grandchild 2-2scriptTextv啊",
-                        "nodeDesc": "nodeDesc",
+                        "scriptDesc": "nodeDesc",
                     },
                     {
-                        "id": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
-                        "name": "New Node355100",
-                        "nodeType": "nodeType",
+                        "scriptId": "c61c9d6a-e9a9-4894-bd1a-cce8f7a16be3",
+                        "scriptName": "New Node355100",
+                        "scriptType": "nodeType",
                         "scriptText": "scriptText",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     },
                     {
-                        "id": "256f8cf4-db66-4c06-bce0-da7044538ec8",
-                        "name": "New Node892100",
-                        "nodeType": "nodeType",
+                        "scriptId": "256f8cf4-db66-4c06-bce0-da7044538ec8",
+                        "scriptName": "New Node892100",
+                        "scriptType": "nodeType",
                         "scriptText": "scriptText",
-                        "nodeDesc": "nodeDesc"
+                        "scriptDesc": "nodeDesc"
                     }
                 ]
             },
             {
-                "id": "root857",
-                "name": "Child 3",
-                "nodeType": "nodeType",
+                "scriptId": "root857",
+                "scriptName": "Child 3",
+                "scriptType": "nodeType",
                 "scriptText": "scriptText",
-                "nodeDesc": "nodeDesc"
+                "scriptDesc": "nodeDesc"
             }
         ]
     }

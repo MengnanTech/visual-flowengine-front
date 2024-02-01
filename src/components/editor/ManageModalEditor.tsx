@@ -25,7 +25,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     const clickNode = treeStore.clickNode;
 
-    const [title, setTitle] = useState(clickNode?.data.name || '');
+    const [title, setTitle] = useState(clickNode?.data.scriptName || '');
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -37,16 +37,16 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const toggleEditing = () => {
         if (isEditing && clickNode) {
             // 如果之前处于编辑状态，现在要保存更改
-            clickNode.data.name = title;
+            clickNode.data.scriptName = title;
             treeStore.setClickNode(clickNode);
-            d3.select(`#node-${clickNode.data.id}`).select("text").text(clickNode.data.name);
+            d3.select(`#node-${clickNode.data.scriptId}`).select("text").text(clickNode.data.scriptName);
         }
         setIsEditing(!isEditing);
     };
 
 
     useEffect(() => {
-        setTitle(clickNode?.data.name || '');  // 更新 title 状态
+        setTitle(clickNode?.data.scriptName || '');  // 更新 title 状态
         if (clickNode?.data.scriptText) {
             compileCode(clickNode.data.scriptText).then(r => r);
         }
@@ -122,9 +122,9 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     <Descriptions size="small" column={1}>
                         <Descriptions.Item label="Node ID">
                             <div style={{display: 'flex', alignItems: 'center'}}>
-                                <span>{clickNode?.data.id}</span>
+                                <span>{clickNode?.data.scriptId}</span>
                                 <Tooltip title="复制">
-                                    <CopyToClipboard text={clickNode?.data.id || ''}>
+                                    <CopyToClipboard text={clickNode?.data.scriptId || ''}>
                                         <Button size="small" type="link" icon={<CopyFilled style={{color: 'gray'}}/>}/>
                                     </CopyToClipboard>
                                 </Tooltip>
@@ -152,7 +152,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         </Descriptions.Item>
 
                         {/* 在这里添加其他节点信息 */}
-                        <Descriptions.Item label="Node Type">{clickNode?.data.nodeType}</Descriptions.Item>
+                        <Descriptions.Item label="Node Type">{clickNode?.data.scriptType}</Descriptions.Item>
                         <Descriptions.Item label="Node Status">
                             <Badge status="processing" text="Running" color="green"/>
                         </Descriptions.Item>
@@ -186,7 +186,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 }}>
                     <Suspense fallback={<div>Loading Editor...</div>}>
                         <MonacoEditor
-                            key={clickNode ? clickNode.data.id : 'editor'}
+                            key={clickNode ? clickNode.data.scriptId : 'editor'}
                             height="50vh"
                             onChange={handleEditorChange}
                             onMount={handleEditorDidMount}

@@ -12,7 +12,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
     const treeStore = treeChartState.treeStore;
 
     const nodeSelection = gRef.selectAll<SVGGElement, D3Node>(".node");
-    const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.id);
+    const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.scriptId);
 
     const nodesEnter: d3.Selection<SVGGElement, D3Node, any, any> = nodes.enter()
         .append("g")
@@ -20,20 +20,20 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
         .attr("transform", d => {
 
-            if (d.data.nodeType === 'End') {
+            if (d.data.scriptType === 'End') {
 
                 return `translate(${d.y - END_NODE_LENGTH},${d.x})`;
             } else {
                 return `translate(${d.y},${d.x})`;
             }
         })
-        .attr('id', d => `node-${d.data.id}`);  // 同时设置ID，用于后续选择
+        .attr('id', d => `node-${d.data.scriptId}`);  // 同时设置ID，用于后续选择
 
     nodesEnter.each(function (d) {
         const nodeGroup: d3.Selection<SVGGElement, D3Node, null, undefined> = d3.select(this);
 
         // 检查节点类型，绘制相应的形状
-        if (d.data.nodeType === 'End') {
+        if (d.data.scriptType === 'End') {
 
             // 如果节点是 'end' 类型，则绘制正方形
             const selection = nodeGroup.append("rect")
@@ -138,7 +138,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 .attr("x", 0)
                 .style("text-anchor", "middle")
                 // .style("pointer-events", "none") 取消所有事件
-                .text(d => d.data.name)
+                .text(d => d.data.scriptName)
                 .on('mouseover', function () {
                     d3.select(this)
                         .transition()
@@ -155,7 +155,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 });
 
 
-            if (d.data.nodeType !== 'End') {
+            if (d.data.scriptType !== 'End') {
                 // 仅对非 'End' 类型的节点添加图标
                 nodeGroup.append('image')
                     .attr('xlink:href', circleIcon) // 替换为你的图标路径
@@ -172,7 +172,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
     nodes.transition()
         .duration(750)
         .attr("transform", d => {
-            if (d.data.nodeType === 'End') {
+            if (d.data.scriptType === 'End') {
                 return `translate(${d.y - END_NODE_LENGTH},${d.x})`;
             }
             return `translate(${d.y},${d.x})`
@@ -213,7 +213,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
 
     const selection = gRef.selectAll<SVGPathElement, D3Link>(".link");
     const links = selection.data(rootNode.links() as D3Link[], d => {
-        return d.target.data.id
+        return d.target.data.scriptId
     });
 
 
@@ -223,14 +223,14 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .attr("fill", "none")
         .attr("stroke", "url(#movingArrowPattern)")//自定义连接线的样式。
         .attr("stroke-width", 10)
-        .attr('id', d => generateLinkId(d.source.data.id, d.target.data.id)) // 同时设置ID，用于后续选择
+        .attr('id', d => generateLinkId(d.source.data.scriptId, d.target.data.scriptId)) // 同时设置ID，用于后续选择
         .lower()
         .transition()
         .duration(750)
         .attrTween("d", function (d): (t: number) => string {
             // 插值生成器
             let nodePreviousPosition: number[] | null = null;
-            const node = rootNode.descendants().find(node => node.data.id === d.source.data.id);
+            const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
             if (node?.previousX && node?.previousY) {
                 nodePreviousPosition = [node.previousX, node.previousY];
             }
@@ -241,7 +241,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
                 return function (t: number): string {
                     let interpolateY = d3.interpolate(d.source.y, d.target.y);
 
-                    if (d.target.data.nodeType === 'End') {
+                    if (d.target.data.scriptType === 'End') {
                         interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                     }
                     const interpolateX = d3.interpolate(d.source.x, d.target.x);
@@ -260,7 +260,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
                 const previousX = nodePreviousPosition[0];
                 let interpolateY = d3.interpolate(previousY, d.target.y);
 
-                if (d.target.data.nodeType === 'End') {
+                if (d.target.data.scriptType === 'End') {
                     interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                 }
                 const interpolateX = d3.interpolate(previousX, d.target.x);
@@ -294,7 +294,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .duration(750)
         .attr("d",
             d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
-                if (d.data.nodeType === 'End') {
+                if (d.data.scriptType === 'End') {
                     return d.y - END_NODE_LENGTH;
                 }
                 return d.y;

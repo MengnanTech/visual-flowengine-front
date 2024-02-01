@@ -1,22 +1,22 @@
 import * as d3 from "d3";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {makeObservable, observable} from "mobx";
+import {makeObservable} from "mobx";
 
 export class NodeData {
-    id: string;
-    @observable name: string;
-    @observable scriptText: string;
-    nodeType: string;
-    nodeDesc: string;
+    scriptId: string;
+    scriptName: string;
+    scriptText: string;
+    scriptType: string;
+    scriptDesc: string;
     children?: NodeData[];
 
     constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string,children?: NodeData[]) {
         makeObservable(this);
-        this.id = id;
-        this.name = name;
+        this.scriptId = id;
+        this.scriptName = name;
         this.scriptText = scriptText;
-        this.nodeType = nodeType;
-        this.nodeDesc = nodeDesc;
+        this.scriptType = nodeType;
+        this.scriptDesc = nodeDesc;
         this.children = children;
     }
 }

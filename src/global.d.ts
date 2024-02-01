@@ -7,6 +7,7 @@ declare global {
         compileScriptApiPath: string;
         createWorkflowApiPath: string;
         deleteWorkflowApiPath: string;
+        updateWorkflowApiPath: string;
         listWorkflowsApiPath: string;
         runGroovyScriptApiPath: string;
         getWorkflowMetadataApiPath: string;

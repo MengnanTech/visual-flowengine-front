@@ -49,16 +49,16 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         }
 
         const descendants = nodeToRemove.descendants();
-        const descendantIds = new Set(descendants.map(d => d.data.id));
+        const descendantIds = new Set(descendants.map(d => d.data.scriptId));
 
         // 选中所有要移除的节点和连接线
         const nodesToRemove = gRef.selectAll<SVGCircleElement, D3Node>('.node')
             .filter(function (d: D3Node) {
-                return descendantIds.has(d.data.id);
+                return descendantIds.has(d.data.scriptId);
             });
         const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
             .filter((d: D3Link) => {
-                return descendantIds.has(d.target.data.id);
+                return descendantIds.has(d.target.data.scriptId);
             });
 
         // 应用过渡效果，使节点和连接线渐渐消失
@@ -80,7 +80,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         if (nodeToRemove.parent.data.children) {
 
             for (let i = 0; i < nodeToRemove.parent.data.children?.length; i++) {
-                if (nodeToRemove.parent.data.children[i].id === nodeToRemove.data.id) {
+                if (nodeToRemove.parent.data.children[i].scriptId === nodeToRemove.data.scriptId) {
                     nodeToRemove.parent.data.children.splice(i, 1)
                 }
             }
@@ -97,10 +97,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         const newNodeData: NodeData =
             {
 
-                id: GenerateUUID(),
-                name: nodeType === "End" ? "" : "New Node" + Math.floor(Math.random() * 90) + 100,
-                nodeType: nodeType,
-                nodeDesc: "",
+                scriptId: GenerateUUID(),
+                scriptName: nodeType === "End" ? "" : "New Node" + Math.floor(Math.random() * 90) + 100,
+                scriptType: nodeType,
+                scriptDesc: "",
                 scriptText: '',
             };
 
@@ -120,7 +120,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
         refresh(treeChartState);
 
-        const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.id}`);
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
         nodesEnter.transition()
             .duration(750)
             .style('opacity', 1)
@@ -153,7 +153,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const interpolateSourceX = d3.interpolate(d.source.x, o.x);
                 const interpolateSourceY = d3.interpolate(d.source.y, o.y);
                 const interpolateTargetX = d3.interpolate(d.target.x, o.x);
-                const interpolateTargetY = d3.interpolate(d.target.data.nodeType === 'End' ? d.target.y - END_NODE_LENGTH : d.target.y, o.y);
+                const interpolateTargetY = d3.interpolate(d.target.data.scriptType === 'End' ? d.target.y - END_NODE_LENGTH : d.target.y, o.y);
 
 
                 return function (t: number): string {
@@ -179,7 +179,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     }
 
     function removeNodeAndLinks(nodeToRemove: D3Node) {
-        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.id}`);
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
         // 视图上移除和这个节点相关的node 和link
         nodesEnter.transition().duration(500)
             .style('opacity', 0)
@@ -192,8 +192,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
             .filter((d: D3Link) => {
                 const descendants = nodeToRemove.descendants();
-                const descendantIds = new Set(descendants.map(d => d.data.id));
-                return descendantIds.has(d.target.data.id);
+                const descendantIds = new Set(descendants.map(d => d.data.scriptId));
+                return descendantIds.has(d.target.data.scriptId);
             });
 
         const transition = linksToRemove.transition().duration(500);
@@ -213,7 +213,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             // 重新定位第一个子节点和其子孙节点
             const firstChild = nodeToRemove.children[0];
 
-            const nodesEnter = gRef.select<SVGGElement>(`#node-${firstChild.data.id}`);
+            const nodesEnter = gRef.select<SVGGElement>(`#node-${firstChild.data.scriptId}`);
 
             nodesEnter.transition()
                 .duration(750)
@@ -236,7 +236,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             descendants.forEach(descendant => {
 
                 if (descendant !== firstChild) {
-                    gRef.select(`#node-${descendant.data.id}`)
+                    gRef.select(`#node-${descendant.data.scriptId}`)
                         // .style('opacity', 1)
                         .transition().duration(750)
                         .attrTween("transform", function (d): (t: number) => string {
@@ -305,7 +305,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             // 更新 nodeToRemove.parent.data.children 数组
             const parentDataChildren = nodeToRemove.parent.data.children;
 
-            const nodeIndex = parentDataChildren!.findIndex(child => child.id === nodeToRemove.data.id);
+            const nodeIndex = parentDataChildren!.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
             if (nodeIndex !== -1) {
                 parentDataChildren!.splice(nodeIndex, 1, firstChildData);
             }
@@ -313,7 +313,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         }else {
             // 如果 nodeToRemove 没有子节点，正常移除
             const parentDataChildren = nodeToRemove.parent.data.children;
-            const nodeIndex = parentDataChildren!.findIndex(child => child.id === nodeToRemove.data.id);
+            const nodeIndex = parentDataChildren!.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
             if (nodeIndex !== -1) {
                 parentDataChildren!.splice(nodeIndex, 1);
             }
@@ -329,11 +329,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     const menuNode = treeStore.menuNode;
 
-    const isEndNodeType = menuNode?.data.nodeType === "End";
-    const isStartNodeType = menuNode?.data.nodeType === "Start";
+    const isEndNodeType = menuNode?.data.scriptType === "End";
+    const isStartNodeType = menuNode?.data.scriptType === "Start";
     const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
-    const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.nodeType === 'End'));
+    const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
     const nodeActions: NodeAction[] = [
         // 添加代码节点
@@ -441,7 +441,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 // 计算鼠标的相对移动距离
                 const dx = event.x - dragStart.x;
                 const dy = event.y - dragStart.y;
-                d3.select(`#${generateLinkId(d.parent!.data.id, d.data.id)}`)
+                d3.select(`#${generateLinkId(d.parent!.data.scriptId, d.data.scriptId)}`)
                     .transition()
                     .duration(130)
                     .style("opacity", 0)
@@ -456,8 +456,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 d.descendants().forEach(descendant => {
                     descendant.x = d.x + descendant.relativeX;
                     descendant.y = d.y + descendant.relativeY;
-                    d3.select(`#node-${descendant.data.id}`)
-                        .attr("transform", descendant.data.nodeType == "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
+                    d3.select(`#node-${descendant.data.scriptId}`)
+                        .attr("transform", descendant.data.scriptType == "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
                 });
 
                 // 移动节点
@@ -484,9 +484,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 d.descendants().forEach(descendant => {
                     const linkData = {source: descendant.parent, target: descendant} as D3Link;
-                    d3.select(`#${generateLinkId(linkData.source.data.id, linkData.target.data.id)}`)
+                    d3.select(`#${generateLinkId(linkData.source.data.scriptId, linkData.target.data.scriptId)}`)
                         .attr("d", function () {
-                            if (descendant.data.nodeType === "End") {
+                            if (descendant.data.scriptType === "End") {
                                 // 如果目标节点是 'End' 类型，调整连接线的长度
                                 const intermediatePointY = linkData.target.y - END_NODE_LENGTH;
                                 const modifiedTarget = {x: linkData.target.x, y: intermediatePointY} as D3Node;
@@ -507,7 +507,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 let closestNode = null;
                 let minDistance = Infinity;
                 rootNode.descendants().forEach(node => {
-                    if (node !== d && node.data.nodeType !== "End") {
+                    if (node !== d && node.data.scriptType !== "End") {
                         //计算和其他节点的距离
                         const distance = Math.sqrt((d.x - node.x) ** 2 + (d.y - node.y) ** 2);
                         if (distance < minDistance) {
@@ -555,7 +555,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     if (oldParentNode.data.children) {
 
                         for (let i = 0; i < oldParentNode.data.children?.length; i++) {
-                            if (oldParentNode.data.children[i].id === d.data.id) {
+                            if (oldParentNode.data.children[i].scriptId === d.data.scriptId) {
                                 oldParentNode.data.children.splice(i, 1)
                             }
                         }
@@ -599,7 +599,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     function isNextNodeEnd(menuNode: D3Node | null) {
         const children = menuNode?.data.children;
-        return !!(children && children.length > 0 && children[0].nodeType === "End");
+        return !!(children && children.length > 0 && children[0].scriptType === "End");
 
     }
 
