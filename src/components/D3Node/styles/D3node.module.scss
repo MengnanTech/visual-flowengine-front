@@ -68,5 +68,9 @@
   pointer-events: none; // 禁用鼠标事件，使其不可点击
 }
 .disabled {
-  background-color: #1890ff;
+  color: #ccc; /* 灰色文本 */
+  cursor: not-allowed; /* 禁止光标 */
+  opacity: 0.4; /* 降低透明度 */
+  pointer-events: none; /* 禁止鼠标事件 */
 }
+
