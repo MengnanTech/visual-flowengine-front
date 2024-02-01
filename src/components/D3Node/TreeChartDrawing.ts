@@ -26,8 +26,6 @@ export function DrawCircle(treeChartState: TreeChartState) {
             } else {
                 return `translate(${d.y},${d.x})`;
             }
-
-            // return `translate(${d.y},${d.x})`
         })
         .attr('id', d => `node-${d.data.id}`);  // 同时设置ID，用于后续选择
 
@@ -170,16 +168,6 @@ export function DrawCircle(treeChartState: TreeChartState) {
 
         }
     });
-
-
-    // nodesEnter.append("circle")
-    //     .attr("r", 20)
-    //     .style("fill", "#c0f1b0") // 设置初始化灰白色，掩盖连接线
-    //     .style("stroke", "#999")
-    //     .style("stroke-width", 1.5)
-    //     .style("opacity", 1)
-    //     .raise()
-
 
     nodes.transition()
         .duration(750)

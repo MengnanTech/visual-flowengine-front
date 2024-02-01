@@ -43,14 +43,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     if (!menuPosition ||treeStore.clickNode) return null; // 如果没有位置信息，则不渲染菜单
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
 
-        // 找到所有子孙节点
         if (nodeToRemove.parent == null) {
             message.error('根节点无法删除').then(r => r)
             return
         }
+
         const descendants = nodeToRemove.descendants();
         const descendantIds = new Set(descendants.map(d => d.data.id));
-        // 定义被删除节点的父节点位置
 
         // 选中所有要移除的节点和连接线
         const nodesToRemove = gRef.selectAll<SVGCircleElement, D3Node>('.node')
