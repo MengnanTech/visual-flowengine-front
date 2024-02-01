@@ -327,13 +327,18 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     }
 
+    const menuNode = treeStore.menuNode;
+
+    const isEndNodeType = treeStore.menuNode?.data.nodeType === "End";
+    const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
+    const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
 
     const nodeActions: NodeAction[] = [
         {
             icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
-            disabled: isNextNodeEnd(treeStore.menuNode),
+            disabled: false,
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
         {
@@ -354,12 +359,14 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除节点树',
             nodeType: "DeleteTree",
+            disabled: (isEndNodeType || (hasChildren && nextNodeIsEnd)),
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>, // 假设 TreeDeleteOutlined 是一个垃圾桶图标，带有树枝形状
             label: '删除当前节点',
             nodeType: "Delete",
+            disabled: (isEndNodeType || (hasChildren && nextNodeIsEnd)),
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
 
@@ -367,17 +374,20 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
             nodeType: "End",
+            disabled: (hasChildren || nextNodeIsEnd),
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         {
             icon: <DragOutlined className={NodeMenuStyles.icon}/>,
             label: '拖拽节点',
             nodeType: "drag",
+            disabled:false,
             action: () => handDragNode()
         },
         {
             icon: <FileOutlined className={NodeMenuStyles.icon}/>,
             label: 'json批量创建节点',
+            disabled:isEndNodeType||nextNodeIsEnd,
             action: () => handDragNode()
         }
     ];
@@ -578,33 +588,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     }
 
-
-    const isEndNodeType = treeStore.menuNode?.data.nodeType === "End";
-    const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
-    const hasChildren = treeStore.menuNode && treeStore.menuNode.data.children && treeStore.menuNode.data.children.length > 0;
-
-    const filteredNodeActions = nodeActions.filter(action => {
-        if (isEndNodeType) {
-            // 如果当前节点是 'End' 类型，只保留删除动作
-            return action.nodeType === "Delete";
-        } else if (hasChildren && nextNodeIsEnd) {
-            // 如果当前节点已有子节点且子节点中有 'End' 节点，则禁用添加节点的选项，但允许删除和拖拽
-            return action.nodeType === "Delete" || action.nodeType === 'drag' || action.nodeType === "deleteTree";
-        } else if (hasChildren && !nextNodeIsEnd) {
-            // 如果当前节点已有子节点且子节点中没有 'End' 节点，则禁用添加 'End' 节点的选项
-            return action.nodeType !== "End";
-        } else {
-            // 如果当前节点没有子节点，允许所有添加节点的选项
-            return true;
-        }
-    });
-
-
     function isNextNodeEnd(menuNode: D3Node | null) {
         const children = menuNode?.data.children;
-
         return !!(children && children.length > 0 && children[0].nodeType === "End");
-
 
     }
 
@@ -612,7 +598,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         <div style={{position: 'absolute', left: menuPosition.x - 255, top: menuPosition.y}}>
             <Popover content={(
                 <div className={NodeMenuStyles.nodePopup}>
-                    {filteredNodeActions.map((nodeAction, index) => (
+                    {nodeActions.map((nodeAction, index) => (
                         <div key={index}
                              className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
                              onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
