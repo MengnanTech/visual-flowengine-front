@@ -330,6 +330,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const menuNode = treeStore.menuNode;
 
     const isEndNodeType = menuNode?.data.nodeType === "End";
+    const isStartNodeType = menuNode?.data.nodeType === "Start";
     const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
     const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.nodeType === 'End'));
@@ -364,7 +365,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除节点树',
             nodeType: "DeleteTree",
-            disabled: isEndNodeType,
+            disabled: isEndNodeType ||isStartNodeType ,
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         // 删除当前节点
@@ -372,7 +373,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除当前节点',
             nodeType: "Delete",
-            disabled: hasEndChildNode,
+            disabled: hasEndChildNode ||isStartNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
         // 结束节点
@@ -388,7 +389,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DragOutlined className={NodeMenuStyles.icon}/>,
             label: '拖拽节点',
             nodeType: "drag",
-            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
+            disabled: isEndNodeType || isStartNodeType,
             action: () => handDragNode()
         },
         // json批量创建节点
@@ -611,7 +612,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                              className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
                              onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
                             {nodeAction.icon}
-                            <span>{nodeAction.label}</span>
+                            <span  className ={NodeMenuStyles.nodeLabel} >{nodeAction.label}</span>
                         </div>
                     ))}
                 </div>
