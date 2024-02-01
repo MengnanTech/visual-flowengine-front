@@ -334,60 +334,67 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
 
     const nodeActions: NodeAction[] = [
+        // 添加代码节点
         {
             icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
-            disabled: false,
+            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleAddNode(treeStore.menuNode!, "Script")
         },
+        // 条件节点
         {
             icon: <CheckCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '条件节点todo',
             nodeType: "Condition",
-            disabled: isNextNodeEnd(treeStore.menuNode),
+            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
+        // 规则节点
         {
             icon: <ShrinkOutlined className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
             nodeType: "Rule",
-            disabled: isNextNodeEnd(treeStore.menuNode),
+            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleAddNode(treeStore.menuNode!, "Rule")
         },
+        // 删除节点树
         {
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除节点树',
             nodeType: "DeleteTree",
-            disabled: (isEndNodeType || (hasChildren && nextNodeIsEnd)),
+            disabled: isEndNodeType,
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
+        // 删除当前节点
         {
-            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>, // 假设 TreeDeleteOutlined 是一个垃圾桶图标，带有树枝形状
+            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除当前节点',
             nodeType: "Delete",
-            disabled: (isEndNodeType || (hasChildren && nextNodeIsEnd)),
+            disabled: isEndNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
-
+        // 结束节点
         {
             icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
             nodeType: "End",
-            disabled: (hasChildren || nextNodeIsEnd),
+            disabled: hasChildren,
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
+        // 拖拽节点
         {
             icon: <DragOutlined className={NodeMenuStyles.icon}/>,
             label: '拖拽节点',
             nodeType: "drag",
-            disabled:false,
+            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handDragNode()
         },
+        // json批量创建节点
         {
             icon: <FileOutlined className={NodeMenuStyles.icon}/>,
             label: 'json批量创建节点',
-            disabled:isEndNodeType||nextNodeIsEnd,
+            disabled: isEndNodeType || nextNodeIsEnd,
             action: () => handDragNode()
         }
     ];
