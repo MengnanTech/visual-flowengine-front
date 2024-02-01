@@ -37,9 +37,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const menuPosition = treeStore.menuPosition;
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
+    // treeStore.
 
 
-    if (!menuPosition) return null; // 如果没有位置信息，则不渲染菜单
+    if (!menuPosition ||treeStore.clickNode) return null; // 如果没有位置信息，则不渲染菜单
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
 
         // 找到所有子孙节点

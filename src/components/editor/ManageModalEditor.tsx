@@ -1,6 +1,6 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {Suspense, useEffect, useRef, useState} from 'react';
 import {Badge, Button, Descriptions, message, Modal, Tooltip} from 'antd';
-import Editor, {Monaco} from '@monaco-editor/react';
+import {Monaco} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
 //这样导入少包体积少2M
@@ -19,6 +19,7 @@ import {registerGroovyLanguageForMonaco} from "@/components/editor/vs/language/g
 interface ManageModalEditorProps {
     treeStore: TreeStore;
 }
+const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
 const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore}) => {
 
@@ -183,16 +184,21 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     borderRadius: '4px',
                     padding: '10px',
                 }}>
-                    <Editor
-                        key={clickNode ? clickNode.data.id : 'editor'}
-                        height="50vh"
-                        onChange={handleEditorChange}
-                        onMount={handleEditorDidMount}
-                        beforeMount={handleEditorWillMount}
-                        onValidate={handleEditorValidation}
-                        defaultLanguage="groovy"
-                        defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
-                    />
+                    <Suspense fallback={<div>Loading Editor...</div>}>
+                        <MonacoEditor
+                            key={clickNode ? clickNode.data.id : 'editor'}
+                            height="50vh"
+                            onChange={handleEditorChange}
+                            onMount={handleEditorDidMount}
+                            beforeMount={handleEditorWillMount}
+                            onValidate={handleEditorValidation}
+                            defaultLanguage="groovy"
+                            options={{
+                                contextmenu: true,
+                            }}
+                            defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
+                        />
+                    </Suspense>
                 </div>
             </Modal>
         </div>

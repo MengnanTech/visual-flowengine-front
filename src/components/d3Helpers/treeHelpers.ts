@@ -32,3 +32,30 @@ export const centerTree = (rootNode: D3Node, width: number, height: number) => {
 export const GenerateUUID =()=> {
     return uuid();
 }
+
+export const javaTypes = [
+    'Object', // 可以让用户输入自定义的类名
+    'String',
+    'Integer',
+    'Long',
+    'Short',
+    'Double',
+    'Float',
+    'Boolean',
+    'Byte',
+    'Character',
+    'BigDecimal',
+    'BigInteger',
+    'Date', // 用于日期
+    'LocalDate', // Java 8 新增的用于日期的类
+    'LocalDateTime', // Java 8 新增的用于日期和时间的类
+    'ZonedDateTime', // Java 8 新增的用于带时区的日期和时间的类
+    'Instant', // Java 8 新增的用于时间戳
+    'List', // 如 List<String>
+    'Set', // 如 Set<Integer>
+    'Map', // 如 Map<String, Object>
+    'Queue', // 如 Queue<Double>
+    'Deque', // 如 ArrayDeque, LinkedList
+    'Array', // 如 String[], int[]
+
+];

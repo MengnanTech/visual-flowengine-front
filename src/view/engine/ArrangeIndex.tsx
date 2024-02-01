@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {Suspense, useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {
     Collapse,
@@ -13,7 +13,7 @@ import {
     Select
 } from 'antd';
 import {EnvironmentOutlined, MinusCircleOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
-import TreeChart from './TreeChart';
+
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
@@ -24,33 +24,9 @@ import {
 } from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
+import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
 
-const javaTypes = [
-    'Object', // 可以让用户输入自定义的类名
-    'String',
-    'Integer',
-    'Long',
-    'Short',
-    'Double',
-    'Float',
-    'Boolean',
-    'Byte',
-    'Character',
-    'BigDecimal',
-    'BigInteger',
-    'Date', // 用于日期
-    'LocalDate', // Java 8 新增的用于日期的类
-    'LocalDateTime', // Java 8 新增的用于日期和时间的类
-    'ZonedDateTime', // Java 8 新增的用于带时区的日期和时间的类
-    'Instant', // Java 8 新增的用于时间戳
-    'List', // 如 List<String>
-    'Set', // 如 Set<Integer>
-    'Map', // 如 Map<String, Object>
-    'Queue', // 如 Queue<Double>
-    'Deque', // 如 ArrayDeque, LinkedList
-    'Array', // 如 String[], int[]
-
-];
+const TreeChart = React.lazy(() => import('./TreeChart'));
 
 const ArrangeIndex: React.FC = () => {
 
@@ -358,15 +334,18 @@ const ArrangeIndex: React.FC = () => {
                     selectedMenuItem && <Collapse bordered={false} items={collapseItems}/>
                 }
             >
-                {selectedMenuItem && treeData && (
-                    <div className={styles.treeChartContainer}>
-                        <TreeChart
-                            key={Math.random()}
-                            treeStore={new TreeStore()}
-                            initialData={treeData}
-                        />
-                    </div>
-                )}
+                <Suspense fallback={<div>Loading...</div>}>
+                    {selectedMenuItem && treeData && (
+                        <div className={styles.treeChartContainer}>
+                            <TreeChart
+                                key={Math.random()}
+                                treeStore={new TreeStore()}
+                                initialData={treeData}
+                            />
+                        </div>
+                    )}
+                    {/* 其他条件渲染的组件 */}
+                </Suspense>
                 {!selectedMenuItem && (
                     <div style={{marginLeft: '20px', marginTop: '15px'}}>
                         请选择左侧列表中的一个节点查看详情。

@@ -1,11 +1,12 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import {visualizer} from "rollup-plugin-visualizer";
 
 export default defineConfig(({mode}) => ({
 
     plugins: [
-        react(),
+        react(), visualizer()
     ],
     resolve: {
         extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.sass', '.scss'], // 忽略输入的扩展名

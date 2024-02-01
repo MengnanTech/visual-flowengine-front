@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {observer} from 'mobx-react';
 import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
-import ManageModalEditor from "@/components/editor/ManageModalEditor.tsx";
+
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
@@ -14,12 +14,14 @@ import styles from './styles/TreeChart.module.scss'
 import lockedIcon from '@/assets/logo/locked_icon.svg'
 import unlockedIcon from '@/assets/logo/unlocked_icon.svg'
 import refreshIcon from '@/assets/logo/refresh.svg'
+
 interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
     initialData: NodeData;
 }
 
+const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
 
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
@@ -171,7 +173,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
 
         const lockIcon = iconGroup.append('image')
-            .attr('href', isLocked ?  lockedIcon : unlockedIcon)
+            .attr('href', isLocked ? lockedIcon : unlockedIcon)
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
@@ -242,7 +244,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             </svg>
 
             {/* 编辑器 */}
-            <ManageModalEditor treeStore={treeStore}/>
+            <React.Suspense fallback={<div>Loading...</div>}>
+                <ManageModalEditor treeStore={treeStore}/>
+            </React.Suspense>
             {/*悬浮菜单*/}
             {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
             <Modal
@@ -284,8 +288,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
         </div>
 
-    )
-        ;
+    );
 });
 
 export default TreeChart;
