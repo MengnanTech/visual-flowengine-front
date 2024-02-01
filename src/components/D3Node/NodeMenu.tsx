@@ -329,9 +329,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
     const menuNode = treeStore.menuNode;
 
-    const isEndNodeType = treeStore.menuNode?.data.nodeType === "End";
+    const isEndNodeType = menuNode?.data.nodeType === "End";
     const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
+    const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.nodeType === 'End'));
 
     const nodeActions: NodeAction[] = [
         // 添加代码节点
@@ -371,7 +372,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除当前节点',
             nodeType: "Delete",
-            disabled: isEndNodeType,
+            disabled: hasEndChildNode,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
         // 结束节点
@@ -379,7 +380,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
             nodeType: "End",
-            disabled: hasChildren,
+            disabled: hasChildren||isEndNodeType,
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         // 拖拽节点
