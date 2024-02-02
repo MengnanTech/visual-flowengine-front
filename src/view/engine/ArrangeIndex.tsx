@@ -154,7 +154,7 @@ const ArrangeIndex: React.FC = () => {
 
                 <div className={styles.maskDiv}>
                     <button
-                        key="1"
+                        key={Math.random()}
                         className={styles.circleButton}
                         onClick={handleAddWorkflowClick}
                     >
