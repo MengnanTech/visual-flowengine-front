@@ -1,25 +1,29 @@
 import React, {Suspense, useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {
+    Button, Col,
     Collapse,
     CollapseProps,
     Descriptions,
     Form,
-    Input,
+    Input, message,
     Modal,
+    Popover, Row,
+    Select, Slider,
     Space,
-    message,
-    Button,
-    Select
 } from 'antd';
-import {EnvironmentOutlined, MinusCircleOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons';
+import {
+    EnvironmentOutlined,
+    MinusCircleOutlined,
+    PlusOutlined,
+    SettingFilled,
+    SettingOutlined
+} from '@ant-design/icons';
 
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
-import {
-    items,
-} from '@/components/d3Helpers/D3mock.tsx';
+import {items,} from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
@@ -45,7 +49,21 @@ const ArrangeIndex: React.FC = () => {
         const fetchMenuItems = async () => {
             try {
                 let workflowMetadata = await ListWorkflow();
-                setMenuItems(workflowMetadata);
+                if (workflowMetadata == null || workflowMetadata.length <= 1) {
+                    const metadata = [{
+                        "workflowName": "mockMenuItems", "scriptMetadata": {
+                            scriptId: "1",
+                            scriptName: "Start",
+                            scriptText: '',
+                            scriptType: "Start",
+                            scriptDesc: "mockMenuItems",
+                        }
+                    } as WorkflowMetadata];
+                    setMenuItems(metadata)
+                } else {
+                    setMenuItems(workflowMetadata);
+                }
+
             } catch (err: any) {
                 message.error(err.message);
             }
@@ -107,7 +125,9 @@ const ArrangeIndex: React.FC = () => {
     const handleModalCancel = () => {
         setIsModalVisible(false);
     };
-
+    const onChange = (newValue: number) => {
+        setSiderWidth(320 + newValue);
+    };
     return (
         <ProLayout
             siderWidth={siderWidth}
@@ -131,6 +151,7 @@ const ArrangeIndex: React.FC = () => {
                 </div>
             )}
             actionsRender={() => [
+
                 <div className={styles.maskDiv}>
                     <button
                         key="1"
@@ -142,12 +163,26 @@ const ArrangeIndex: React.FC = () => {
                 </div>
             ]}
             avatarProps={{
-                src: logo, // 您的头像图片路径
+                icon: <Popover placement="rightBottom" trigger="click" content={<div
+                    style={{width: '230px' , backgroundColor:'#fafafa'}}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
+                    <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
+                        <Col span={24}>
+                            <div style={{marginBottom: '10px'}}> {/* 为Slider添加了底部外边距 */}
+                                <Slider
+                                    min={-130}
+                                    max={300}
+                                    defaultValue={0}
+                                    onChange={onChange}
+                                />
+                            </div>
+                        </Col>
+                        {/* 可以在这里添加更多的设置项 */}
+                    </Row>
+                </div>} title="菜单栏宽度">
+                    <SettingFilled/>
+                </Popover>,
+                style: {backgroundColor: '#7b7c7b'},
                 size: 'large',
-                // 如果您想要头像点击事件:
-                onClick: () => {
-                    message.info('Avatar clicked').then((r) => r);
-                },
             }}
             menuDataRender={() => menuData}
             onMenuHeaderClick={() => {
