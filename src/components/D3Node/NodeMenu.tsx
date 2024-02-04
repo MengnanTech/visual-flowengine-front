@@ -178,6 +178,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             });
     }
 
+    // @ts-ignore
     function removeNodeAndLinks(nodeToRemove: D3Node) {
         const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
         // 视图上移除和这个节点相关的node 和link
@@ -191,7 +192,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
         const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
             .filter((d: D3Link) => {
-                return d.source.data.scriptId === nodeToRemove.data.scriptId || d.source.data.scriptId  === nodeToRemove.data.scriptId;
+                return d.source.data.scriptId === nodeToRemove.data.scriptId || d.source.data.scriptId === nodeToRemove.data.scriptId;
             });//这里还可以改名link
 
         const transition = linksToRemove.transition().duration(500);
@@ -204,17 +205,43 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             message.error('根节点无法删除').then(r => r);
             return;
         }
-        removeNodeAndLinks(nodeToRemove);
+        // removeNodeAndLinks(nodeToRemove);
+
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
+        // 视图上移除和这个节点相关的node 和link
+        nodesEnter.transition().duration(500)
+            .style('opacity', 0)
+            .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
+            .on('end', function () {
+                d3.select(this).remove(); // 在动画结束后移除节点
+            });
+
 
         // 2. 处理动画和样式
-        if (nodeToRemove.children && nodeToRemove.children.length > 0) {
+        if (nodeToRemove.children && nodeToRemove.children.length >= 1) {
             // 重新定位第一个子节点和其子孙节点
             const firstChild = nodeToRemove.children[0];
+
+            let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(nodeToRemove.parent.data.scriptId, nodeToRemove.data.scriptId)}`);
+            selection.attr("id", `${generateLinkId(nodeToRemove.parent.data.scriptId, firstChild.data.scriptId)}`)
+
+            d3.select(`#${generateLinkId(nodeToRemove.data.scriptId, firstChild.data.scriptId)}`)
+                .transition().duration(600).style('opacity', 0).remove();
+
+
+            nodeToRemove.children.forEach(child => {
+                if (child !== firstChild) {
+                    let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(nodeToRemove.data.scriptId, child.data.scriptId)}`);
+                    selection.attr("id", `${generateLinkId(firstChild.data.scriptId, child.data.scriptId)}`)
+                }
+
+            })
+
 
             const nodesEnter = gRef.select<SVGGElement>(`#node-${firstChild.data.scriptId}`);
 
             nodesEnter.transition()
-                .duration(750)
+                .duration(650)
                 // .style('opacity', 1)
                 .attrTween("transform", function (d): (t: number) => string {
 
@@ -224,6 +251,9 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                         return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                     };
                 })
+        } else {
+            d3.select(`#${generateLinkId(nodeToRemove.parent.data.scriptId, nodeToRemove.data.scriptId)}`)
+                .transition().duration(450).style('opacity', 0).remove();
         }
 
 
@@ -293,11 +323,10 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 parentDataChildren!.splice(nodeIndex, 1);
             }
         }
-
         //这里设置延时是为了 前面的一些删除操作有延时。要等前面的操作完毕之后再更新 不然会被覆盖
         setTimeout(() => {
             refresh(treeChartState);
-        }, 600);
+        }, 750);
 
 
     }
@@ -618,7 +647,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                     }
                     closestNode.data.children.push(d.data);
 
-                    refresh(treeChartState)
+                    refresh(treeChartState);
 
                     // 清除预览线和其他状态
                     gRef.select(".preview-line").style("opacity", 0);
