@@ -191,10 +191,8 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
         const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
             .filter((d: D3Link) => {
-                const descendants = nodeToRemove.descendants();
-                const descendantIds = new Set(descendants.map(d => d.data.scriptId));
-                return descendantIds.has(d.target.data.scriptId);
-            });
+                return d.source.data.scriptId === nodeToRemove.data.scriptId || d.source.data.scriptId  === nodeToRemove.data.scriptId;
+            });//这里还可以改名link
 
         const transition = linksToRemove.transition().duration(500);
         removeLink(transition, nodeToRemove);
@@ -312,10 +310,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
     const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
-    function handleScriptNode(clickedNode: D3Node,stringType:string) {
+    function handleScriptNode(clickedNode: D3Node, stringType: string) {
+        let number = Math.floor(Math.random() * 90) + 100;
         const newNodeData: NodeData = {
-            scriptId: GenerateUUID(),
-            scriptName: `New ${stringType} Node` + Math.floor(Math.random() * 90) + 100,
+
+            scriptId: number + '',
+            scriptName: `New ${stringType} Node` + number,
             scriptType: stringType,
             scriptDesc: "",
             scriptText: '',
@@ -347,9 +347,13 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         // 5. 如果有必要，更新新节点B的数据结构以反映其子节点
         newNodeData.children = newNode.children ? newNode.children.map(child => child.data) : [];
 
-        // 6. 刷新视图以反映新的树结构
-        refresh(treeChartState);
 
+        newNodeData.children.forEach(child => {
+            let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(clickedNode.data.scriptId, child.scriptId)}`);
+            selection.attr("id", `${generateLinkId(newNode.data.scriptId, child.scriptId)}`)
+        })
+
+        refresh(treeChartState);
         const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
 
         nodesEnter.transition()
@@ -359,54 +363,15 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 let interpolateSourceX = d3.interpolate(clickedNode.previousX, d.x);
                 let interpolateSourceY = d3.interpolate(d.parent.y, d.y);
-                if (d.data.scriptType === "End") {
-                    return function (t: number): string {
-                        return `translate(${interpolateSourceY(t)},${d.x})`;
-                    };
-                }
+                // if (d.data.scriptType === "End") {
+                //     return function (t: number): string {
+                //         return `translate(${interpolateSourceY(t)},${d.x})`;
+                //     };
+                // }//不知道这段话有没有用。先注释掉
                 return function (t: number): string {
                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                 };
             });
-        // .attr("transform", descendant.data.scriptType === "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
-
-        // newNode.descendants().forEach(descendant => {
-        //     const nodesEnter = gRef.select<SVGGElement>(`#node-${descendant.data.scriptId}`);
-        //     nodesEnter.transition()
-        //         .duration(750)
-        //         .style('opacity', 1)
-        //         .attrTween("transform", function (d): (t: number) => string {
-        //
-        //             let interpolateSourceY = d3.interpolate(d.parent.y, d.y);
-        //
-        //             if (d.data.scriptType === "End") {
-        //                 interpolateSourceY = d3.interpolate(d.parent.y - END_NODE_LENGTH, d.y - END_NODE_LENGTH);
-        //             }
-        //
-        //             if (d.parent.children.length <= 1) {
-        //
-        //                 let interpolateSourceX = d3.interpolate(clickedNode.previousX, d.x);
-        //                 if (d.data.scriptType === "End") {
-        //                     return function (t: number): string {
-        //                         return `translate(${interpolateSourceY(t)},${descendant.x})`;
-        //                     };
-        //                 }
-        //                 return function (t: number): string {
-        //                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
-        //                 };
-        //             } else {
-        //
-        //                 // let interpolateSourceX = d3.interpolate(d.previousX, d.x);
-        //                 return function (t: number): string {
-        //                     // return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)}`;
-        //                     return `translate(${interpolateSourceY(t)},${descendant.x})`;
-        //
-        //                 };
-        //             }
-        //
-        //
-        //         })
-        // });
 
     }
 
@@ -416,7 +381,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
-            disabled: isEndNodeType ,
+            disabled: isEndNodeType,
             action: () => handleScriptNode(treeStore.menuNode!, "Script")
         },
         // 条件节点

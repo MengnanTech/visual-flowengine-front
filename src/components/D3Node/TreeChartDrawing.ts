@@ -204,6 +204,7 @@ export function refresh(treeChartState: TreeChartState) {
 }
 
 export function generateLinkId(sourceId: string, targetId: string): string {
+
     return `link--${sourceId}--${targetId}`;
 }
 
@@ -213,7 +214,10 @@ export function DrawLinks(treeChartState: TreeChartState) {
     const gRef = treeChartState.gRef;
 
     const selection = gRef.selectAll<SVGPathElement, D3Link>(".link");
+    // console.log('selection', selection)
+
     const links = selection.data(rootNode.links() as D3Link[], d => {
+
         return d.target.data.scriptId
     });
 
@@ -290,6 +294,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
 
     //写上这段代码，删掉节点的时候。连接线也删除了
     links.exit().remove();
+
     // 旧的连接线的动画效果
     links.transition()
         .duration(750)

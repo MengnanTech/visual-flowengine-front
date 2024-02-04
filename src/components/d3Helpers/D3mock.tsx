@@ -86,28 +86,28 @@ export const workflowMetadata1 = [{
         "scriptDesc": "mockMenuItems",
         "children": [
             {
-                "scriptId": "4c022341-ad9a-4ba9-bc00-8abdc412664f",
-                "scriptName": "New Script Node52100",
+                "scriptId": "100",
+                "scriptName": "100",
                 "scriptType": "Script",
                 "scriptDesc": "",
                 "scriptText": "",
                 "children": [
                     {
-                        "scriptId": "33c93947-3da6-4ca8-82a5-9f98cae54083",
-                        "scriptName": "New Script Node26100",
+                        "scriptId": "200",
+                        "scriptName": "200",
                         "scriptType": "Script",
                         "scriptDesc": "",
                         "scriptText": "",
                         "children": [
                             {
-                                "scriptId": "aebdf65c-40b1-4b97-b65d-5354f3680951",
-                                "scriptName": "New Node44100",
+                                "scriptId": "300",
+                                "scriptName": "300",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
                                 "scriptText": "",
                                 "children": [
                                     {
-                                        "scriptId": "1f2ebb88-1981-4cc2-8a64-a93c81ffb33d",
+                                        "scriptId": "400",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
@@ -116,14 +116,14 @@ export const workflowMetadata1 = [{
                                 ]
                             },
                             {
-                                "scriptId": "e9a469fd-4960-47ee-8cb8-98669b8cf8e8",
-                                "scriptName": "New Node76100",
+                                "scriptId": "500",
+                                "scriptName": "500",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
                                 "scriptText": "",
                                 "children": [
                                     {
-                                        "scriptId": "e7eb51de-9fc4-4fd0-b216-8cc2f49eefeb",
+                                        "scriptId": "600",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
@@ -132,14 +132,14 @@ export const workflowMetadata1 = [{
                                 ]
                             },
                             {
-                                "scriptId": "abed862d-b264-439a-aeea-1045bb99b75e",
-                                "scriptName": "New Node6100",
+                                "scriptId": "700",
+                                "scriptName": "700",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
                                 "scriptText": "",
                                 "children": [
                                     {
-                                        "scriptId": "ef05653c-8930-4dd7-ab62-21cc913a6096",
+                                        "scriptId": "800",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
@@ -152,22 +152,22 @@ export const workflowMetadata1 = [{
                 ]
             },
             {
-                "scriptId": "11d9d54f-f8d1-4f90-a1a5-d80f53781284",
-                "scriptName": "New Node88100",
+                "scriptId": "900",
+                "scriptName": "900",
                 "scriptType": "Condition",
                 "scriptDesc": "",
                 "scriptText": "",
                 "children": [
                     {
-                        "scriptId": "f206b5dc-00bf-4be3-ba28-255cd74386cf",
-                        "scriptName": "New Script Node43100",
+                        "scriptId": "111",
+                        "scriptName": "111",
                         "scriptType": "Script",
                         "scriptDesc": "",
                         "scriptText": "",
                         "children": [
                             {
-                                "scriptId": "fca9415a-8ca9-4379-bac6-2000b4e24620",
-                                "scriptName": "New Script Node31100",
+                                "scriptId": "222",
+                                "scriptName": "222",
                                 "scriptType": "Script",
                                 "scriptDesc": "",
                                 "scriptText": "",
