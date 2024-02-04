@@ -226,29 +226,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                         return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                     };
                 })
-            //
-            // gRef.select(`#node-${firstChild.data.id}`)
-            //     .style('opacity', 1)
-            //     .transition().duration(750)
-            //     .attr("transform", `translate(${firstChild.parent.y},${firstChild.parent.x})`);
-            //
-            const descendants = firstChild.descendants();
-            descendants.forEach(descendant => {
-
-                if (descendant !== firstChild) {
-                    gRef.select(`#node-${descendant.data.scriptId}`)
-                        // .style('opacity', 1)
-                        .transition().duration(750)
-                        .attrTween("transform", function (d): (t: number) => string {
-
-                            const interpolateSourceX = d3.interpolate(d.x, d.parent.x);
-                            const interpolateSourceY = d3.interpolate(d.y, d.parent.y);
-                            return function (t: number): string {
-                                return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
-                            };
-                        })
-                }
-            });
         }
 
 
@@ -374,27 +351,63 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         // 6. 刷新视图以反映新的树结构
         refresh(treeChartState);
 
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
 
-        newNode.descendants().forEach(descendant => {
-            const nodesEnter = gRef.select<SVGGElement>(`#node-${descendant.data.scriptId}`);
-            nodesEnter.transition()
-                .duration(750)
-                .style('opacity', 1)
-                // .attr("transform", descendant.data.scriptType === "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
-                .attrTween("transform", function (d): (t: number) => string {
+        nodesEnter.transition()
+            .duration(750)
+            .style('opacity', 1)
+            .attrTween("transform", function (d): (t: number) => string {
 
-                    const parentY = d.parent.y;
-
-                    let interpolateSourceY = d3.interpolate(parentY, d.y);
-
-                    if (d.data.scriptType === "End") {
-                        interpolateSourceY = d3.interpolate(d.parent.y - END_NODE_LENGTH, d.y - END_NODE_LENGTH);
-                    }
+                let interpolateSourceX = d3.interpolate(clickedNode.previousX, d.x);
+                let interpolateSourceY = d3.interpolate(d.parent.y, d.y);
+                if (d.data.scriptType === "End") {
                     return function (t: number): string {
-                        return `translate(${interpolateSourceY(t)},${descendant.x})`;
+                        return `translate(${interpolateSourceY(t)},${d.x})`;
                     };
-                })
-        });
+                }
+                return function (t: number): string {
+                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                };
+            });
+        // .attr("transform", descendant.data.scriptType === "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
+
+        // newNode.descendants().forEach(descendant => {
+        //     const nodesEnter = gRef.select<SVGGElement>(`#node-${descendant.data.scriptId}`);
+        //     nodesEnter.transition()
+        //         .duration(750)
+        //         .style('opacity', 1)
+        //         .attrTween("transform", function (d): (t: number) => string {
+        //
+        //             let interpolateSourceY = d3.interpolate(d.parent.y, d.y);
+        //
+        //             if (d.data.scriptType === "End") {
+        //                 interpolateSourceY = d3.interpolate(d.parent.y - END_NODE_LENGTH, d.y - END_NODE_LENGTH);
+        //             }
+        //
+        //             if (d.parent.children.length <= 1) {
+        //
+        //                 let interpolateSourceX = d3.interpolate(clickedNode.previousX, d.x);
+        //                 if (d.data.scriptType === "End") {
+        //                     return function (t: number): string {
+        //                         return `translate(${interpolateSourceY(t)},${descendant.x})`;
+        //                     };
+        //                 }
+        //                 return function (t: number): string {
+        //                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+        //                 };
+        //             } else {
+        //
+        //                 // let interpolateSourceX = d3.interpolate(d.previousX, d.x);
+        //                 return function (t: number): string {
+        //                     // return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)}`;
+        //                     return `translate(${interpolateSourceY(t)},${descendant.x})`;
+        //
+        //                 };
+        //             }
+        //
+        //
+        //         })
+        // });
 
     }
 
@@ -404,7 +417,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
             nodeType: "Script",
-            disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
+            disabled: isEndNodeType ,
             action: () => handleScriptNode(treeStore.menuNode!)
         },
         // 条件节点
@@ -506,7 +519,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 const dy = event.y - dragStart.y;
                 d3.select(`#${generateLinkId(d.parent!.data.scriptId, d.data.scriptId)}`)
                     .transition()
-                    .duration(130)
+                    .duration(100)
                     .style("opacity", 0)
                     .on("end", function () {
                         d3.select(this).remove();

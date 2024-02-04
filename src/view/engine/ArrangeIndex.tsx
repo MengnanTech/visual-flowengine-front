@@ -1,15 +1,19 @@
 import React, {Suspense, useEffect, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {
-    Button, Col,
+    Button,
+    Col,
     Collapse,
     CollapseProps,
     Descriptions,
     Form,
-    Input, message,
+    Input,
+    message,
     Modal,
-    Popover, Row,
-    Select, Slider,
+    Popover,
+    Row,
+    Select,
+    Slider,
     Space,
 } from 'antd';
 import {
@@ -23,7 +27,7 @@ import {
 import {TreeStore} from '@/store/TreeStore';
 import {NodeData} from '@/components/D3Node/NodeModel';
 import styles from './styles/ArrangeIndex.module.scss';
-import {items,} from '@/components/d3Helpers/D3mock.tsx';
+import {items, workflowMetadata1,} from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
@@ -31,6 +35,7 @@ import {createWorkflow, ListWorkflow} from "@/network/api.ts";
 import {WorkflowCreateRequest, WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
+
 
 const ArrangeIndex: React.FC = () => {
 
@@ -50,16 +55,7 @@ const ArrangeIndex: React.FC = () => {
             try {
                 let workflowMetadata = await ListWorkflow();
                 if (workflowMetadata == null || workflowMetadata.length <= 1) {
-                    const metadata = [{
-                        "workflowName": "mockMenuItems", "scriptMetadata": {
-                            scriptId: "1",
-                            scriptName: "Start",
-                            scriptText: '',
-                            scriptType: "Start",
-                            scriptDesc: "mockMenuItems",
-                        }
-                    } as WorkflowMetadata];
-                    setMenuItems(metadata)
+                    setMenuItems(workflowMetadata1)
                 } else {
                     setMenuItems(workflowMetadata);
                 }
