@@ -63,7 +63,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
                 treeStore.setCurrentMenu(null)
 
                 setTimeout(() => {
-                    treeStore.setCurrentMenu({x: x - 650, y: y});
+                    treeStore.setCurrentMenu({x: x-END_NODE_LENGTH , y: y});
                     treeStore.setMenuNode(d);
                 }, 1);
             })
