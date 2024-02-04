@@ -205,100 +205,88 @@ export function generateLinkId(sourceId: string, targetId: string): string {
     return `link--${sourceId}--${targetId}`;
 }
 
-// export function DrawLinks(treeChartState: TreeChartState) {
-//     const rootNode = treeChartState.rootNode;
-//     const gRef = treeChartState.gRef;
-//
-//     const selection = gRef.selectAll<SVGPathElement, D3Link>(".link");
-//     const links = selection.data(rootNode.links() as D3Link[], d => d.target.data.scriptId);
-//
-//     links.enter()
-//         .append("path")
-//         .attr("class", "link")
-//         .attr("fill", "none")
-//         .attr("stroke", "url(#movingArrowPattern)") // 自定义连接线的样式。
-//         .attr("stroke-width", 10)
-//         .attr('id', d => generateLinkId(d.source.data.scriptId, d.target.data.scriptId)) // 同时设置ID
-//         .lower()
-//         .transition()
-//         .duration(750)
-//         .attrTween("d", function (d): (t: number) => string {
-//             // 插值生成器
-//             let nodePreviousPosition: number[] | null = null;
-//             const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
-//             if (node?.previousX && node?.previousY) {
-//                 nodePreviousPosition = [node.previousX, node.previousY];
-//             }
-//
-//
-//             if (nodePreviousPosition == null) {
-//
-//                 return function (t: number): string {
-//                     let interpolateY = d3.interpolate(d.source.y, d.target.y);
-//
-//                     if (d.target.data.scriptType === 'End') {
-//                         interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-//                     }
-//                     const interpolateX = d3.interpolate(d.source.x, d.target.x);
-//
-//                     const tempD: D3Link = {
-//                         source: {x: d.source.x, y: d.source.y} as D3Node,
-//                         target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
-//                     };
-//
-//                     return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-//                 };
-//
-//             } else {
-//
-//                 const previousY = nodePreviousPosition[1];
-//                 const previousX = nodePreviousPosition[0];
-//                 let interpolateY = d3.interpolate(previousY, d.target.y);
-//
-//                 if (d.target.data.scriptType === 'End') {
-//                     interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-//                 }
-//                 const interpolateX = d3.interpolate(previousX, d.target.x);
-//
-//                 const sourceY = d3.interpolate(previousY, d.source.y);
-//                 const sourceX = d3.interpolate(previousX, d.source.x);
-//
-//
-//                 return function (t: number): string {
-//                     // t 是从 0 到 1 的过渡状态
-//                     // 计算新的目标位置
-//                     const newY = interpolateY(t);
-//                     const newX = interpolateX(t);
-//
-//                     // 临时更新 d.target 的位置
-//                     const tempD: D3Link = {
-//                         source: {x: sourceX(t), y: sourceY(t)} as D3Node,
-//                         target: {x: newX, y: newY} as D3Node,
-//                     };
-//
-//                     return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-//                 };
-//             }
-//
-//         });
-//
-//     //写上这段代码，删掉节点的时候。连接线也删除了
-//     links.exit().remove();
-//
-//     // 旧的连接线的动画效果
-//     links.transition()
-//         .duration(750)
-//         .attr("d",
-//             d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
-//                 if (d.data.scriptType === 'End') {
-//                     return d.y - END_NODE_LENGTH;
-//                 }
-//                 return d.y;
-//
-//             }).y(d => d.x)
-//         );
-//
-// }
+
+function updateLinkPath(ele: SVGPathElement, d: D3Link, rootNode: D3Node) {
+    const node = rootNode.descendants().find(n => n.data.scriptId === d.source.data.scriptId);
+
+    if (node && node.data.scriptType != "Start" && node.previousX === node.x && node.previousY === node.y) {
+        // 如果源节点的位置未变，且目标节点是 'End' 类型节点，则需要调整 y 值
+        // debugger
+        let targetY = d.target.y;
+        if (d.target.data.scriptType === 'End') {
+            targetY -= END_NODE_LENGTH;
+        }
+        const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
+            source: d.source,
+            target: {...d.target, y: targetY} as D3Node,
+        });
+        d3.select(ele).attr("d", path);
+    } else {
+        // 应用动画
+        d3.select<SVGPathElement, D3Link>(ele)
+            .transition()
+            .duration(750)
+            .attrTween("d", function (d): (t: number) => string {
+                // 插值生成器
+                console.log('d', d)
+                let nodePreviousPosition: number[] | null = null;
+                const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
+                if (node?.previousX && node?.previousY) {
+                    nodePreviousPosition = [node.previousX, node.previousY];
+                }
+
+                if (nodePreviousPosition == null) {
+                    return function (t: number): string {
+                        let interpolateY = d3.interpolate(d.source.y, d.target.y);
+
+                        if (d.target.data.scriptType === 'End') {
+                            interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
+                        }
+                        const interpolateX = d3.interpolate(d.source.x, d.target.x);
+
+                        const tempD: D3Link = {
+                            source: {x: d.source.x, y: d.source.y} as D3Node,
+                            target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
+                        };
+
+                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                    };
+
+                } else {
+
+                    const previousY = nodePreviousPosition[1];
+
+                    const previousX = nodePreviousPosition[0];
+                    let interpolateY = d3.interpolate(previousY, d.target.y);
+
+                    if (d.target.data.scriptType === 'End') {
+                        interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
+                    }
+                    const interpolateX = d3.interpolate(previousX, d.target.x);
+
+                    const sourceY = d3.interpolate(previousY, d.source.y);
+                    const sourceX = d3.interpolate(previousX, d.source.x);
+
+
+                    return function (t: number): string {
+                        // t 是从 0 到 1 的过渡状态
+                        // 计算新的目标位置
+                        const newY = interpolateY(t);
+                        const newX = interpolateX(t);
+
+                        // 临时更新 d.target 的位置
+                        const tempD: D3Link = {
+                            source: {x: sourceX(t), y: sourceY(t)} as D3Node,
+                            target: {x: newX, y: newY} as D3Node,
+                        };
+
+                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                    };
+                }
+
+            })
+    }
+}
 
 
 export function DrawLinks(treeChartState: TreeChartState) {
@@ -319,85 +307,7 @@ export function DrawLinks(treeChartState: TreeChartState) {
         .transition()
         .duration(750)
         .each(function (d) {
-            const node = rootNode.descendants().find(n => n.data.scriptId === d.source.data.scriptId);
-
-            if (node && node.data.scriptType != "Start" && node.previousX === node.x && node.previousY === node.y) {
-                // 如果源节点的位置未变，且目标节点是 'End' 类型节点，则需要调整 y 值
-                // debugger
-                let targetY = d.target.y;
-                if (d.target.data.scriptType === 'End') {
-                    targetY -= END_NODE_LENGTH;
-                }
-                const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
-                    source: d.source,
-                    target: {...d.target, y: targetY} as D3Node,
-                });
-                d3.select(this).attr("d", path);
-            } else {
-                // 应用动画
-                d3.select<SVGPathElement, D3Link>(this)
-                    .transition()
-                    .duration(750)
-                    .attrTween("d", function (d): (t: number) => string {
-                        // 插值生成器
-                        console.log('d', d)
-                        let nodePreviousPosition: number[] | null = null;
-                        const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
-                        if (node?.previousX && node?.previousY) {
-                            nodePreviousPosition = [node.previousX, node.previousY];
-                        }
-
-                        if (nodePreviousPosition == null) {
-                            return function (t: number): string {
-                                let interpolateY = d3.interpolate(d.source.y, d.target.y);
-
-                                if (d.target.data.scriptType === 'End') {
-                                    interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-                                }
-                                const interpolateX = d3.interpolate(d.source.x, d.target.x);
-
-                                const tempD: D3Link = {
-                                    source: {x: d.source.x, y: d.source.y} as D3Node,
-                                    target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
-                                };
-
-                                return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-                            };
-
-                        } else {
-
-                            const previousY = nodePreviousPosition[1];
-
-                            const previousX = nodePreviousPosition[0];
-                            let interpolateY = d3.interpolate(previousY, d.target.y);
-
-                            if (d.target.data.scriptType === 'End') {
-                                interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-                            }
-                            const interpolateX = d3.interpolate(previousX, d.target.x);
-
-                            const sourceY = d3.interpolate(previousY, d.source.y);
-                            const sourceX = d3.interpolate(previousX, d.source.x);
-
-
-                            return function (t: number): string {
-                                // t 是从 0 到 1 的过渡状态
-                                // 计算新的目标位置
-                                const newY = interpolateY(t);
-                                const newX = interpolateX(t);
-
-                                // 临时更新 d.target 的位置
-                                const tempD: D3Link = {
-                                    source: {x: sourceX(t), y: sourceY(t)} as D3Node,
-                                    target: {x: newX, y: newY} as D3Node,
-                                };
-
-                                return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-                            };
-                        }
-
-                    })
-            }
+            updateLinkPath(this, d, rootNode);
         })
 
     //写上这段代码，删掉节点的时候。连接线也删除了
