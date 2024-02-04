@@ -278,7 +278,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                     <div
                         style={{
                             position: 'absolute',
-                            left: `${contextMenu.x - 255}px`,
+                            left: `${contextMenu.x - treeStore.siderWidth}px`,
                             top: `${contextMenu.y}px`,
                         }}
                         onClick={closeContextMenu}

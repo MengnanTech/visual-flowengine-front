@@ -32,7 +32,6 @@ interface NodeMenuProps {
 }
 
 
-
 const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
     const menuPosition = treeStore.menuPosition;
     let siderWidth = treeStore.siderWidth;
@@ -41,7 +40,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     // treeStore.
 
 
-    if (!menuPosition ||treeStore.clickNode) return null; // 如果没有位置信息，则不渲染菜单
+    if (!menuPosition || treeStore.clickNode) return null; // 如果没有位置信息，则不渲染菜单
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
 
         if (nodeToRemove.parent == null) {
@@ -311,7 +310,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                 parentDataChildren!.splice(nodeIndex, 1, firstChildData);
             }
 
-        }else {
+        } else {
             // 如果 nodeToRemove 没有子节点，正常移除
             const parentDataChildren = nodeToRemove.parent.data.children;
             const nodeIndex = parentDataChildren!.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
@@ -336,6 +335,68 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
     const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
+    function handleScriptNode(clickedNode: D3Node) {
+        // 1. 创建新节点B的数据
+        const newNodeData: NodeData = {
+            scriptId: GenerateUUID(),
+            scriptName: "New Script Node" + Math.floor(Math.random() * 90) + 100,
+            scriptType: "Script",
+            scriptDesc: "",
+            scriptText: '',
+        };
+
+        // 2. 创建新节点B，并设置其为clickedNode(A)的子节点
+        const newNode = d3.hierarchy(newNodeData, (d) => d.children) as D3Node;
+        newNode.depth = clickedNode.depth + 1;
+        newNode.parent = clickedNode;
+
+        // 3. 转移A的现有子节点到B下
+        if (clickedNode.children) {
+            newNode.children = clickedNode.children;
+            newNode.children.forEach(child => {
+                child.parent = newNode
+                updateNodeDepth(child, newNode.depth + 1); // 更新深度的函数
+            });
+        }
+
+
+        clickedNode.children = [newNode];
+
+
+        if (!clickedNode.data.children) {
+            clickedNode.data.children = [];
+        }
+        clickedNode.data.children = [newNodeData];
+
+        // 5. 如果有必要，更新新节点B的数据结构以反映其子节点
+        newNodeData.children = newNode.children ? newNode.children.map(child => child.data) : [];
+
+        // 6. 刷新视图以反映新的树结构
+        refresh(treeChartState);
+
+
+        newNode.descendants().forEach(descendant => {
+            const nodesEnter = gRef.select<SVGGElement>(`#node-${descendant.data.scriptId}`);
+            nodesEnter.transition()
+                .duration(750)
+                .style('opacity', 1)
+                .attrTween("transform", function (d): (t: number) => string {
+
+                    const parentX = d.parent.x;
+                    const parentY = d.parent.y;
+
+                    const interpolateSourceX = d3.interpolate(parentX, d.x);
+
+                    let interpolateSourceY = d3.interpolate(parentY, d.y);
+
+                    return function (t: number): string {
+                        return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                    };
+                })
+        });
+
+    }
+
     const nodeActions: NodeAction[] = [
         // 添加代码节点
         {
@@ -343,7 +404,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             label: '添加代码节点',
             nodeType: "Script",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
-            action: () => handleAddNode(treeStore.menuNode!, "Script")
+            action: () => handleScriptNode(treeStore.menuNode!)
         },
         // 条件节点
         {
@@ -366,7 +427,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除节点树',
             nodeType: "DeleteTree",
-            disabled: isEndNodeType ||isStartNodeType ,
+            disabled: isEndNodeType || isStartNodeType,
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         // 删除当前节点
@@ -374,7 +435,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除当前节点',
             nodeType: "Delete",
-            disabled: hasEndChildNode ||isStartNodeType,
+            disabled: hasEndChildNode || isStartNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
         // 结束节点
@@ -382,7 +443,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
             nodeType: "End",
-            disabled: hasChildren||isEndNodeType,
+            disabled: hasChildren || isEndNodeType,
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         // 拖拽节点
@@ -613,7 +674,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
                              className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
                              onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
                             {nodeAction.icon}
-                            <span  className ={NodeMenuStyles.nodeLabel} >{nodeAction.label}</span>
+                            <span className={NodeMenuStyles.nodeLabel}>{nodeAction.label}</span>
                         </div>
                     ))}
                 </div>

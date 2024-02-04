@@ -192,6 +192,7 @@ export function refresh(treeChartState: TreeChartState) {
         d.previousY = d.y
     });
 
+    console.log('rootNode', rootNode)
 
 
     treeLayout(rootNode);
