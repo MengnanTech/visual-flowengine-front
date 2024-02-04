@@ -380,17 +380,18 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             nodesEnter.transition()
                 .duration(750)
                 .style('opacity', 1)
+                // .attr("transform", descendant.data.scriptType === "End" ? `translate(${descendant.y - END_NODE_LENGTH},${descendant.x})` : `translate(${descendant.y},${descendant.x})`);
                 .attrTween("transform", function (d): (t: number) => string {
 
-                    const parentX = d.parent.x;
                     const parentY = d.parent.y;
-
-                    const interpolateSourceX = d3.interpolate(parentX, d.x);
 
                     let interpolateSourceY = d3.interpolate(parentY, d.y);
 
+                    if (d.data.scriptType === "End") {
+                        interpolateSourceY = d3.interpolate(d.parent.y - END_NODE_LENGTH, d.y - END_NODE_LENGTH);
+                    }
                     return function (t: number): string {
-                        return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                        return `translate(${interpolateSourceY(t)},${descendant.x})`;
                     };
                 })
         });
