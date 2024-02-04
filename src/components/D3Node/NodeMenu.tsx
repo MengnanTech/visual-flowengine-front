@@ -312,12 +312,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
     const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
-    function handleScriptNode(clickedNode: D3Node) {
-        // 1. 创建新节点B的数据
+    function handleScriptNode(clickedNode: D3Node,stringType:string) {
         const newNodeData: NodeData = {
             scriptId: GenerateUUID(),
-            scriptName: "New Script Node" + Math.floor(Math.random() * 90) + 100,
-            scriptType: "Script",
+            scriptName: `New ${stringType} Node` + Math.floor(Math.random() * 90) + 100,
+            scriptType: stringType,
             scriptDesc: "",
             scriptText: '',
         };
@@ -418,7 +417,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             label: '添加代码节点',
             nodeType: "Script",
             disabled: isEndNodeType ,
-            action: () => handleScriptNode(treeStore.menuNode!)
+            action: () => handleScriptNode(treeStore.menuNode!, "Script")
         },
         // 条件节点
         {
@@ -434,7 +433,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             label: '规则节点todo',
             nodeType: "Rule",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
-            action: () => handleAddNode(treeStore.menuNode!, "Rule")
+            action: () => handleScriptNode(treeStore.menuNode!, "Rule")
         },
         // 删除节点树
         {
