@@ -7,7 +7,7 @@ import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
-import {CopyFilled, EditFilled} from "@ant-design/icons";
+import {CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -113,57 +113,83 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     function handleEditorValidation(markers: any[]) {
         markers.forEach(marker => console.log('onValidate:', marker.message));
     }
+    const [modalSize, setModalSize] = useState({ width: '90vh', height: '80vh' });
+    // 是否全屏
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
+    // 切换全屏状态
+    const toggleFullScreen = () => {
+        setIsFullScreen(!isFullScreen);
+        if (!isFullScreen) {
+            // 全屏时使用视口宽度和高度
+            setModalSize({ width: '90vw', height: '100vh' });
+        } else {
+            // 恢复到初始尺寸，这里你可以根据需要调整
+            setModalSize({ width: '90vh', height: '80vh' });
+        }
+    };
+    const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
 
     return (
         <div>
             <Modal
                 title={
-                    <Descriptions size="small" column={1}>
-                        <Descriptions.Item label="Node ID">
-                            <div style={{display: 'flex', alignItems: 'center'}}>
-                                <span>{clickNode?.data.scriptId}</span>
-                                <Tooltip title="复制">
-                                    <CopyToClipboard text={clickNode?.data.scriptId || ''}>
-                                        <Button size="small" type="link" icon={<CopyFilled style={{color: 'gray'}}/>}/>
-                                    </CopyToClipboard>
-                                </Tooltip>
-                            </div>
-                        </Descriptions.Item>
+                    <>
+                        <Descriptions size="small" column={1}>
+                            <Descriptions.Item label="Node ID">
+                                <div style={{display: 'flex', alignItems: 'center'}}>
+                                    <span>{clickNode?.data.scriptId}</span>
+                                    <Tooltip title="复制">
+                                        <CopyToClipboard text={clickNode?.data.scriptId || ''}>
+                                            <Button size="small" type="link"
+                                                    icon={<CopyFilled style={{color: 'gray'}}/>}/>
+                                        </CopyToClipboard>
+                                    </Tooltip>
+                                </div>
+                            </Descriptions.Item>
 
-                        <Descriptions.Item label="Node Name">
-                            <div style={{display: 'flex', alignItems: 'center', height: '22px'}}>
-                                {isEditing ? (
-                                    <AutoWidthInput
-                                        value={title}
-                                        onChange={handleTitleChange}
-                                        onFinish={toggleEditing}
-                                    />
-                                ) : (
-                                    <>
-                                        <span style={{lineHeight: '32px'}}>{title}</span>
-                                        <Button size="small" type="link" onClick={toggleEditing}
-                                                style={{marginLeft: 'auto'}}>
-                                            <EditFilled/>
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </Descriptions.Item>
+                            <Descriptions.Item label="Node Name">
+                                <div style={{display: 'flex', alignItems: 'center', height: '22px'}}>
+                                    {isEditing ? (
+                                        <AutoWidthInput
+                                            value={title}
+                                            onChange={handleTitleChange}
+                                            onFinish={toggleEditing}
+                                        />
+                                    ) : (
+                                        <>
+                                            <span style={{lineHeight: '32px'}}>{title}</span>
+                                            <Button size="small" type="link" onClick={toggleEditing}
+                                                    style={{marginLeft: 'auto'}}>
+                                                <EditFilled/>
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+                            </Descriptions.Item>
 
-                        {/* 在这里添加其他节点信息 */}
-                        <Descriptions.Item label="Node Type">{clickNode?.data.scriptType}</Descriptions.Item>
-                        <Descriptions.Item label="Node Status">
-                            <Badge status="processing" text="Running" color="green"/>
-                        </Descriptions.Item>
-                        {/* 如果有更多信息，继续添加 */}
-                    </Descriptions>
+                            {/* 在这里添加其他节点信息 */}
+                            <Descriptions.Item label="Node Type">{clickNode?.data.scriptType}</Descriptions.Item>
+                            <Descriptions.Item label="Node Status">
+                                <Badge status="processing" text="Running" color="green"/>
+                            </Descriptions.Item>
+                            {/* 如果有更多信息，继续添加 */}
+                        </Descriptions>
+                        <Button
+                            type="text"
+                            shape={'circle'}
+                            onClick={toggleFullScreen}
+                            icon={isFullScreen ? <FullscreenExitOutlined/> : <FullscreenOutlined/>}
+                            style={{position: 'absolute', right: '50px', top: '13px'}}
+                        />
+                    </>
                 }
                 centered
                 maskClosable={false}
                 open={treeStore.clickNode !== null}
                 onCancel={() => treeStore.setClickNode(null)}
-                width={1000}
+                width={modalSize.width}
+                style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
                 footer={
                     <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
                         <div>
@@ -183,11 +209,12 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     background: '#f6f8fa',
                     borderRadius: '4px',
                     padding: '10px',
+                    height: editorHeight, // 使用动态计算的高度
                 }}>
                     <Suspense fallback={<div>Loading Editor...</div>}>
                         <MonacoEditor
                             key={clickNode ? clickNode.data.scriptId : 'editor'}
-                            height="50vh"
+                            height={editorHeight}
                             onChange={handleEditorChange}
                             onMount={handleEditorDidMount}
                             beforeMount={handleEditorWillMount}
@@ -195,6 +222,11 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             defaultLanguage="groovy"
                             options={{
                                 contextmenu: true,
+                                wordWrap: 'on',
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true,
+                                fontSize: 16,
+
                             }}
                             defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
                         />
