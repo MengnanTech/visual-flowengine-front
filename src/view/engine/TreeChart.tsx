@@ -239,7 +239,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     // 编辑器配置项
     const editorOptions = {
         scrollBeyondLastLine: false, // 设置编辑器是否可以滚动到最后一行之后
-        readOnly: false, // 是否为只读模式
+        readOnly: true, // 是否为只读模式
         theme: 'vs'// vs, hc-black, or vs-dark
       };
     return (
