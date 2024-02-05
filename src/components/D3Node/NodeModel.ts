@@ -34,6 +34,7 @@ export interface D3Node extends d3.HierarchyNode<NodeData> {
 }
 
 export interface D3Link extends d3.HierarchyLink<NodeData> {
+
     source: D3Node;
     target: D3Node;
     parent?: {
@@ -42,6 +43,7 @@ export interface D3Link extends d3.HierarchyLink<NodeData> {
     }
     x?: number;
     y?: number;
+    needTransition?: boolean;
 }
 
 export interface TreeChartState {
