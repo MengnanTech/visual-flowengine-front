@@ -10,6 +10,7 @@ const DraggableBubble: React.FC = () => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const handleDragMove = (e: MouseEvent) => {
+        console.log("handleDragMove");
         if (isDraggingRef.current) {
             requestAnimationFrame(() => {
                 const newX = e.clientX - dragStartRef.current.x;
@@ -20,12 +21,14 @@ const DraggableBubble: React.FC = () => {
     };
 
     const handleDragEnd = () => {
+        console.log("handleDragEnd");
         isDraggingRef.current = false;
         document.removeEventListener('mousemove', handleDragMove);
         document.removeEventListener('mouseup', handleDragEnd);
     };
 
     const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+        console.log("handleDragStart");
         e.preventDefault();
         isDraggingRef.current = true;
         dragStartRef.current = {
@@ -42,6 +45,7 @@ const DraggableBubble: React.FC = () => {
             style={{ left: `${position.x}px`, top: `${position.y}px` }}
             onClick={() => setIsExpanded(!isExpanded)}
         >
+            菜单
             <DragOutlined
                 className={styles.dragIcon}
                 onMouseDown={handleDragStart}
