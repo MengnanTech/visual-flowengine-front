@@ -14,6 +14,7 @@ import styles from './styles/TreeChart.module.scss'
 import lockedIcon from '@/assets/logo/locked_icon.svg'
 import unlockedIcon from '@/assets/logo/unlocked_icon.svg'
 import refreshIcon from '@/assets/logo/refresh.svg'
+import {DragOutlined} from "@ant-design/icons";
 
 interface TreeChartProps {
     // workflowName: string;
@@ -242,13 +243,80 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         readOnly: true, // 是否为只读模式
         theme: 'vs'// vs, hc-black, or vs-dark
       };
+
+
+    const [bubblePosition, setBubblePosition] = useState({ x: 100, y: 100 });
+    const [isDragging, setIsDragging] = useState(false);
+    const bubbleRef = useRef(null);
+    const [isDragMode, setIsDragMode] = useState(false);
+
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const handleToggleExpand = () => {
+        setIsExpanded(!isExpanded);
+    };
+
+    const handleDragMove = (e) => {
+        if (!isDragging || !isDragMode) return; // 仅在拖动模式且正在拖动时处理
+        const x = e.clientX - bubbleRef.current.offsetX;
+        const y = e.clientY - bubbleRef.current.offsetY;
+        setBubblePosition({ x, y });
+    };
+
+
+    const handleDragStart = (e) => {
+        e.preventDefault(); // 防止默认事件，如文本选择
+        setIsDragging(true); // 开始拖动
+        bubbleRef.current = { // 记录开始拖动时的初始位置
+            offsetX: e.clientX - bubblePosition.x,
+            offsetY: e.clientY - bubblePosition.y,
+        };
+    };
+
+
+    const handleDragEnd = () => {
+        if (!isDragMode) return; // 仅在拖动模式下处理
+        setIsDragging(false);
+        // setIsDragMode(false); // 如果你希望每次拖动后重置拖动模式
+    };
+
+
+    useEffect(() => {
+        if (isDragging) {
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+        } else {
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+        };
+    }, [isDragging, handleDragMove, handleDragEnd]);
+
+
     return (
         <div>
             <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
             <svg>
                 <MovingArrowPattern/>
             </svg>
+            <div className={`${styles.bubble} ${isExpanded ? styles.expanded : ''}`}
+                 onClick={handleToggleExpand} // 保留点击展开逻辑
+                 style={{
+                     left: `${bubblePosition.x}px`,
+                     top: `${bubblePosition.y}px`,
+                 }}>
+                {/* 拖动图标，点击以激活拖动模式 */}
+                <DragOutlined onMouseDown={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    handleDragStart(e); // 激活拖动模式
+                }}/>
 
+                菜单
+            </div>
             {/* 编辑器 */}
             <React.Suspense fallback={<div>Loading...</div>}>
                 <ManageModalEditor treeStore={treeStore}/>
