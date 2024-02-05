@@ -5,18 +5,19 @@ import {
     CloseCircleOutlined,
     DeleteOutlined,
     DragOutlined,
-    FileOutlined, PlusCircleOutlined,
+    FileOutlined,
+    PlusCircleOutlined,
     ShrinkOutlined
 } from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import {TreeStore} from "@/store/TreeStore.ts";
 import * as d3 from "d3";
+import {Transition} from "d3";
 import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {observer} from "mobx-react";
 import {END_NODE_LENGTH, GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
-import {Transition} from "d3";
 
 interface NodeAction {
     icon: React.JSX.Element;
@@ -340,11 +341,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
     function handleScriptNode(clickedNode: D3Node, stringType: string) {
-        let number = Math.floor(Math.random() * 90) + 100;
+        const uuid = GenerateUUID();
         const newNodeData: NodeData = {
 
-            scriptId: number + '',
-            scriptName: `New ${stringType} Node` + number,
+            scriptId: uuid,
+            scriptName: `New ${stringType} Node:` + uuid.split('-').pop(),
             scriptType: stringType,
             scriptDesc: "",
             scriptText: '',
@@ -383,6 +384,39 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
         })
 
         refresh(treeChartState);
+        //
+        // if (!newNodeData.children || newNodeData.children.length === 0) {
+        //     let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(clickedNode.data.scriptId, newNodeData.scriptId)}`);
+        //     selection.transition().duration(750).style('opacity', 1)
+        //         .attrTween("d", function (d): (t: number) => string {
+        //
+        //             const interpolateSourceX = d3.interpolate(d.source.previousX!, d.source.x);
+        //             const interpolateSourceY = d3.interpolate(d.source.y, d.source.y);
+        //             const interpolateTargetX = d3.interpolate(d.source.x,  d.source.x);
+        //             // const interpolateTargetY = d3.interpolate(d.target.data.scriptType === 'End' ? d.target.y - END_NODE_LENGTH : d.target.y, o.y);
+        //             const interpolateTargetY = d3.interpolate( d.source.y, d.target.y);
+        //
+        //
+        //             return function (t: number): string {
+        //                 // 计算当前插值状态
+        //                 const sourceX = interpolateSourceX(t);
+        //                 const sourceY = interpolateSourceY(t);
+        //                 const targetX = interpolateTargetX(t);
+        //                 const targetY = interpolateTargetY(t);
+        //
+        //                 // 返回当前的路径
+        //                 const spreadElements: D3Link = {
+        //                     source: {x: sourceX, y: sourceY} as D3Node,
+        //                     target: {x: targetX, y: targetY} as D3Node
+        //                 };
+        //                 return d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
+        //                     return d.y;
+        //                 }).y(d => d.x)(spreadElements)!;
+        //             };
+        //         })
+        // }
+
+
         const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
 
         nodesEnter.transition()
@@ -392,11 +426,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
                 let interpolateSourceX = d3.interpolate(clickedNode.previousX, d.x);
                 let interpolateSourceY = d3.interpolate(d.parent.y, d.y);
-                // if (d.data.scriptType === "End") {
-                //     return function (t: number): string {
-                //         return `translate(${interpolateSourceY(t)},${d.x})`;
-                //     };
-                // }//不知道这段话有没有用。先注释掉
+                if (d.data.scriptType === "End") {
+                    return function (t: number): string {
+                        return `translate(${interpolateSourceY(t)},${d.x})`;
+                    };
+                }//不知道这段话有没有用。先注释掉
                 return function (t: number): string {
                     return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
                 };
