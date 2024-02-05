@@ -2,7 +2,6 @@ import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
 import circleIcon from '@/assets/logo/321.svg';
 import {END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
-import {message} from "antd";
 
 
 export function DrawCircle(treeChartState: TreeChartState) {
