@@ -53,7 +53,7 @@ const ArrangeIndex: React.FC = () => {
         // Fetch menu items when the component mounts
         const fetchMenuItems = async () => {
             try {
-                let workflowMetadata = await ListWorkflow();
+                const workflowMetadata = await ListWorkflow();
                 if (workflowMetadata == null || workflowMetadata.length <= 1) {
                     setMenuItems(workflowMetadata1)
                 } else {
@@ -80,7 +80,7 @@ const ArrangeIndex: React.FC = () => {
         }
         setKeyValue(e.key);
         setSelectedMenuItem(e);
-        let newVar = menuItems.find(item => item.workflowName == e.key)
+        const newVar = menuItems.find(item => item.workflowName == e.key)
         setTreeData(newVar!.scriptMetadata);
     };
 
@@ -111,7 +111,7 @@ const ArrangeIndex: React.FC = () => {
             .validateFields()
             .then(async (values) => {
                 await createWorkflow(values as WorkflowCreateRequest);
-                let workflowMetadata = await ListWorkflow();
+                const workflowMetadata = await ListWorkflow();
                 setMenuItems(workflowMetadata);
                 setIsModalVisible(false);
                 workflowForm.resetFields();
