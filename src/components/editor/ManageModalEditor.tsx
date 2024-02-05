@@ -222,7 +222,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             defaultLanguage="groovy"
                             options={{
                                 contextmenu: true,
-                                wordWrap: 'on',
+                                wordWrap: 'off',
                                 scrollBeyondLastLine: false,
                                 automaticLayout: true,
                                 fontSize: 16,
