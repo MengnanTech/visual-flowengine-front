@@ -67,10 +67,11 @@ const DraggableBubble: React.FC = () => {
             </div>
             <DragOutlined className={styles.dragIcon} onMouseDown={handleDragStart}
                           style={{
+                              transition: isDragging ? 'none' : 'all 0.3s ease',
                               position: 'absolute',
                               cursor: 'grab',
-                              left: `${bubblePosition.x + 23}px`,
-                              top: `${bubblePosition.y - 18}px`,
+                              left: `${isExpanded ?bubblePosition.x -2: bubblePosition.x + 20}px`,
+                              top: `${isExpanded ? bubblePosition.y - 5:bubblePosition.y - 15}px`,
                           }}/>
         </>
 

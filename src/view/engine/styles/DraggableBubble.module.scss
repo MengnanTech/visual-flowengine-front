@@ -1,7 +1,7 @@
 .bubble {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   background-color: skyblue;
   display: flex;
@@ -27,4 +27,24 @@
   border-radius: 10px; // 长条的边角圆滑度
 
   // 长条时的其他样式
+}
+
+.dragIcon{
+    cursor: grab;
+    user-select: none;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        transform: scale(1.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
 }
