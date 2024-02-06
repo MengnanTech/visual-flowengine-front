@@ -1,16 +1,21 @@
 import React, {useState, useRef, useEffect} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import { DragOutlined } from "@ant-design/icons";
+import {DragOutlined} from "@ant-design/icons";
+
+interface BubbleRef {
+    offsetX: number;
+    offsetY: number;
+}
 
 const DraggableBubble: React.FC = () => {
-    const [bubblePosition, setBubblePosition] = useState({ x: 100, y: 100 });
+    const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
     const [isDragging, setIsDragging] = useState(false);
-    const bubbleRef = useRef(null);
+    const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const handleDragStart = (e:any) => {
+    const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         setIsDragging(true);
-        // 防止在拖动时发生选中文本的默认行为
+
         e.preventDefault();
         bubbleRef.current = {
             offsetX: e.clientX - bubblePosition.x,
@@ -18,11 +23,11 @@ const DraggableBubble: React.FC = () => {
         };
     };
 
-    const handleDragMove = (e) => {
+    const handleDragMove = (e: MouseEvent) => {
         if (isDragging) {
-            const x = e.clientX - bubbleRef.current.offsetX;
-            const y = e.clientY - bubbleRef.current.offsetY;
-            setBubblePosition({ x, y });
+            const x = e.clientX - bubbleRef.current!.offsetX;
+            const y = e.clientY - bubbleRef.current!.offsetY;
+            setBubblePosition({x, y});
         }
     };
 
@@ -46,19 +51,29 @@ const DraggableBubble: React.FC = () => {
     }, [isDragging]);
 
 
-
     return (
-        <div
-            style={{
-                left: `${bubblePosition.x}px`,
-                top: `${bubblePosition.y}px`,
-            }}
-            className={`${styles.bubble} ${isExpanded ? styles.expanded : ''}`}
-            onClick={() => setIsExpanded(!isExpanded)}
-        >
-            菜单
-            <DragOutlined className={styles.dragIcon}  onMouseDown={handleDragStart} style={{ position: 'absolute', top: '-25px', cursor: 'grab' }}/>
-        </div>
+        <>
+            <div
+                style={{
+                    left: `${bubblePosition.x}px`,
+                    top: `${bubblePosition.y}px`,
+                    transition: isDragging ? 'none' : 'all 0.3s ease',
+                }}
+                className={`${styles.bubble} ${isExpanded ? styles.expanded : ''}`}
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                菜单
+
+            </div>
+            <DragOutlined className={styles.dragIcon} onMouseDown={handleDragStart}
+                          style={{
+                              position: 'absolute',
+                              cursor: 'grab',
+                              left: `${bubblePosition.x + 23}px`,
+                              top: `${bubblePosition.y - 18}px`,
+                          }}/>
+        </>
+
     );
 };
 

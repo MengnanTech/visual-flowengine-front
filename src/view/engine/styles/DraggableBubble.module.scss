@@ -9,9 +9,8 @@
   justify-content: center;
   cursor: grab;
   user-select: none;
-  //transition: box-shadow 0.2s ease, transform 0.2s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  //transition: all 0.3s ease;
+
   &:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 
@@ -26,5 +25,6 @@
 .expanded {
   width: 100px; // 长条的宽度
   border-radius: 10px; // 长条的边角圆滑度
+
   // 长条时的其他样式
 }
