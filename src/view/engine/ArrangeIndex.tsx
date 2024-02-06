@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useState} from 'react';
+import React, {Suspense, useEffect, useMemo, useState} from 'react';
 import ProLayout, {MenuDataItem, PageContainer} from '@ant-design/pro-layout';
 import {
     Button,
@@ -48,7 +48,7 @@ const ArrangeIndex: React.FC = () => {
     const [keyValue, setKeyValue] = useState<string>('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [workflowForm] = Form.useForm();
-
+    const [popoverVisible, setPopoverVisible] = useState(false);
     useEffect(() => {
         // Fetch menu items when the component mounts
         const fetchMenuItems = async () => {
@@ -124,6 +124,11 @@ const ArrangeIndex: React.FC = () => {
     const onChange = (newValue: number) => {
         setSiderWidth(320 + newValue);
     };
+
+    const treeStore = useMemo(() => {
+        // 每次 treeData 变化时，创建一个新的 TreeStore 实例
+        return  new TreeStore().setSiderWidth(siderWidth);
+    }, [treeData]);
     return (
         <ProLayout
             siderWidth={siderWidth}
@@ -159,26 +164,30 @@ const ArrangeIndex: React.FC = () => {
                 </div>
             ]}
             avatarProps={{
-                icon: <Popover placement="rightBottom" trigger="click" content={<div
-                    style={{width: '230px' , backgroundColor:'#fafafa'}}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
-                    <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
-                        <Col span={24}>
-                            <div style={{marginBottom: '10px'}}> {/* 为Slider添加了底部外边距 */}
-                                <Slider
-                                    min={-130}
-                                    max={300}
-                                    defaultValue={0}
-                                    onChange={onChange}
-                                />
-                            </div>
-                        </Col>
-                        {/* 可以在这里添加更多的设置项 */}
-                    </Row>
-                </div>} title="菜单栏宽度">
-                    <SettingFilled/>
+                icon: <Popover title="菜单栏宽度" placement="rightBottom" open={popoverVisible}
+                        content={<div style={{width: '230px', backgroundColor: '#fafafa'}}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
+                        <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
+                            <Col span={24}>
+                                <div style={{marginBottom: '10px'}}> {/* 为Slider添加了底部外边距 */}
+                                    <Slider
+                                        min={-130}
+                                        max={300}
+                                        defaultValue={0}
+                                        onChange={onChange}
+                                    />
+                                </div>
+                            </Col>
+                            {/* 可以在这里添加更多的设置项 */}
+                        </Row>
+                    </div>
+                    }>
+                    <SettingFilled className={styles.popoverIcon}/>
                 </Popover>,
                 style: {backgroundColor: '#7b7c7b'},
                 size: 'large',
+                onClick: () => {
+                    setPopoverVisible(!popoverVisible);
+                },
             }}
             menuDataRender={() => menuData}
             onMenuHeaderClick={() => {
@@ -317,19 +326,22 @@ const ArrangeIndex: React.FC = () => {
                     {selectedMenuItem && treeData && (
                         <div className={styles.treeChartContainer}>
                             <TreeChart
-                                key={Math.random()}
-                                treeStore={new TreeStore().setSiderWidth(siderWidth)}
+                                key={selectedMenuItem.key}
+                                treeStore={treeStore}
                                 initialData={treeData}
                             />
                         </div>
                     )}
-                    {/* 其他条件渲染的组件 */}
                 </Suspense>
                 {!selectedMenuItem && (
-                    <div style={{marginLeft: '20px', marginTop: '15px'}}>
-                        请选择左侧列表中的一个节点查看详情。
+                    <div style={{ marginLeft: '20px', marginTop: '65px' }}>
+                        <span style={{ color: 'red', marginRight: '5px' }}>←</span> {/* 红色箭头指向左边 */}
+                        <span>请选择左侧列表中的一个节点查看详情。</span>
                     </div>
                 )}
+
+
+
             </PageContainer>
         </ProLayout>
     );

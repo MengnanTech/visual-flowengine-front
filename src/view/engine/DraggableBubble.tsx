@@ -12,24 +12,26 @@ const DraggableBubble: React.FC = () => {
     const handleDragMove = (e: MouseEvent) => {
         if (!bubbleRef.current) return;
 
-        // 计算新的位置
-        const dx = e.clientX - dragStartRef.current.x;
-        const dy = e.clientY - dragStartRef.current.y;
-        const newX = positionRef.current.x + dx;
-        const newY = positionRef.current.y + dy;
+        // 限制requestAnimationFrame的调用
+        if (!lastRafId.current) {
+            lastRafId.current = requestAnimationFrame(() => {
+                if (bubbleRef.current && lastRafId.current) {
+                    const dx = e.clientX - dragStartRef.current.x;
+                    const dy = e.clientY - dragStartRef.current.y;
+                    const newX = positionRef.current.x + dx;
+                    const newY = positionRef.current.y + dy;
 
-        // 更新元素的位置
-        requestAnimationFrame(() => {
-            if (bubbleRef.current) {
-                bubbleRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
-            }
-        });
+                    bubbleRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
 
-        // 更新positionRef以便下次计算使用
-        positionRef.current = { x: newX, y: newY };
+                    // 更新positionRef和dragStartRef为下一帧准备
+                    positionRef.current = { x: newX, y: newY };
+                    dragStartRef.current = { x: e.clientX, y: e.clientY };
 
-        // 重置dragStartRef以便下一帧计算
-        dragStartRef.current = { x: e.clientX, y: e.clientY };
+                    // 清除lastRafId以允许下一个requestAnimationFrame调用
+                    lastRafId.current = undefined
+                }
+            });
+        }
     };
 
     const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {

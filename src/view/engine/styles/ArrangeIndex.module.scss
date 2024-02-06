@@ -37,6 +37,13 @@
   transform: scale(1.35); /* 放大 35% */
 }
 
+.popoverIcon {
+  padding: 10px; /* 根据需要调整 */
+  display: inline-block; /* 确保能够应用 padding */
+  cursor: pointer; /* 明确表示这是一个可点击的元素 */
+}
+
+
 :global {
 
 
