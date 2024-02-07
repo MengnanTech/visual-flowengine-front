@@ -81,7 +81,7 @@ export const workflowMetadata1 = [{
     {
         "scriptId": "1",
         "scriptName": "Start",
-        "scriptText": "",
+        "scriptText": "Start",
         "scriptType": "Start",
         "scriptDesc": "mockMenuItems",
         "children": [
@@ -90,28 +90,28 @@ export const workflowMetadata1 = [{
                 "scriptName": "100",
                 "scriptType": "Script",
                 "scriptDesc": "",
-                "scriptText": "",
+                "scriptText": "100",
                 "children": [
                     {
                         "scriptId": "200",
                         "scriptName": "200",
                         "scriptType": "Script",
                         "scriptDesc": "",
-                        "scriptText": "",
+                        "scriptText": "200",
                         "children": [
                             {
                                 "scriptId": "300",
                                 "scriptName": "300",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
-                                "scriptText": "",
+                                "scriptText": "300",
                                 "children": [
                                     {
                                         "scriptId": "400",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
-                                        "scriptText": ""
+                                        "scriptText": "400"
                                     }
                                 ]
                             },
@@ -120,14 +120,14 @@ export const workflowMetadata1 = [{
                                 "scriptName": "500",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
-                                "scriptText": "",
+                                "scriptText": "500",
                                 "children": [
                                     {
                                         "scriptId": "600",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
-                                        "scriptText": ""
+                                        "scriptText": "600"
                                     }
                                 ]
                             },
@@ -136,14 +136,14 @@ export const workflowMetadata1 = [{
                                 "scriptName": "700",
                                 "scriptType": "Condition",
                                 "scriptDesc": "",
-                                "scriptText": "",
+                                "scriptText": "700",
                                 "children": [
                                     {
                                         "scriptId": "800",
                                         "scriptName": "",
                                         "scriptType": "End",
                                         "scriptDesc": "",
-                                        "scriptText": ""
+                                        "scriptText": "800"
                                     }
                                 ]
                             }
@@ -156,21 +156,21 @@ export const workflowMetadata1 = [{
                 "scriptName": "900",
                 "scriptType": "Condition",
                 "scriptDesc": "",
-                "scriptText": "",
+                "scriptText": "900",
                 "children": [
                     {
                         "scriptId": "111",
                         "scriptName": "111",
                         "scriptType": "Script",
                         "scriptDesc": "",
-                        "scriptText": "",
+                        "scriptText": "111",
                         "children": [
                             {
                                 "scriptId": "222",
                                 "scriptName": "222",
                                 "scriptType": "Script",
                                 "scriptDesc": "",
-                                "scriptText": "",
+                                "scriptText": "222",
                                 "children": []
                             }
                         ]
