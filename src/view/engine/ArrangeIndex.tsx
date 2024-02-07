@@ -127,7 +127,10 @@ const ArrangeIndex: React.FC = () => {
 
     const treeStore = useMemo(() => {
         // 每次 treeData 变化时，创建一个新的 TreeStore 实例
-        return  new TreeStore().setSiderWidth(siderWidth);
+        const store = new TreeStore().setSiderWidth(siderWidth);
+        store.setTreeData(treeData);
+        return store;
+
     }, [treeData]);
     return (
         <ProLayout
@@ -165,22 +168,25 @@ const ArrangeIndex: React.FC = () => {
             ]}
             avatarProps={{
                 icon: <Popover title="菜单栏宽度" placement="rightBottom" open={popoverVisible}
-                        content={<div style={{width: '230px', backgroundColor: '#fafafa'}}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
-                        <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
-                            <Col span={24}>
-                                <div style={{marginBottom: '10px'}}> {/* 为Slider添加了底部外边距 */}
-                                    <Slider
-                                        min={-130}
-                                        max={300}
-                                        defaultValue={0}
-                                        onChange={onChange}
-                                    />
-                                </div>
-                            </Col>
-                            {/* 可以在这里添加更多的设置项 */}
-                        </Row>
-                    </div>
-                    }>
+                               content={<div style={{
+                                   width: '230px',
+                                   backgroundColor: '#fafafa'
+                               }}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
+                                   <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
+                                       <Col span={24}>
+                                           <div style={{marginBottom: '10px'}}> {/* 为Slider添加了底部外边距 */}
+                                               <Slider
+                                                   min={-130}
+                                                   max={300}
+                                                   defaultValue={0}
+                                                   onChange={onChange}
+                                               />
+                                           </div>
+                                       </Col>
+                                       {/* 可以在这里添加更多的设置项 */}
+                                   </Row>
+                               </div>
+                               }>
                     <SettingFilled className={styles.popoverIcon}/>
                 </Popover>,
                 style: {backgroundColor: '#7b7c7b'},
@@ -334,12 +340,11 @@ const ArrangeIndex: React.FC = () => {
                     )}
                 </Suspense>
                 {!selectedMenuItem && (
-                    <div style={{ marginLeft: '20px', marginTop: '65px' }}>
-                        <span style={{ color: 'red', marginRight: '5px' }}>←</span> {/* 红色箭头指向左边 */}
+                    <div style={{marginLeft: '20px', marginTop: '65px'}}>
+                        <span style={{color: 'red', marginRight: '5px'}}>←</span> {/* 红色箭头指向左边 */}
                         <span>请选择左侧列表中的一个节点查看详情。</span>
                     </div>
                 )}
-
 
 
             </PageContainer>

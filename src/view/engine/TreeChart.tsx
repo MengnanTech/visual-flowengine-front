@@ -249,12 +249,14 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             <svg>
                 <MovingArrowPattern/>
             </svg>
-            {isTreeChartStateReady && <DraggableBubble treeChartState={treeChartState.current!}/>}
+
 
             {/* 编辑器 */}
             <React.Suspense fallback={<div>Loading...</div>}>
                 <ManageModalEditor treeStore={treeStore}/>
             </React.Suspense>
+            {/*工具栏菜单*/}
+            {isTreeChartStateReady && <DraggableBubble treeStore={treeStore} treeChartState={treeChartState.current!}/>}
             {/*悬浮菜单*/}
             {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
             <Modal

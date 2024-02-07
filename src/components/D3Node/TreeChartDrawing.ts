@@ -188,7 +188,6 @@ export function refresh(treeChartState: TreeChartState) {
 
     rootNode.descendants().forEach(d => {
 
-        console.log('rootNode.descendants()', d)
         d.previousX = d.x
         d.previousY = d.y
     });

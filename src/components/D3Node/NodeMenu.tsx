@@ -38,7 +38,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
     let siderWidth = treeStore.siderWidth;
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
-    // treeStore.
 
 
     if (!menuPosition || treeStore.clickNode) return null; // 如果没有位置信息，则不渲染菜单
