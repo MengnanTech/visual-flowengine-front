@@ -1,11 +1,18 @@
 .myScriptTextDecoration {
-  background-color: rgba(255, 0, 0, 0.3); /* Red background for the line */
+  //background-color: rgba(255, 0, 0, 0.3); /* Red background for the line */
+  border: #0f4a85;
+  width: 30px;
+  height: 30px;
 }
 
 .myScriptTextMarginDecoration::before {
-  content: "•";
-  color: red; /* Red dot */
-  cursor: pointer;
-  margin-right: 5px;
-  font-size: large;
+  content: ' ';
+  width: 20px; // 调整为所需的宽度
+  height: 20px; // 调整为所需的高度
+  border-radius: 50%; // 使其成为圆形
+  background-color: red; // 默认颜色
+  display: inline-block;
+}
+.myScriptTextMarginDecoration {
+  cursor: pointer; /* 应用于整个装饰类，而不仅是::before伪元素 */
 }
