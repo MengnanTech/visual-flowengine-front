@@ -45,6 +45,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         setIsModalVisible(false);
     };
     const handleDetailCancel = () => {
+        setCompareLines(null);
         setIsCompareModalVisible(false);
     };
     const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
