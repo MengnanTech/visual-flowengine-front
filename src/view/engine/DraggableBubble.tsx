@@ -125,15 +125,6 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     };
 
 
-    // const handleLineClick = (lineContent: string) => {
-    //     if (lineContent.includes("scriptText") && compareLines.length < 2) {
-    //         setCompareLines(prevLines => {
-    //             const updatedLines = [...prevLines, lineContent];
-    //             if (updatedLines.length > 2) return prevLines; // 保证最多只有两行
-    //             return updatedLines;
-    //         });
-    //     }
-    // };
 
     const handleLineClick = (lineContent: string) => {
         if (lineContent.includes("scriptText") && (compareLines == null || compareLines.length < 2)) {
