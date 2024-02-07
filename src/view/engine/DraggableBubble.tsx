@@ -2,13 +2,20 @@ import React, {useState, useRef, useEffect} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlined} from "@ant-design/icons";
 import Icon2 from '@/assets/logo/321.svg';
+import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
+import {svg} from "d3";
 
 interface BubbleRef {
     offsetX: number;
     offsetY: number;
 }
 
-const DraggableBubble: React.FC = () => {
+interface DraggableBubbleProps {
+    treeChartState: TreeChartState;
+    divRef: React.RefObject<HTMLDivElement>;
+}
+const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
+    console.log('DraggableBubble');
     const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
     const [isDragging, setIsDragging] = useState(false);
     const bubbleRef = useRef<BubbleRef | null>(null);
@@ -26,11 +33,27 @@ const DraggableBubble: React.FC = () => {
 
     const handleDragMove = (e: MouseEvent) => {
         if (isDragging) {
-            const x = e.clientX - bubbleRef.current!.offsetX;
-            const y = e.clientY - bubbleRef.current!.offsetY;
-            setBubblePosition({x, y});
+            const newX = e.clientX - bubbleRef.current!.offsetX;
+            const newY = e.clientY - bubbleRef.current!.offsetY;
+
+            // 获取div的边界
+            const divBounds = treeChartState.svgRef.getBoundingClientRect();
+            console.log('divBounds', divBounds);
+
+            // 计算边界条件
+            const minX = divBounds.left-310;
+            const maxX = divBounds.right-470 ;
+            const minY = divBounds.top+10;
+            const maxY = divBounds.bottom+230;
+
+            // 限制在div内部移动
+            const clampedX = Math.max(Math.min(newX, maxX), minX);
+            const clampedY = Math.max(Math.min(newY, maxY), minY);
+
+            setBubblePosition({ x: clampedX, y: clampedY });
         }
     };
+
 
     const handleDragEnd = () => {
         setIsDragging(false);
@@ -40,6 +63,7 @@ const DraggableBubble: React.FC = () => {
         // 这里可以添加动画效果的逻辑
     };
     useEffect(() => {
+        console.log('DraggableBubble useEffect isDragging');
         if (isDragging) {
             document.addEventListener('mousemove', handleDragMove);
             document.addEventListener('mouseup', handleDragEnd);
@@ -73,19 +97,19 @@ const DraggableBubble: React.FC = () => {
                 {isExpanded ? <div className={styles.expandedContent}>
 
                         <div  className={styles.icon}>
-                           调试流程
+                           调试
                         </div>
                         <div onClick={toggleExpand} className={styles.icon}>
                             <img src={Icon2} alt="icon" style={{width: '42px', height: '42px'}}/>
                         </div>
                         <div className={styles.icon}>
-                           更新流程
+                           更新代码
                         </div>
                         <div className={`${styles.icon} ${ styles.iconMove1}`}>
-                           Review 文档
+                          代码对比
                         </div>
                         <div className={styles.icon}>
-                            相关 链接
+                            Review Standard
                         </div>
                         <div className={styles.icon}>
                             6

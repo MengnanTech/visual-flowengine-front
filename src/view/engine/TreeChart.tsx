@@ -249,8 +249,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             <svg>
                 <MovingArrowPattern/>
             </svg>
-            <DraggableBubble/>
-
+            {isTreeChartStateReady && <DraggableBubble treeChartState={treeChartState.current!}/>}
 
             {/* 编辑器 */}
             <React.Suspense fallback={<div>Loading...</div>}>

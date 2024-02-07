@@ -2,6 +2,7 @@
   background-color: #f0f2f5; // 背景色
   //position: relative;
   max-width: 100%; // 限制最大宽度为视口宽度
+  max-height: 100%;
   overflow: auto; // 内容太宽时，提供滚动条
 }
 
@@ -38,7 +39,7 @@
 }
 
 .popoverIcon {
-  padding: 10px; /* 根据需要调整 */
+  //padding: 10px; /* 根据需要调整 */
   display: inline-block; /* 确保能够应用 padding */
   cursor: pointer; /* 明确表示这是一个可点击的元素 */
 }
