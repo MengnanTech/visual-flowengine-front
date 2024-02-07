@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 import * as monaco from 'monaco-editor';
 import styles from './style/diff.module.scss';
 
@@ -6,9 +6,10 @@ interface CodeDiffViewerProps {
     originalCode: string;
     modifiedCode: string;
     language: string;
+    onLineClick?: (lineContent: string) => void;
 }
 
-const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedCode, language }) => {
+const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCode, language,onLineClick}) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedC
             const originalModel = monaco.editor.createModel(originalCode, language);
             const modifiedModel = monaco.editor.createModel(modifiedCode, language);
 
-            diffEditor.setModel({ original: originalModel, modified: modifiedModel });
+            diffEditor.setModel({original: originalModel, modified: modifiedModel});
 
             // 为了避免在渲染后立即调用getLineChanges可能导致的问题，使用setTimeout
             setTimeout(() => {
@@ -74,13 +75,13 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedC
                         console.log(e.target.type, monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS)
                         const lineNumber = e.target.position!.lineNumber;
                         const lineContent = diffEditor.getModifiedEditor()!.getModel()!.getLineContent(lineNumber);
-                        console.log(`Clicked line ${lineNumber}: ${lineContent}`);
+                        onLineClick && onLineClick(lineContent);
                     });
 
                     diffEditor.getOriginalEditor().onMouseDown(e => {
                         const lineNumber = e.target.position!.lineNumber;
                         const lineContent = diffEditor.getOriginalEditor()!.getModel()!.getLineContent(lineNumber);
-                        console.log(`Clicked line ${lineNumber}: ${lineContent}`);
+                        onLineClick && onLineClick(lineContent);
                     });
 
 
@@ -91,7 +92,6 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedC
         }
 
 
-
         return () => {
             if (diffEditor) {
                 diffEditor.dispose();
@@ -99,7 +99,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedC
         };
     }, [originalCode, modifiedCode, language]);
 
-    return <div ref={editorRef} style={{ height: '800px', width: 'auto' }} />;
+    return <div ref={editorRef} style={{ height: '700px', width: 'auto' }} />;
 };
 
 export default CodeDiffViewer;

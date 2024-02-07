@@ -1,11 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import {DragOutlined} from "@ant-design/icons";
+import {DragOutlined, SmileOutlined} from "@ant-design/icons";
 import Icon2 from '@/assets/logo/321.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
-import {Modal} from "antd";
+import {Button, message, Modal, notification} from "antd";
+
+import type { NotificationArgsProps } from 'antd';
+import CircleDot from "@/view/engine/CircleDot.tsx";
+
+type NotificationPlacement = NotificationArgsProps['placement'];
 interface BubbleRef {
     offsetX: number;
     offsetY: number;
@@ -18,12 +23,16 @@ interface DraggableBubbleProps {
 
 const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeStore}) => {
 
-
+    const [api, contextHolder] = notification.useNotification();
     const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
     const [isDragging, setIsDragging] = useState(false);
     const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    // const [clickCount, setClickCount] = useState(0);
+    // const [compareReady, setCompareReady] = useState(false);
+    // const [clickCount, setClickCount] = useState(0);
+    const [compareLines, setCompareLines] = useState<string[]>([]);
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -40,6 +49,69 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
             offsetY: e.clientY - bubblePosition.y,
         };
     };
+    const handleOnRemove = (index:number) => {
+        const newCompareLines = compareLines.filter((_, i) => i !== index);
+        setCompareLines(newCompareLines);
+        // updateNotification(newCompareLines); // 更新通知以反映新的compareLines数组
+    };
+    const handleCompare = () => {
+        // 关闭通知
+        api.destroy("compareNotification")
+        // 执行对比逻辑，例如打开模态框
+    };
+
+    const updateNotification = (compareLines:string[]) => {
+        console.log('updateNotification compareLines', compareLines);
+        api.open({
+            key: 'compareNotification',
+            message: '点击红点对比代码',
+            description: (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+                    {compareLines.map((k, index) => (
+
+                        <CircleDot
+                            key={index}
+                            color={'green'}
+                            onRemove={() => handleOnRemove(index)}
+                        />
+                    ))}
+                </div>
+            ),
+            style: {
+                width: 290,
+            },
+            btn: (
+                <Button
+                    type="primary"
+                    onClick={handleCompare}
+                    disabled={compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
+                >
+                    开始对比
+                </Button>),
+            duration: null,
+            placement: 'top' as NotificationPlacement,
+            onClose: resetNotification,
+        });
+    };
+    const resetNotification = () => {
+        setCompareLines([]); // 清空已选择行的数组
+    };
+
+    const handleLineClick = (lineContent: string) => {
+        if (lineContent.includes("scriptText") && compareLines.length < 2) {
+            setCompareLines(prevLines => {
+                const updatedLines = [...prevLines, lineContent];
+                if (updatedLines.length > 2) return prevLines; // 保证最多只有两行
+                return updatedLines;
+            });
+        }
+    };
+    useEffect(() => {
+        if (compareLines.length > 0) {
+            updateNotification(compareLines);
+        }
+    }, [compareLines]);
+
 
     const handleDragMove = (e: MouseEvent) => {
         if (isDragging) {
@@ -88,7 +160,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         };
     }, [isDragging]);
     return (
-        <>
+        <> {contextHolder}
             <div
                 style={{
                     left: `${bubblePosition.x}px`,
@@ -147,8 +219,13 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 width={"90vw"}
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
-                <CodeDiffViewer language='groovy' originalCode={JSON.stringify(treeStore.treeData,null, 2)} modifiedCode={JSON.stringify(treeChartState.rootNode!.data,null, 2)}/>
+                <CodeDiffViewer
+                    language='groovy'
+                    onLineClick={handleLineClick}
+                    originalCode={JSON.stringify(treeStore.treeData,null, 2)}
+                    modifiedCode={JSON.stringify(treeChartState.rootNode!.data,null, 2)}/>
             </Modal>
+
 
         </>
 
