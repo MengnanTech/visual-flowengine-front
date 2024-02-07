@@ -17,13 +17,13 @@ interface DraggableBubbleProps {
 }
 
 const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeStore}) => {
-    console.log('DraggableBubble');
+
+
     const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
     const [isDragging, setIsDragging] = useState(false);
     const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -147,7 +147,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 width={"90vw"}
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
-                <CodeDiffViewer originalCode={JSON.stringify(treeStore.treeData,null, 2)} modifiedCode={JSON.stringify(treeChartState.rootNode!.data,null, 2)}/>
+                <CodeDiffViewer language='groovy' originalCode={JSON.stringify(treeStore.treeData,null, 2)} modifiedCode={JSON.stringify(treeChartState.rootNode!.data,null, 2)}/>
             </Modal>
 
         </>

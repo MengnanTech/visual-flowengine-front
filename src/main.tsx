@@ -5,11 +5,14 @@ import "reset-css"
 import "@/assets/styles/global.scss"
 import Arrange from "@/view/engine/ArrangeIndex.tsx";
 import {loader} from "@monaco-editor/react";
-loader.config({
-    paths: {
-        vs: 'src/components/editor/vs'
-    }
-});
+import * as monaco from 'monaco-editor';
+// loader.config({
+//     paths: {
+//         vs: 'src/components/editor/vs'
+//     }
+// });
+
+loader.config({ monaco });
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Arrange/>
 )

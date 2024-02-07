@@ -3,9 +3,10 @@ import * as monaco from 'monaco-editor';
 interface CodeDiffViewerProps {
     originalCode: string;
     modifiedCode: string;
+    language: string;
 }
 
-const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedCode }) => {
+const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedCode,language }) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -17,8 +18,8 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({ originalCode, modifiedC
                 automaticLayout: true,
             });
 
-            const originalModel = monaco.editor.createModel(originalCode, 'json');
-            const modifiedModel = monaco.editor.createModel(modifiedCode, 'json');
+            const originalModel = monaco.editor.createModel(originalCode, language);
+            const modifiedModel = monaco.editor.createModel(modifiedCode, language);
 
             diffEditor.setModel({
                 original: originalModel,
