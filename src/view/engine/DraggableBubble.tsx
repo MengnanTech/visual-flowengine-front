@@ -85,6 +85,9 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const resetNotification = () => {
         api.destroy("compareNotification")
     };
+    const clean = () => {
+        setCompareLines([]);
+    };
     const updateNotification = (lines: LineContent[]) => {
 
         api.open({
@@ -116,13 +119,21 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 width: 290,
             },
             btn: (
-                <Button
-                    type="primary"
-                    onClick={handleCompare}
-                    disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
-                >
-                    开始对比
-                </Button>),
+                <div>
+                    <Button
+                        type="primary"
+                        onClick={handleCompare}
+                        disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
+                        style={{marginRight: 8}}
+                    >
+                        开始对比
+                    </Button>
+                    <Button
+                        onClick={clean} // 这里调用一个函数来清空compareLines并关闭通知
+                    >
+                        清空
+                    </Button>
+                </div>),
             duration: null,
             placement: 'top' as NotificationPlacement,
             onClose: resetNotification,
