@@ -1,16 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import {DragOutlined, SmileOutlined} from "@ant-design/icons";
+import {DragOutlined} from "@ant-design/icons";
 import Icon2 from '@/assets/logo/321.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
-import {Button, message, Modal, notification} from "antd";
-
-import type { NotificationArgsProps } from 'antd';
-import CircleDot from "@/view/engine/CircleDot.tsx";
+import type {NotificationArgsProps} from 'antd';
+import {Button, Modal, notification} from "antd";
+import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
+
 interface BubbleRef {
     offsetX: number;
     offsetY: number;
@@ -21,6 +21,12 @@ interface DraggableBubbleProps {
     treeStore: TreeStore;
 }
 
+interface LineContent {
+    content: string;
+    label: string;
+}
+
+
 const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeStore}) => {
 
     const [api, contextHolder] = notification.useNotification();
@@ -29,10 +35,8 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    // const [clickCount, setClickCount] = useState(0);
-    // const [compareReady, setCompareReady] = useState(false);
-    // const [clickCount, setClickCount] = useState(0);
-    const [compareLines, setCompareLines] = useState<string[]>([]);
+    const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
+
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -49,32 +53,58 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
             offsetY: e.clientY - bubblePosition.y,
         };
     };
-    const handleOnRemove = (index:number) => {
-        const newCompareLines = compareLines.filter((_, i) => i !== index);
-        setCompareLines(newCompareLines);
-        // updateNotification(newCompareLines); // 更新通知以反映新的compareLines数组
+    const handleOnRemove = (index: number) => {
+        setCompareLines(prev => {
+            if (!prev || prev.length === 0) return prev;
+            const updatedLines = prev.filter((_, i) => i !== index);
+            return updatedLines.length > 0 ? updatedLines : [];
+        });
+
+
     };
+
+    useEffect(() => {
+        if (compareLines === null) {
+            // 处理 null 状态
+        } else {
+            // 处理非 null，包括空数组的状态
+            updateNotification(compareLines);
+        }
+    }, [compareLines]);
     const handleCompare = () => {
         // 关闭通知
         api.destroy("compareNotification")
         // 执行对比逻辑，例如打开模态框
     };
+    const resetNotification = () => {
+        setCompareLines(null); // 清空已选择行的数组
+        api.destroy("compareNotification")
+    };
+    const updateNotification = (lines: LineContent[]) => {
 
-    const updateNotification = (compareLines:string[]) => {
-        console.log('updateNotification compareLines', compareLines);
         api.open({
             key: 'compareNotification',
             message: '点击红点对比代码',
             description: (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
-                    {compareLines.map((k, index) => (
-
-                        <CircleDot
-                            key={index}
-                            color={'green'}
-                            onRemove={() => handleOnRemove(index)}
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-around'}}>
+                    {lines.length > 0 ? (
+                        <CircleDotWithLabel
+                            color="green"
+                            label={lines[0].label}
+                            onRemove={() => handleOnRemove(0)}
                         />
-                    ))}
+                    ) : (
+                        <CircleDotWithLabel color="grey" label=""/>
+                    )}
+                    {lines.length > 1 ? (
+                        <CircleDotWithLabel
+                            color="green"
+                            label={lines[1].label}
+                            onRemove={() => handleOnRemove(1)}
+                        />
+                    ) : (
+                        <CircleDotWithLabel color="grey" label=""/>
+                    )}
                 </div>
             ),
             style: {
@@ -84,7 +114,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 <Button
                     type="primary"
                     onClick={handleCompare}
-                    disabled={compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
+                    disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
                 >
                     开始对比
                 </Button>),
@@ -93,24 +123,33 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
             onClose: resetNotification,
         });
     };
-    const resetNotification = () => {
-        setCompareLines([]); // 清空已选择行的数组
-    };
+
+
+    // const handleLineClick = (lineContent: string) => {
+    //     if (lineContent.includes("scriptText") && compareLines.length < 2) {
+    //         setCompareLines(prevLines => {
+    //             const updatedLines = [...prevLines, lineContent];
+    //             if (updatedLines.length > 2) return prevLines; // 保证最多只有两行
+    //             return updatedLines;
+    //         });
+    //     }
+    // };
 
     const handleLineClick = (lineContent: string) => {
-        if (lineContent.includes("scriptText") && compareLines.length < 2) {
-            setCompareLines(prevLines => {
-                const updatedLines = [...prevLines, lineContent];
-                if (updatedLines.length > 2) return prevLines; // 保证最多只有两行
-                return updatedLines;
+        if (lineContent.includes("scriptText") && (compareLines == null || compareLines.length < 2)) {
+            const labelMatch = lineContent.match(/"scriptText":\s*"([^"]+)"/);
+            const label = labelMatch ? labelMatch[1].substring(0, 10) + '...' : '""'; // 只取前10个字符加上省略号表示后续还有内容
+
+            setCompareLines(prev => {
+                // 如果已有两行，则不再添加
+                if (prev != null && prev.length >= 2) return prev;
+
+                const newLine: LineContent = {content: lineContent, label};
+                return prev ? [...prev, newLine] : [newLine];
             });
         }
     };
-    useEffect(() => {
-        if (compareLines.length > 0) {
-            updateNotification(compareLines);
-        }
-    }, [compareLines]);
+
 
 
     const handleDragMove = (e: MouseEvent) => {
@@ -120,7 +159,6 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
 
             // 获取div的边界
             const divBounds = treeChartState.svgRef.getBoundingClientRect();
-            console.log('divBounds', divBounds);
 
             // 计算边界条件
             const minX = divBounds.left - 310;
@@ -145,7 +183,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         // 这里可以添加动画效果的逻辑
     };
     useEffect(() => {
-        console.log('DraggableBubble useEffect isDragging');
+
         if (isDragging) {
             document.addEventListener('mousemove', handleDragMove);
             document.addEventListener('mouseup', handleDragEnd);
@@ -222,8 +260,8 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 <CodeDiffViewer
                     language='groovy'
                     onLineClick={handleLineClick}
-                    originalCode={JSON.stringify(treeStore.treeData,null, 2)}
-                    modifiedCode={JSON.stringify(treeChartState.rootNode!.data,null, 2)}/>
+                    originalCode={JSON.stringify(treeStore.treeData, null, 2)}
+                    modifiedCode={JSON.stringify(treeChartState.rootNode!.data, null, 2)}/>
             </Modal>
 
 

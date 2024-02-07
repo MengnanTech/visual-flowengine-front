@@ -99,7 +99,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
         };
     }, [originalCode, modifiedCode, language]);
 
-    return <div ref={editorRef} style={{ height: '700px', width: 'auto' }} />;
+    return <div ref={editorRef} style={{ height: '1000px', width: 'auto' }} />;
 };
 
 export default CodeDiffViewer;
