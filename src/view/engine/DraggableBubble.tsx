@@ -36,12 +36,16 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
+    const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
 
     const showModal = () => {
         setIsModalVisible(true);
     };
     const handleCancel = () => {
         setIsModalVisible(false);
+    };
+    const handleDetailCancel = () => {
+        setIsCompareModalVisible(false);
     };
     const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         setIsDragging(true);
@@ -64,20 +68,20 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     };
 
     useEffect(() => {
+        console.log('useEffect compareLines', compareLines);
         if (compareLines === null) {
-            // 处理 null 状态
+
         } else {
             // 处理非 null，包括空数组的状态
             updateNotification(compareLines);
         }
     }, [compareLines]);
     const handleCompare = () => {
-        // 关闭通知
         api.destroy("compareNotification")
-        // 执行对比逻辑，例如打开模态框
+        setIsCompareModalVisible(true);
+
     };
     const resetNotification = () => {
-        setCompareLines(null); // 清空已选择行的数组
         api.destroy("compareNotification")
     };
     const updateNotification = (lines: LineContent[]) => {
@@ -124,22 +128,27 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         });
     };
 
-
-
     const handleLineClick = (lineContent: string) => {
-        if (lineContent.includes("scriptText") && (compareLines == null || compareLines.length < 2)) {
-            const labelMatch = lineContent.match(/"scriptText":\s*"([^"]+)"/);
-            const label = labelMatch ? labelMatch[1].substring(0, 10) + '...' : '""'; // 只取前10个字符加上省略号表示后续还有内容
-
-            setCompareLines(prev => {
-                // 如果已有两行，则不再添加
-                if (prev != null && prev.length >= 2) return prev;
-
-                const newLine: LineContent = {content: lineContent, label};
-                return prev ? [...prev, newLine] : [newLine];
-            });
+        const scriptTextIndex = lineContent.indexOf("scriptText\":");
+        if (scriptTextIndex === -1) {
+            return; // 如果行内容不包含 "scriptText"，则不做任何操作
         }
+
+        // 提取 label 和 code
+        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 32); // 获取 scriptText 后面的内容作为 label
+        const code = lineContent.substring(scriptTextIndex + 12).trim().replace(/,$/, ''); // 从 "scriptText": 后面开始提取代码，并去除前后空格，并去除尾部逗号
+
+        setCompareLines(prev => {
+            const currentLines = prev || []; // 如果 prev 为 null，则使用空数组
+            if (currentLines.length >= 2) {
+                return [...currentLines];
+            }
+
+            const newLine = {content: JSON.parse(code), label}; // 使用提取到的完整code作为content
+            return [...currentLines, newLine];
+        });
     };
+
 
 
 
@@ -253,6 +262,21 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                     onLineClick={handleLineClick}
                     originalCode={JSON.stringify(treeStore.treeData, null, 2)}
                     modifiedCode={JSON.stringify(treeChartState.rootNode!.data, null, 2)}/>
+            </Modal>
+            <Modal
+                title="详细代码对比"
+                open={isCompareModalVisible}
+                centered
+                onCancel={handleDetailCancel}
+                maskClosable={false}
+                footer={null}
+                width={"70vw"}
+                style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
+            >
+                <CodeDiffViewer
+                    language='groovy'
+                    originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}
+                    modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}/>
             </Modal>
 
 

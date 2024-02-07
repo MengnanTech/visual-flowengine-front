@@ -72,23 +72,33 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                     diffEditor.getOriginalEditor().deltaDecorations([], decorations);
 
                     diffEditor.getModifiedEditor().onMouseDown(e => {
-                        console.log(e.target.type, monaco.editor.MouseTargetType.GUTTER_LINE_DECORATIONS)
-                        const lineNumber = e.target.position!.lineNumber;
-                        const lineContent = diffEditor.getModifiedEditor()!.getModel()!.getLineContent(lineNumber);
-                        onLineClick && onLineClick(lineContent);
+
+                        if (e.target.type ==3 || e.target.type == 4) {
+                            const lineNumber = e.target.position!.lineNumber;
+                            const lineContent = diffEditor.getModifiedEditor()!.getModel()!.getLineContent(lineNumber);
+
+                            if (onLineClick){
+                                onLineClick(lineContent)
+                            }
+                        }
+
+
                     });
 
                     diffEditor.getOriginalEditor().onMouseDown(e => {
-                        const lineNumber = e.target.position!.lineNumber;
-                        const lineContent = diffEditor.getOriginalEditor()!.getModel()!.getLineContent(lineNumber);
-                        onLineClick && onLineClick(lineContent);
+                        if (e.target.type ==3 || e.target.type == 4) {
+                            const lineNumber = e.target.position!.lineNumber;
+                            const lineContent = diffEditor.getOriginalEditor()!.getModel()!.getLineContent(lineNumber);
+                            onLineClick && onLineClick(lineContent);
+                        }
+
                     });
 
 
                 }
 
 
-            }, 100);
+            }, 10);
         }
 
 

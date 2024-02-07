@@ -12,6 +12,21 @@ import * as monaco from 'monaco-editor';
 //     }
 // });
 
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+
+
+self.MonacoEnvironment = {
+    getWorker: function (_: any, label: string) {
+        console.log(label)
+        if (label === 'json') {
+            return new jsonWorker()
+        }
+        new editorWorker()
+    },
+}
+
+
 loader.config({ monaco });
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Arrange/>
