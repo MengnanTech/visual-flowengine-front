@@ -11,7 +11,7 @@ import {CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import {registerGroovyLanguageForMonaco} from "@/components/editor/vs/language/groovy-language-definition-for-monaco.ts";
+import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 

@@ -158,7 +158,8 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const handleLineClick = (lineContent: string) => {
         const scriptTextIndex = lineContent.indexOf("scriptText\":");
         if (scriptTextIndex === -1) {
-            return; // 如果行内容不包含 "scriptText"，则不做任何操作
+            message.success('只对比代码部分').then(r => r);
+            return;
         }
 
         // 提取 label 和 code

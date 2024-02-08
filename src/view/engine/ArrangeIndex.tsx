@@ -200,7 +200,7 @@ const ArrangeIndex: React.FC = () => {
                 message.info('菜单头部被点击').then((r) => r);
             }}
             onPageChange={() => {
-                message.info('页面切换').then((r) => r);
+                // message.info('页面切换').then((r) => r);
             }}
         >
             <Modal

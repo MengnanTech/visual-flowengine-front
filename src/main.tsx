@@ -16,7 +16,9 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
+
 self.MonacoEnvironment = {
+    // @ts-ignore
     getWorker: function (_: any, label: string) {
         console.log(label)
         if (label === 'json') {
