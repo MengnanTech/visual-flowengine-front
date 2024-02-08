@@ -174,7 +174,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
 
             // 计算边界条件
             const minX = divBounds.left - 310;
-            const maxX = divBounds.right - 470;
+            const maxX = isExpanded ? (divBounds.right - 1200) : (divBounds.right - 470);
             const minY = divBounds.top + 10;
             const maxY = divBounds.bottom + 230;
 
