@@ -170,7 +170,7 @@ const ArrangeIndex: React.FC = () => {
                 icon: <Popover title="菜单栏宽度" placement="rightBottom" open={popoverVisible}
                                content={<div style={{
                                    width: '230px',
-                                   backgroundColor: '#fafafa'
+                                   backgroundColor: '#fafafa'//好像没什么效果
                                }}> {/* 增加了宽度控制，确保内容不会太拥挤 */}
                                    <Row gutter={[16, 16]} style={{padding: '5px'}}> {/* 添加了内边距和行间距 */}
                                        <Col span={24}>
@@ -200,7 +200,7 @@ const ArrangeIndex: React.FC = () => {
                 message.info('菜单头部被点击').then((r) => r);
             }}
             onPageChange={() => {
-                // 页面变化时，如清除选中的菜单项
+                message.info('页面切换').then((r) => r);
             }}
         >
             <Modal

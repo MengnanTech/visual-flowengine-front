@@ -172,27 +172,27 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             }) // 添加刷新逻辑
 
 
-        const lockIcon = iconGroup.append('image')
+          iconGroup.append('image')
             .attr('href', isLocked ? lockedIcon : unlockedIcon)
             .attr('width', 30)
             .attr('height', 30)
             .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
             .attr('y', 0)
-            .attr('class', styles.iconHover) // 应用悬浮效果样式
+            // .attr('class', styles.iconHover) // 应用悬浮效果样式
             .on('click', () => {
                 setIsLocked(prevState => !prevState);
             });
 
-        lockIcon
-            .on('mousedown', function () {
-                d3.select(this).classed(styles.iconActive, true); // 添加按压样式
-            })
-            .on('mouseup', function () {
-                d3.select(this).classed(styles.iconActive, false); // 移除按压样式
-            })
-            .on('mouseleave', function () {
-                d3.select(this).classed(styles.iconActive, false); // 鼠标离开时移除样式
-            });
+        // lockIcon
+        //     .on('mousedown', function () {
+        //         d3.select(this).classed(styles.iconActive, true); // 添加按压样式
+        //     })
+        //     .on('mouseup', function () {
+        //         d3.select(this).classed(styles.iconActive, false); // 移除按压样式
+        //     })
+        //     .on('mouseleave', function () {
+        //         d3.select(this).classed(styles.iconActive, false); // 鼠标离开时移除样式
+        //     });
         // iconGroup.append('image')
         //     .attr('href', isLocked ? 'path/to/locked_icon.svg' : 'path/to/unlocked_icon.svg')
         //     .attr('width', 30)

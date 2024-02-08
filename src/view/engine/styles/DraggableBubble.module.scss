@@ -22,33 +22,12 @@
     transform: translateY(2px); // 稍微向下移动模仿按下效果
   }
 }
-//
-//.bubbleExpanded{
-//  position: absolute;
-//  width: 65px;
-//  height: 65px;
-//  border-radius: 50%;
-//  background-color: skyblue;
-//  display: flex;
-//  align-items: center;
-//  justify-content: center;
-//  cursor: grab;
-//  user-select: none;
-//  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-//}
-
 
 .expanded {
   position: absolute;
-
-
-
   cursor: grab;
   user-select: none;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-
-
-
   bottom: 120px; // 调整位置
   ////left: 20px;
   //transform: translateX(-50%);
@@ -62,6 +41,26 @@
   width: 800px; // 展开后的宽度
   height: 60px; // 展开后的高度
   border-radius: 30px; // 调整为适当的圆角
+}
+
+.fixedIcon {
+  cursor: grab;
+  user-select: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 25px;
+  height: 25px;
+  font-size: 25px;
+  border-radius: 50%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .dragIcon {
@@ -85,7 +84,7 @@
 }
 
 
-.expandedContent{
+.expandedContent {
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -96,7 +95,7 @@
 .icon {
   width: 40px; // 调整图标大小
   height: 40px;
-  background-color: #f2fafa; // 假设所有图标都有统一的背景色，实际情况可能需要调整
+  background-color: #e3f1f1; // 假设所有图标都有统一的背景色，实际情况可能需要调整
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -106,9 +105,9 @@
 
 
   &:hover {
-    transform: translateY(-1px) ;
+    transform: translateY(-1px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    background-color: #eee;
+    background-color: #def3f3;
   }
 
   &:active {

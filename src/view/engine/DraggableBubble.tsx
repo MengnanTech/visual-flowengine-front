@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import {DragOutlined} from "@ant-design/icons";
+import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
 import Icon2 from '@/assets/logo/321.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
-import type {NotificationArgsProps} from 'antd';
-import {Button, Modal, notification} from "antd";
+import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
@@ -37,7 +36,12 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
     const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
+    const [rotated, setRotated] = useState(false);
+    // const expandedContentRef = useRef<HTMLDivElement>(null);
 
+    const handleClick = () => {
+        setRotated(!rotated); // 切换状态
+    };
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -49,6 +53,17 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         setIsCompareModalVisible(false);
     };
     const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        // if (expandedContentRef.current && e.target instanceof Node) {
+        //     if (expandedContentRef.current.contains(e.target)) {
+        //         // 如果点击的是 expandedContent 内部或其自身，不执行拖动逻辑
+        //         // message.success('xiaoyu');
+        //         return;
+        //     }
+        // }
+        if (rotated) {
+            return;
+        }
+
         setIsDragging(true);
         treeStore.setCurrentMenu(null);
 
@@ -147,7 +162,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         }
 
         // 提取 label 和 code
-        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 32); // 获取 scriptText 后面的内容作为 label
+        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 62); // 获取 scriptText 后面的内容作为 label
         const code = lineContent.substring(scriptTextIndex + 12).trim().replace(/,$/, ''); // 从 "scriptText": 后面开始提取代码，并去除前后空格，并去除尾部逗号
 
         setCompareLines(prev => {
@@ -160,8 +175,6 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
             return [...currentLines, newLine];
         });
     };
-
-
 
 
     const handleDragMove = (e: MouseEvent) => {
@@ -191,9 +204,16 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         setIsDragging(false);
     };
     const toggleExpand = () => {
+        // 检查是否已固定（即 rotated 为 true）
+        if (rotated) {
+            message.success('请先取消固定').then(r => r);
+            return;
+        }
+
+        // 如果未固定，切换展开状态
         setIsExpanded(!isExpanded);
-        // 这里可以添加动画效果的逻辑
     };
+
     useEffect(() => {
 
         if (isDragging) {
@@ -224,7 +244,8 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 className={isExpanded ? styles.expanded : styles.bubble}
                 onMouseDown={handleDragStart}
             >
-                {isExpanded ? <div className={styles.expandedContent}>
+                {/*{isExpanded ? <div ref={expandedContentRef} className={styles.expandedContent}>*/}
+                {isExpanded ? <div  className={styles.expandedContent}>
 
                         <div className={styles.icon}>
                             调试
@@ -233,10 +254,10 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                             <img src={Icon2} alt="icon" style={{width: '42px', height: '42px'}}/>
                         </div>
                         <div className={styles.icon}>
-                            更新代码
+                            更新
                         </div>
                         <div onClick={showModal} className={`${styles.icon} ${styles.iconMove1}`}>
-                            代码对比
+                            对比
                         </div>
                         <div className={styles.icon}>
                             Review Standard
@@ -245,19 +266,28 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                             6
                         </div>
                     </div>
-
                     : "菜单"}
 
             </div>
-            <DragOutlined className={styles.dragIcon} onMouseDown={handleDragStart}
+            <PushpinOutlined onClick={handleClick} className={styles.fixedIcon} style={{
+                display: isExpanded ? 'block' : 'none',
+                position: 'absolute',
+                cursor: 'grab',
+                left: `${bubblePosition.x + 770}px`,
+                top: `${bubblePosition.y - 15}px`,
+                transform: rotated ? 'rotate(-45deg)' : 'none', // 根据状态旋转图标
+                transition: 'transform 0.3s' // 平滑过渡效果
+            }}/>
+            {!rotated && <DragOutlined className={styles.dragIcon} onMouseDown={handleDragStart}
 
-                          style={{
-                              transition: isDragging ? 'none' : 'all 0.3s ease',
-                              position: 'absolute',
-                              cursor: 'grab',
-                              left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 20}px`,
-                              top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
-                          }}/>
+                                       style={{
+                                           transition: isDragging ? 'none' : 'all 0.3s ease',
+                                           position: 'absolute',
+                                           cursor: 'grab',
+                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 20}px`,
+                                           top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
+                                       }}/>
+            }
 
             <Modal
                 title="初始代码对比当前代码"
