@@ -1,8 +1,8 @@
 .myScriptTextDecoration {
-  //background-color: rgba(255, 0, 0, 0.3); /* Red background for the line */
-  border: #0f4a85;
-  width: 30px;
-  height: 30px;
+    cursor: pointer; /* 使其看起来像链接 */
+    text-decoration: underline; /* 使其看起来像链接 */
+    color: blue; /* 使其看起来像链接 */
+
 }
 
 .myScriptTextMarginDecoration::before {

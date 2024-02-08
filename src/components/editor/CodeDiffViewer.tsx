@@ -31,13 +31,14 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
             setTimeout(() => {
                 const lineChanges = diffEditor.getLineChanges();
                 if (lineChanges) {
+                    const modifiedDecorations: monaco.editor.IModelDeltaDecoration[] = [];
                     const decorations: monaco.editor.IModelDeltaDecoration[] = [];
                     // 处理修改后的模型
                     lineChanges.forEach(change => {
                         for (let i = change.modifiedStartLineNumber; i <= change.modifiedEndLineNumber; i++) {
                             const lineContent = modifiedModel.getLineContent(i);
                             if (lineContent.includes("scriptText")) {
-                                decorations.push({
+                                modifiedDecorations.push({
                                     range: new monaco.Range(i, 1, i, 1),
                                     options: {
                                         isWholeLine: true,
@@ -67,9 +68,9 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                     });
 
                     // 添加装饰器到修改后的编辑器
-                    diffEditor.getModifiedEditor().deltaDecorations([], decorations);
+                    diffEditor.getModifiedEditor().createDecorationsCollection(modifiedDecorations);
                     // 如果需要，也可以为原始编辑器添加装饰器
-                    diffEditor.getOriginalEditor().deltaDecorations([], decorations);
+                    diffEditor.getOriginalEditor().createDecorationsCollection( decorations);
 
                     diffEditor.getModifiedEditor().onMouseDown(e => {
 
