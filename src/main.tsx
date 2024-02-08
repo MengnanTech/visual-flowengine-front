@@ -5,7 +5,8 @@ import "reset-css"
 import "@/assets/styles/global.scss"
 import Arrange from "@/view/engine/ArrangeIndex.tsx";
 import {loader} from "@monaco-editor/react";
-import * as monaco from 'monaco-editor';
+// import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 // loader.config({
 //     paths: {
 //         vs: 'src/components/editor/vs'
