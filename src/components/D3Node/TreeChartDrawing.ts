@@ -233,7 +233,7 @@ function updateLinkPath(ele: SVGPathElement, d: D3Link, rootNode: D3Node) {
 
                 let nodePreviousPosition: number[] | null = null;
                 const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
-                console.log("node", node)
+
                 if (node?.previousX && node?.previousY) {
                     nodePreviousPosition = [node.previousX, node.previousY];
                 }

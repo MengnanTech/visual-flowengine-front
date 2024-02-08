@@ -3,6 +3,8 @@ import React, {useEffect, useRef} from 'react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import styles from './style/diff.module.scss';
 
+import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
+
 interface CodeDiffViewerProps {
     originalCode: string;
     modifiedCode: string;
@@ -13,7 +15,11 @@ interface CodeDiffViewerProps {
 const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCode, language, onLineClick}) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
+
     useEffect(() => {
+        if (language == "groovy") {
+            registerGroovyLanguageForMonaco(monaco);
+        }
         let diffEditor: monaco.editor.IStandaloneDiffEditor;
         if (editorRef.current) {
             diffEditor = monaco.editor.createDiffEditor(editorRef.current, {

@@ -84,7 +84,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     };
 
     useEffect(() => {
-        console.log('useEffect compareLines', compareLines);
+
         if (compareLines === null) {
 
         } else {

@@ -1,7 +1,7 @@
 .myScriptTextDecoration {
-    cursor: pointer; /* 使其看起来像链接 */
-    text-decoration: underline; /* 使其看起来像链接 */
-    color: blue; /* 使其看起来像链接 */
+    //cursor: pointer; /* 使其看起来像链接 */
+    //text-decoration: underline; /* 使其看起来像链接 */
+    //color: blue; /* 使其看起来像链接 */
 
 }
 
@@ -13,9 +13,9 @@
   background-color: red; // 默认颜色
   display: inline-block;
 }
-.myScriptTextMarginDecoration {
-  cursor: pointer; /* 应用于整个装饰类，而不仅是::before伪元素 */
-}
+//.myScriptTextMarginDecoration {
+//  cursor: pointer; /* 应用于整个装饰类，而不仅是::before伪元素 */
+//}
 
 .codeDiffViewer {
   width: auto;
