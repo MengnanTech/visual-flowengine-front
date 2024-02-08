@@ -9,7 +9,7 @@ interface CodeDiffViewerProps {
     onLineClick?: (lineContent: string) => void;
 }
 
-const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCode, language,onLineClick}) => {
+const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCode, language, onLineClick}) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -70,15 +70,16 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                     // 添加装饰器到修改后的编辑器
                     diffEditor.getModifiedEditor().createDecorationsCollection(modifiedDecorations);
                     // 如果需要，也可以为原始编辑器添加装饰器
-                    diffEditor.getOriginalEditor().createDecorationsCollection( decorations);
+                    diffEditor.getOriginalEditor().createDecorationsCollection(decorations);
 
                     diffEditor.getModifiedEditor().onMouseDown(e => {
 
-                        if (e.target.type ==3 || e.target.type == 4) {
+                        //MouseTargetType 3:GUTTER_GLYPH_MARGIN 4:GUTTER_LINE_NUMBERS 3 表示点击了行号 4 表示点击了折叠图标
+                        if (e.target.type == 3 || e.target.type == 4) {
                             const lineNumber = e.target.position!.lineNumber;
                             const lineContent = diffEditor.getModifiedEditor()!.getModel()!.getLineContent(lineNumber);
 
-                            if (onLineClick){
+                            if (onLineClick) {
                                 onLineClick(lineContent)
                             }
                         }
@@ -87,7 +88,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                     });
 
                     diffEditor.getOriginalEditor().onMouseDown(e => {
-                        if (e.target.type ==3 || e.target.type == 4) {
+                        if (e.target.type == 3 || e.target.type == 4) {
                             const lineNumber = e.target.position!.lineNumber;
                             const lineContent = diffEditor.getOriginalEditor()!.getModel()!.getLineContent(lineNumber);
                             onLineClick && onLineClick(lineContent);
@@ -110,7 +111,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
         };
     }, [originalCode, modifiedCode, language]);
 
-    return <div ref={editorRef} className={styles.codeDiffViewer} />;
+    return <div ref={editorRef} className={styles.codeDiffViewer}/>;
 };
 
 export default CodeDiffViewer;
