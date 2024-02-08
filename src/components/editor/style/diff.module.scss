@@ -16,3 +16,16 @@
 .myScriptTextMarginDecoration {
   cursor: pointer; /* 应用于整个装饰类，而不仅是::before伪元素 */
 }
+
+.codeDiffViewer {
+  width: auto;
+  height: 85vh; // 默认高度
+
+  @media (max-height: 700px) {
+    height: 70vh; // 在较小的屏幕上减少高度
+  }
+
+  @media (max-height: 500px) {
+    height: 60vh; // 在更小的屏幕上进一步减少高度
+  }
+}
