@@ -99,9 +99,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
 
                 scriptId: GenerateUUID(),
                 scriptName: nodeType === "End" ? "" : "New Node" + Math.floor(Math.random() * 90) + 100,
+                scriptText: '',
                 scriptType: nodeType,
                 scriptDesc: "",
-                scriptText: '',
+                children: null
+
             };
 
         if (!clickedNode.data.children) {
