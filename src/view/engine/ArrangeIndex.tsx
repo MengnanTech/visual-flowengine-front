@@ -25,25 +25,27 @@ import {
 } from '@ant-design/icons';
 
 import {TreeStore} from '@/store/TreeStore';
-import {NodeData} from '@/components/D3Node/NodeModel';
+
 import styles from './styles/ArrangeIndex.module.scss';
-import {items, workflowMetadata1,} from '@/components/d3Helpers/D3mock.tsx';
+import {generateMockMenuItemList, items,} from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
-import {createWorkflow, ListWorkflow} from "@/network/api.ts";
-import {WorkflowCreateRequest, WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
+import {
+    MenuItemsIdAndName,
+    WorkflowCreateRequest,
+    WorkflowMetadata
+} from "@/components/workflow/model/WorkflowModel.ts";
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
 
 
 const ArrangeIndex: React.FC = () => {
 
-    const [menuItems, setMenuItems] = useState<WorkflowMetadata[]>([]);
-    const [treeData, setTreeData] = useState<NodeData | null>(null);
-    const [selectedMenuItem, setSelectedMenuItem] = useState<MenuDataItem | null>(
-        null
-    );
+    const [menuItems, setMenuItems] = useState<MenuItemsIdAndName[]>([]);
+    const [treeData, setTreeData] = useState<WorkflowMetadata | null>(null);
+
     const [siderWidth, setSiderWidth] = useState(320);
     const [keyValue, setKeyValue] = useState<string>('');
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -54,8 +56,8 @@ const ArrangeIndex: React.FC = () => {
         const fetchMenuItems = async () => {
             try {
                 const workflowMetadata = await ListWorkflow();
-                if (workflowMetadata == null || workflowMetadata.length <= 1) {
-                    setMenuItems(workflowMetadata1)
+                if (workflowMetadata == null || workflowMetadata.length <= 0) {
+                    setMenuItems(generateMockMenuItemList());
                 } else {
                     setMenuItems(workflowMetadata);
                 }
@@ -70,6 +72,7 @@ const ArrangeIndex: React.FC = () => {
 
 
     const handleMenuClick = async (e: MenuDataItem) => {
+
         if (e.key === keyValue) {
             setKeyValue(e.key);
             return;
@@ -79,25 +82,25 @@ const ArrangeIndex: React.FC = () => {
             return;
         }
         setKeyValue(e.key);
-        setSelectedMenuItem(e);
-        const newVar = menuItems.find(item => item.workflowName == e.key)
-        setTreeData(newVar!.scriptMetadata);
+        const workflowMetadata = await getWorkflowMetadata(Number(e.key));
+        setTreeData(workflowMetadata);
     };
 
     const menuData = menuItems.map((item) => ({
-        key: item.workflowName,
+        key: item.workflowId,
         name: item.workflowName,
         icon: <EnvironmentOutlined/>,
-        path: `/${item.workflowName}`,
-    }));
+        path: `/${item.workflowId}`,
+    } as unknown as MenuDataItem));
 
-    const handleMenuSettingClick = (e: MenuDataItem) => {
-        message.success(e.name);
+    const handleMenuSettingClick = async (e: MenuDataItem) => {
+        await deleteWorkflow(Number(e.key));
+
     };
     const collapseItems: CollapseProps['items'] = [
         {
-            key: '1',
-            label: selectedMenuItem === null ? '' : selectedMenuItem.name,
+            key: treeData === null ? '' : treeData!.workflowId,
+            label: treeData === null ? '' : treeData!.workflowName,
             children: <Descriptions layout="vertical" items={items}/>,
         },
     ];
@@ -127,11 +130,12 @@ const ArrangeIndex: React.FC = () => {
 
     const treeStore = useMemo(() => {
         // 每次 treeData 变化时，创建一个新的 TreeStore 实例
-        const store = new TreeStore().setSiderWidth(siderWidth);
-        store.setTreeData(treeData);
-        return store;
+        return new TreeStore().setSiderWidth(siderWidth);
 
     }, [treeData]);
+    // 内部数据改变时，重新渲染
+
+
     return (
         <ProLayout
             siderWidth={siderWidth}
@@ -147,7 +151,7 @@ const ArrangeIndex: React.FC = () => {
                         className={styles.menuIcons}
                         onClick={(e) => {
                             e.stopPropagation(); // 阻止事件冒泡
-                            handleMenuSettingClick(item);
+                            handleMenuSettingClick(item).then(r => r);
                         }}
                     >
                         <SettingOutlined className={styles.icon}/>
@@ -325,21 +329,22 @@ const ArrangeIndex: React.FC = () => {
                     paddingBlockPageContainerContent: 0,
                 }}
                 content={
-                    selectedMenuItem && <Collapse bordered={false} items={collapseItems}/>
+
+                    treeData && <Collapse bordered={false} items={collapseItems}/>
                 }
             >
                 <Suspense fallback={<div>Loading...</div>}>
-                    {selectedMenuItem && treeData && (
+                    {treeData && (
                         <div className={styles.treeChartContainer}>
                             <TreeChart
-                                key={selectedMenuItem.key}
+                                key={treeData.workflowName}
                                 treeStore={treeStore}
                                 initialData={treeData}
                             />
                         </div>
                     )}
                 </Suspense>
-                {!selectedMenuItem && (
+                {!treeData && (
                     <div style={{marginLeft: '20px', marginTop: '65px'}}>
                         <span style={{color: 'red', marginRight: '5px'}}>←</span> {/* 红色箭头指向左边 */}
                         <span>请选择左侧列表中的一个节点查看详情。</span>

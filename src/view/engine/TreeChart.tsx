@@ -14,12 +14,14 @@ import styles from './styles/TreeChart.module.scss'
 import lockedIcon from '@/assets/logo/locked_icon.svg'
 import unlockedIcon from '@/assets/logo/unlocked_icon.svg'
 import refreshIcon from '@/assets/logo/refresh.svg'
-import DraggableBubble from "@/view/engine/DraggableBubble.tsx";
+import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
+import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+
 
 interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
-    initialData: NodeData;
+    initialData: WorkflowMetadata;
 }
 
 const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
@@ -90,7 +92,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     useEffect(() => {
 
         d3.select(svgRef.current).selectAll("*").remove();
-        rootNode.current = d3.hierarchy(initialData) as D3Node;
+        rootNode.current = d3.hierarchy(initialData.scriptMetadata) as D3Node;
         svgSelect.current = d3.select(svgRef.current);
         gRef.current = svgSelect.current.append("g");
         d3.select('body').on('click', () => {
@@ -134,7 +136,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             svgRef: svgRef.current!,
             treeLayout: treeLayout.current!,
             closestNodeRef: closestNodeRef.current!,
-            treeStore: treeStore
+            treeStore: treeStore,
+            initialData: initialData
         } as TreeChartState
         treeChartState.current = initState;
 
@@ -172,7 +175,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
             }) // 添加刷新逻辑
 
 
-          iconGroup.append('image')
+        iconGroup.append('image')
             .attr('href', isLocked ? lockedIcon : unlockedIcon)
             .attr('width', 30)
             .attr('height', 30)
@@ -209,7 +212,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         };
 
 
-    }, [initialData, treeStore]);
+    }, [treeStore]);
     useEffect(() => {
         const lockIconHref = isLocked ? lockedIcon : unlockedIcon;
         svgSelect.current!
@@ -256,9 +259,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
                 <ManageModalEditor treeStore={treeStore}/>
             </React.Suspense>
             {/*工具栏菜单*/}
-            {isTreeChartStateReady && <DraggableBubble treeStore={treeStore} treeChartState={treeChartState.current!}/>}
+            {isTreeChartStateReady && <WorkflowMenu treeChartState={treeChartState.current!}/>}
             {/*悬浮菜单*/}
-            {isTreeChartStateReady && <NodeMenu treeStore={treeStore} treeChartState={treeChartState.current!}/>}
+            {isTreeChartStateReady && <NodeMenu treeChartState={treeChartState.current!}/>}
             <Modal
                 title="源代码"
                 open={isModalVisible}

@@ -1,6 +1,10 @@
 import HTTP from "@/network/HTTP.ts";
-import {NodeData} from "@/components/D3Node/NodeModel.ts";
-import {Diagnostic, WorkflowCreateRequest, WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {
+    Diagnostic,
+    MenuItemsIdAndName,
+    WorkflowCreateRequest,
+    WorkflowMetadata
+} from "@/components/workflow/model/WorkflowModel.ts";
 
 
 
@@ -22,44 +26,24 @@ export async function createWorkflow(workflowCreateRequest: WorkflowCreateReques
     return await HTTP.post(window.createWorkflowApiPath, JSON.stringify(workflowCreateRequest));
 }
 
-export async function ListWorkflow(): Promise<WorkflowMetadata[]> {
+
+export async function ListWorkflow(): Promise<MenuItemsIdAndName[]> {
     return await HTTP.get(window.listWorkflowsApiPath);
 }
-// export async function ListWorkflow(): Promise<WorkflowMetadata[]> {
-//     return await HTTP.get(window.listWorkflowsApiPath);
-// }
 
-export async function deleteWorkflow(workflowName: string): Promise<any> {
-    try {
-        return await HTTP.delete(`${window.deleteWorkflowApiPath}?workflowName=${encodeURIComponent(workflowName)}`); // 如果你添加了 delete 方法
-    } catch (error) {
-        throw error;
-    }
+export async function deleteWorkflow(workflowId: number): Promise<any> {
+    return await HTTP.delete(`${window.deleteWorkflowApiPath}?workflowId=${workflowId}`);
 }
 
-export async function updateWorkflow(workflowMetadata: NodeData): Promise<WorkflowMetadata> {
-    try {
-        return await HTTP.put(window.updateWorkflowApiPath, JSON.stringify(workflowMetadata));
-    } catch (error) {
-        throw error;
-    }
+export async function updateWorkflow(workflowMetadata: WorkflowMetadata): Promise<WorkflowMetadata> {
+    return await HTTP.put(window.updateWorkflowApiPath, JSON.stringify(workflowMetadata));
 }
 
 export async function debugGroovyScript(code: string): Promise<any> {
-    try {
-        return  await HTTP.post(window.runGroovyScriptApiPath, JSON.stringify({code: code}));
-    } catch (error) {
-        throw error;
-    }
+    return await HTTP.post(window.runGroovyScriptApiPath, JSON.stringify({code: code}));
 }
 
-export async function getWorkflowMetadata(workflowName: string): Promise<WorkflowMetadata> {
-    try {
-        const urlWithParams = `${window.getWorkflowMetadataApiPath}?workflowName=${encodeURIComponent(workflowName)}`;
-
-        return  await HTTP.get(urlWithParams);
-    } catch (error) {
-        throw error;
-    }
+export async function getWorkflowMetadata(workflowId: number): Promise<WorkflowMetadata> {
+    return await HTTP.get(`${window.getWorkflowMetadataApiPath}?workflowId=${workflowId}`);
 }
 

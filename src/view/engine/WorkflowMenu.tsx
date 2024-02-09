@@ -3,10 +3,11 @@ import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
 import Icon2 from '@/assets/logo/321.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {TreeStore} from "@/store/TreeStore.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
+import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
+import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -17,7 +18,6 @@ interface BubbleRef {
 
 interface DraggableBubbleProps {
     treeChartState: TreeChartState;
-    treeStore: TreeStore;
 }
 
 interface LineContent {
@@ -26,7 +26,7 @@ interface LineContent {
 }
 
 
-const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeStore}) => {
+const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const [api, contextHolder] = notification.useNotification();
     const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
@@ -37,12 +37,14 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
     const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
     const [rotated, setRotated] = useState(false);
-    // const expandedContentRef = useRef<HTMLDivElement>(null);
 
+    const [workflowMetadata, setWorkflowMetadata] = useState<WorkflowMetadata|null>(null);
     const handleClick = () => {
         setRotated(!rotated); // 切换状态
     };
-    const showModal = () => {
+    const showModal = async () => {
+
+        setWorkflowMetadata(await getWorkflowMetadata(treeChartState.initialData.workflowId));
         setIsModalVisible(true);
     };
     const handleCancel = () => {
@@ -65,7 +67,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         }
 
         setIsDragging(true);
-        treeStore.setCurrentMenu(null);
+        treeChartState.treeStore.setCurrentMenu(null);
 
         e.preventDefault();
         bubbleRef.current = {
@@ -215,6 +217,21 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
         setIsExpanded(!isExpanded);
     };
 
+    const handleWorkflowUpdate = async () => {
+
+        let initialData = treeChartState.initialData;
+        let workflow = {
+            "workflowId": initialData.workflowId,
+            "workflowName": initialData.workflowName,
+            "workflowDescription": initialData.workflowDescription,
+            "workflowParameters": initialData.workflowParameters,
+            "remark": initialData.remark,
+            "scriptMetadata": treeChartState.rootNode!.data,
+        } as WorkflowMetadata;
+
+        await updateWorkflow(workflow);
+    }
+
     useEffect(() => {
 
         if (isDragging) {
@@ -246,7 +263,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 onMouseDown={handleDragStart}
             >
                 {/*{isExpanded ? <div ref={expandedContentRef} className={styles.expandedContent}>*/}
-                {isExpanded ? <div  className={styles.expandedContent}>
+                {isExpanded ? <div className={styles.expandedContent}>
 
                         <div className={styles.icon}>
                             调试
@@ -254,7 +271,7 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                         <div onClick={toggleExpand} className={styles.icon}>
                             <img src={Icon2} alt="icon" style={{width: '42px', height: '42px'}}/>
                         </div>
-                        <div className={styles.icon}>
+                        <div onClick={handleWorkflowUpdate} className={styles.icon}>
                             更新
                         </div>
                         <div onClick={showModal} className={`${styles.icon} ${styles.iconMove1}`}>
@@ -303,8 +320,8 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
                 <CodeDiffViewer
                     language='groovy'
                     onLineClick={handleLineClick}
-                    originalCode={JSON.stringify(treeStore.treeData, null, 2)}
-                    modifiedCode={JSON.stringify(treeChartState.rootNode!.data, null, 2)}/>
+                    originalCode={JSON.stringify(workflowMetadata == null ? '':workflowMetadata.scriptMetadata, null, 2)}
+                    modifiedCode={JSON.stringify(treeChartState.initialData.scriptMetadata, null, 2)}/>
             </Modal>
             <Modal
                 title="详细代码对比"
@@ -328,4 +345,4 @@ const DraggableBubble: React.FC<DraggableBubbleProps> = ({treeChartState, treeSt
     );
 };
 
-export default DraggableBubble;
+export default WorkflowMenu;

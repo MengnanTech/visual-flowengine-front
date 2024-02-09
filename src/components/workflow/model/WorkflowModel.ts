@@ -15,9 +15,15 @@ export interface Parameter {
     parameterName: string;
     parameterType: string;
 }
+export interface MenuItemsIdAndName {
+    workflowId: number;
+    workflowName: string;
+}
 
 export interface WorkflowMetadata {
+    workflowId: number;
     workflowName: string;
+    workflowParameters: Parameter[];
     workflowDescription: string;
     remark: string;
     scriptMetadata: NodeData;

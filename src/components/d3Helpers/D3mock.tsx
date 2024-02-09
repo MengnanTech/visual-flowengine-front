@@ -3,7 +3,7 @@ import {CollapseProps, Descriptions, DescriptionsProps} from "antd";
 import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
 
-export function createInitialData(): NodeData  {
+export function createInitialData(): NodeData {
     return {
         "scriptId": "1",
         "scriptName": "Root",
@@ -76,112 +76,115 @@ export function createInitialData(): NodeData  {
 
 }
 
-export const workflowMetadata1 = [{
-    "workflowName": "mockMenuItems", "scriptMetadata":
-    {
-        "scriptId": "1",
-        "scriptName": "Start",
-        "scriptText": "Start",
-        "scriptType": "Start",
-        "scriptDesc": "mockMenuItems",
-        "children": [
-            {
-                "scriptId": "100",
-                "scriptName": "100",
-                "scriptType": "Script",
-                "scriptDesc": "",
-                "scriptText": "100",
-                "children": [
-                    {
-                        "scriptId": "200",
-                        "scriptName": "200",
-                        "scriptType": "Script",
-                        "scriptDesc": "",
-                        "scriptText": "200",
-                        "children": [
-                            {
-                                "scriptId": "300",
-                                "scriptName": "300",
-                                "scriptType": "Condition",
-                                "scriptDesc": "",
-                                "scriptText": "300",
-                                "children": [
-                                    {
-                                        "scriptId": "400",
-                                        "scriptName": "",
-                                        "scriptType": "End",
-                                        "scriptDesc": "",
-                                        "scriptText": "400"
-                                    }
-                                ]
-                            },
-                            {
-                                "scriptId": "500",
-                                "scriptName": "500",
-                                "scriptType": "Condition",
-                                "scriptDesc": "",
-                                "scriptText": "500",
-                                "children": [
-                                    {
-                                        "scriptId": "600",
-                                        "scriptName": "",
-                                        "scriptType": "End",
-                                        "scriptDesc": "",
-                                        "scriptText": "600"
-                                    }
-                                ]
-                            },
-                            {
-                                "scriptId": "700",
-                                "scriptName": "700",
-                                "scriptType": "Condition",
-                                "scriptDesc": "",
-                                "scriptText": "700",
-                                "children": [
-                                    {
-                                        "scriptId": "800",
-                                        "scriptName": "",
-                                        "scriptType": "End",
-                                        "scriptDesc": "",
-                                        "scriptText": "800"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "scriptId": "900",
-                "scriptName": "900",
-                "scriptType": "Condition",
-                "scriptDesc": "",
-                "scriptText": "900",
-                "children": [
-                    {
-                        "scriptId": "111",
-                        "scriptName": "111",
-                        "scriptType": "Script",
-                        "scriptDesc": "",
-                        "scriptText": "111",
-                        "children": [
-                            {
-                                "scriptId": "222",
-                                "scriptName": "222",
-                                "scriptType": "Script",
-                                "scriptDesc": "",
-                                "scriptText": "222",
-                                "children": []
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+export const workflowMetadata1 = {
+    "workflowId": 1,
+    "workflowName": "mockMenuItems",
+    "scriptMetadata":
+        {
+            "scriptId": "1",
+            "scriptName": "Start",
+            "scriptText": "Start",
+            "scriptType": "Start",
+            "scriptDesc": "mockMenuItems",
+            "children": [
+                {
+                    "scriptId": "100",
+                    "scriptName": "100",
+                    "scriptType": "Script",
+                    "scriptDesc": "",
+                    "scriptText": "100",
+                    "children": [
+                        {
+                            "scriptId": "200",
+                            "scriptName": "200",
+                            "scriptType": "Script",
+                            "scriptDesc": "",
+                            "scriptText": "200",
+                            "children": [
+                                {
+                                    "scriptId": "300",
+                                    "scriptName": "300",
+                                    "scriptType": "Condition",
+                                    "scriptDesc": "",
+                                    "scriptText": "300",
+                                    "children": [
+                                        {
+                                            "scriptId": "400",
+                                            "scriptName": "",
+                                            "scriptType": "End",
+                                            "scriptDesc": "",
+                                            "scriptText": "400"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "scriptId": "500",
+                                    "scriptName": "500",
+                                    "scriptType": "Condition",
+                                    "scriptDesc": "",
+                                    "scriptText": "500",
+                                    "children": [
+                                        {
+                                            "scriptId": "600",
+                                            "scriptName": "",
+                                            "scriptType": "End",
+                                            "scriptDesc": "",
+                                            "scriptText": "600"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "scriptId": "700",
+                                    "scriptName": "700",
+                                    "scriptType": "Condition",
+                                    "scriptDesc": "",
+                                    "scriptText": "700",
+                                    "children": [
+                                        {
+                                            "scriptId": "800",
+                                            "scriptName": "",
+                                            "scriptType": "End",
+                                            "scriptDesc": "",
+                                            "scriptText": "800"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "scriptId": "900",
+                    "scriptName": "900",
+                    "scriptType": "Condition",
+                    "scriptDesc": "",
+                    "scriptText": "900",
+                    "children": [
+                        {
+                            "scriptId": "111",
+                            "scriptName": "111",
+                            "scriptType": "Script",
+                            "scriptDesc": "",
+                            "scriptText": "111",
+                            "children": [
+                                {
+                                    "scriptId": "222",
+                                    "scriptName": "222",
+                                    "scriptType": "Script",
+                                    "scriptDesc": "",
+                                    "scriptText": "222",
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
 
-} as WorkflowMetadata];
-export function createInitialData2(): NodeData  {
+} as WorkflowMetadata;
+
+export function createInitialData2(): NodeData {
     return {
         "scriptId": "initialData2",
         "scriptName": "initialData2",
@@ -277,14 +280,26 @@ export const collapseItems: CollapseProps['items'] = [
         key: '1',
         label: '简介标题',
         children: <Descriptions layout="vertical" items={items}/>
-}
+    }
 ];
 
 
+export function createMenuItemsMap(key: string) {
+    return `this is mock MenuItems${key}`
+}
+
+export function generateMockMenuItemList() {
+    const mockMenuItemList = [];
+    for (let i = 1; i <= 50; i++) {
+        mockMenuItemList.push({ workflowId: i, workflowName: `this is mock MenuItems${i}` });
+    }
+    return mockMenuItemList;
+}
 export interface MenuItem {
     key: string;
     label: string;
 }
+
 export const mockMenuItems: MenuItem[] = [
     {
         key: 'uuid1',

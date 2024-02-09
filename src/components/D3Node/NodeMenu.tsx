@@ -11,7 +11,6 @@ import {
 } from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
-import {TreeStore} from "@/store/TreeStore.ts";
 import * as d3 from "d3";
 import {Transition} from "d3";
 import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
@@ -28,14 +27,15 @@ interface NodeAction {
 }
 
 interface NodeMenuProps {
-    treeStore: TreeStore;
+    // treeStore: TreeStore;
     treeChartState: TreeChartState
 }
 
 
-const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState}) => {
+const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
+    let treeStore = treeChartState.treeStore;
     const menuPosition = treeStore.menuPosition;
-    let siderWidth = treeStore.siderWidth;
+    let siderWidth = treeChartState.treeStore.siderWidth;
     const rootNode = treeChartState.rootNode;
     const gRef = treeChartState.gRef;
 
@@ -108,6 +108,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
             clickedNode.data.children = [];
         }
         clickedNode.data.children.push(newNodeData);
+
 
         if (!clickedNode.children) {
             clickedNode.children = [];
@@ -345,9 +346,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeStore, treeChartState})
 
             scriptId: uuid,
             scriptName: `New ${stringType} Node:` + uuid.split('-').pop(),
+            scriptText: '',
             scriptType: stringType,
             scriptDesc: "",
-            scriptText: '',
+            children: null
+
         };
 
         // 2. 创建新节点B，并设置其为clickedNode(A)的子节点
