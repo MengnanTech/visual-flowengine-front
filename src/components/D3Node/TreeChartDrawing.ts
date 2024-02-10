@@ -14,6 +14,11 @@ export function DrawCircle(treeChartState: TreeChartState) {
     const nodeSelection = gRef.selectAll<SVGGElement, D3Node>(".node");
     const nodes = nodeSelection.data(rootNode.descendants(), d => d.data.scriptId);
 
+    /**
+     * 在D3.js中，.enter()方法是处理数据绑定的一部分，特别是当你想要基于数据集合创建新的DOM元素时。当你将一组数据绑定到DOM元素（比如SVG元素）上，并且数据项的数量超过了现有元素的数量，
+     * .enter()就会用于处理这些“多出来”的数据项。
+     * 简而言之，.enter()方法会为每个新的数据项返回一个占位符节点，这些节点可以被用来插入新的DOM元素到页面上。
+     */
     const nodesEnter: d3.Selection<SVGGElement, D3Node, any, any> = nodes.enter()
         .append("g")
         .attr("class", "node")
@@ -30,6 +35,7 @@ export function DrawCircle(treeChartState: TreeChartState) {
         .attr('id', d => `node-${d.data.scriptId}`);  // 同时设置ID，用于后续选择
 
     nodesEnter.each(function (d) {
+       //这里只会出现变化的node 。如果没有变化的刷新。这里不会执行
         const nodeGroup: d3.Selection<SVGGElement, D3Node, null, undefined> = d3.select(this);
 
         // 检查节点类型，绘制相应的形状
