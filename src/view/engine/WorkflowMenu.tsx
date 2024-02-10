@@ -305,7 +305,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             }
 
             <Modal
-                title="初始代码对比当前代码"
+                title="初始代码   VS   当前代码"
                 open={isModalVisible}
                 centered
                 onCancel={handleCancel}
