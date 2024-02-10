@@ -286,6 +286,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                  visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
                  onClick={handleRefreshIconClick}
                  height='38px' version="1.1"
+                 cursor={'pointer'}
                  transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 280}, 10)` : undefined}
                  xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 489.645 489.645">
