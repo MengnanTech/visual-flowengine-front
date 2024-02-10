@@ -6,7 +6,7 @@ import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
+import {circleEvent, DrawCircle, DrawLinks, endNodeEvent} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import {Dropdown, MenuProps, message, Modal} from "antd";
 import Editor from "@monaco-editor/react";
@@ -58,8 +58,10 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; } | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [jsonData, setJsonData] = useState('');
+    const [readonly, setReadonly] = useState(true);
     const lockedIconRef = useRef(null);
     const refreshIconRef = useRef(null);
+
     const showModal = (data: string) => {
         setJsonData(data);
         setIsModalVisible(true);
@@ -109,19 +111,60 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         const isUnlocked = currentTransform && currentTransform.includes('scale(-1,1)');
 
         if (isUnlocked) {
-            // 如果已经是解锁状态（已翻转），则恢复原状
+            setReadonly(true);
             lockedTongueElement
                 .transition()
                 .duration(500)
                 // 使用translate移动到原始位置
-                .attr('transform', `translate(0,0) scale(1, 1)`);
+                .attr('transform', `translate(0,0) scale(1, 1)`).on('end', () => {
+                //禁用缩放 平移
+                svgSelect.current!.call(d3.zoom().on('zoom', null));
+
+                let selection = gRef.current!.selectAll("circle");
+                const endNodes = gRef.current!.selectAll<SVGRectElement, D3Node>("rect");
+                endNodes.on("mouseover", null)
+                    .on("mouseout", null);
+                selection
+                    .on("mouseover", null)
+                    .on("mouseout", null);
+
+            });
         } else {
+            setReadonly(false);
             // 锁定状态，应用翻转
             lockedTongueElement
                 .transition()
                 .duration(500)
                 // 先向右移动元素宽度的距离，应用翻转，然后再移回来
-                .attr('transform', `translate(${width},0) scale(-1, 1) translate(-${width},0)`);
+                .attr('transform', `translate(${width},0) scale(-1, 1) translate(-${width},0)`)
+                .on('end', () => {
+                    const treeGroup = svgSelect.current!.select<SVGGElement>('g');
+
+                    const width = +svgSelect.current!.attr("width");
+                    const height = +svgSelect.current!.attr("height");
+                    const [x, y] = centerTree(rootNode.current!, width, height);
+                    const zoomBehavior = d3
+                        .zoom()
+                        .scaleExtent([0.4, 5])
+                        .on('zoom', (event) => {
+                            console.log('zoom1', event.transform);
+                            treeStore.setCurrentMenu(null);
+                            treeStore.setCurrentTransform(event.transform);
+                            treeGroup.attr('transform', event.transform);
+                        })
+
+                    console.log("zoom2", zoomBehavior.transform);
+                    svgSelect.current!.call(zoomBehavior);
+                    svgSelect.current!.call(zoomBehavior.transform, treeStore.currentTransform == null ? d3.zoomIdentity.translate(x, y).scale(1) : treeStore.currentTransform);
+
+
+                    const circles = gRef.current!.selectAll<SVGCircleElement, D3Node>("circle");
+                    const endNodes = gRef.current!.selectAll<SVGRectElement, D3Node>("rect");
+                    circleEvent(circles, svgRef.current!, treeStore);
+                    endNodeEvent(endNodes, svgRef.current!, treeStore);
+                })
+
+            ;
         }
     };
     const handleRefreshIconClick = () => {
@@ -145,13 +188,13 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
             })
 
             .on("end", function () {
-            getWorkflowMetadata(initialData.workflowId).then((res) => {
-                updateTreeData(res);
-            }).finally(() => {
-                message.success('刷新成功');
-            })
+                getWorkflowMetadata(initialData.workflowId).then((res) => {
+                    updateTreeData(res);
+                }).finally(() => {
+                    message.success('刷新成功');
+                })
 
-        });
+            });
 
 
     };
@@ -196,20 +239,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         const height = +svgSelect.current!.attr("height");
         const [x, y] = centerTree(root, width, height);
         gRef.current!.attr("transform", `translate(${x},${y})`);
-        const treeGroup = svgSelect.current!.select<SVGGElement>('g');
-
-
-        const zoomBehavior = d3
-            .zoom()
-            .scaleExtent([0.4, 5])
-            .on('zoom', (event) => {
-                treeStore.setCurrentMenu(null);
-                treeStore.setCurrentTransform(event.transform);
-                treeGroup.attr('transform', event.transform);
-            })
-
-        svgSelect.current!.call(zoomBehavior);
-        svgSelect.current!.call(zoomBehavior.transform, d3.zoomIdentity.translate(x, y).scale(1)); // 设置初始缩放和平移
+        // 设置初始缩放和平移
         //很容易双击，所以先取消双击事件
         svgSelect.current!.on("dblclick.zoom", null);
 
@@ -226,7 +256,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         treeChartState.current = initState;
 
         DrawLinks(initState);
-        DrawCircle(initState);
+        DrawCircle(initState, false);
         setIsTreeChartStateReady(true);
 
         window.addEventListener('click', closeContextMenu);
@@ -308,7 +338,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
 
             {/* 编辑器 */}
             <React.Suspense fallback={<div>Loading...</div>}>
-                <ManageModalEditor treeStore={treeStore}/>
+                <ManageModalEditor treeStore={treeStore} readonly={readonly}/>
             </React.Suspense>
             {/*工具栏菜单*/}
             {isTreeChartStateReady && <WorkflowMenu treeChartState={treeChartState.current!}/>}

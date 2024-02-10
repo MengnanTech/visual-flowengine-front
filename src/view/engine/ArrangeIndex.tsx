@@ -27,7 +27,7 @@ import {
 import {TreeStore} from '@/store/TreeStore';
 
 import styles from './styles/ArrangeIndex.module.scss';
-import {generateMockMenuItemList, items,} from '@/components/d3Helpers/D3mock.tsx';
+import {generateMockMenuItemList, items, workflowMetadata1,} from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
@@ -83,7 +83,11 @@ const ArrangeIndex: React.FC = () => {
         }
         setKeyValue(e.key);
         const workflowMetadata = await getWorkflowMetadata(Number(e.key));
-        setTreeData(workflowMetadata);
+        if (workflowMetadata === null) {
+            setTreeData(workflowMetadata1);
+        }else {
+            setTreeData(workflowMetadata);
+        }
     };
 
     const menuData = menuItems.map((item) => ({

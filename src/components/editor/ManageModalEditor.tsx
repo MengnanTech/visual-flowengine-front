@@ -18,10 +18,11 @@ import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
+    readonly : boolean;
 }
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
-const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore}) => {
+const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore,readonly}) => {
 
     const clickNode = treeStore.clickNode;
 
@@ -226,6 +227,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 scrollBeyondLastLine: false,
                                 automaticLayout: true,
                                 fontSize: 16,
+                                readOnly:readonly,
 
                             }}
                             defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
