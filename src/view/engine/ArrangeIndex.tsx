@@ -130,7 +130,7 @@ const ArrangeIndex: React.FC = () => {
 
     const treeStore = useMemo(() => {
         // 每次 treeData 变化时，创建一个新的 TreeStore 实例
-        return new TreeStore().setSiderWidth(siderWidth);
+        return new TreeStore().setSiderWidth(siderWidth).setTreeData(treeData);
 
     }, [treeData]);
     // 内部数据改变时，重新渲染
@@ -337,9 +337,10 @@ const ArrangeIndex: React.FC = () => {
                     {treeData && (
                         <div className={styles.treeChartContainer}>
                             <TreeChart
-                                key={treeData.workflowName}
+                                key={Math.random()}
                                 treeStore={treeStore}
                                 initialData={treeData}
+                                // updateTreeData={setTreeData}
                             />
                         </div>
                     )}

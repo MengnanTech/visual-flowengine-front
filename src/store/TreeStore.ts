@@ -1,8 +1,9 @@
 import {action, makeAutoObservable} from "mobx";
 import * as d3 from 'd3';
 import {D3Node} from "@/components/D3Node/NodeModel.ts";
+import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 export class TreeStore {
-    // treeData: WorkflowMetadata | null = null;
+    treeData: WorkflowMetadata | null = null;
     draggingNode: D3Node | null = null;
     menuNode: D3Node | null = null;
     clickNode: D3Node | null = null;
@@ -20,11 +21,11 @@ export class TreeStore {
         return this
     }
 
-    // @action
-    // setTreeData(treeData: WorkflowMetadata | null) {
-    //     this.treeData = treeData;
-    //     return this
-    // }
+    @action
+    setTreeData(treeData: WorkflowMetadata | null) {
+        this.treeData = treeData;
+        return this
+    }
 
     @action
     setCurrentMenu(menuPosition: { x: number; y: number } | null) {

@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
-import Icon2 from '@/assets/logo/321.svg';
+import Icon2 from '@/assets/logo/ScriptNode.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
@@ -217,19 +217,16 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         setIsExpanded(!isExpanded);
     };
 
-    const handleWorkflowUpdate = async () => {
+    const handleWorkflowUpdate =  () => {
 
-        let initialData = treeChartState.initialData;
-        let workflow = {
-            "workflowId": initialData.workflowId,
-            "workflowName": initialData.workflowName,
-            "workflowDescription": initialData.workflowDescription,
-            "workflowParameters": initialData.workflowParameters,
-            "remark": initialData.remark,
-            "scriptMetadata": treeChartState.rootNode!.data,
-        } as WorkflowMetadata;
 
-        await updateWorkflow(workflow);
+         updateWorkflow(treeChartState.initialData).then(r => {
+            if (r) {
+               message.success('更新成功').then(r => r);
+            } else {
+                message.error('更新失败').then(r => r);
+            }
+         });
     }
 
     useEffect(() => {

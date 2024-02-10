@@ -6,14 +6,11 @@ import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
 
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
-import {DrawCircle, DrawLinks, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
+import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import {Dropdown, MenuProps, Modal} from "antd";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
-import lockedIcon from '@/assets/logo/locked_icon.svg'
-import unlockedIcon from '@/assets/logo/unlocked_icon.svg'
-import refreshIcon from '@/assets/logo/refresh.svg'
 import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
 import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
@@ -22,10 +19,18 @@ interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
     initialData: WorkflowMetadata;
+    // updateTreeData: (newData: WorkflowMetadata) => void;
 }
 
 const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
 
+/**
+ * initialData 是引用传递，在后面的操作中，initialData 的值会发生变化 他不是一个不变的值。
+ * 如果放在mobx里面的值发生变化，那么就会导致组件重新渲染 会创建一个全新的initialData。会导致你在操作D3的时候 例如CRUD。操作一次 刷新内存地址一次
+ * 然而原本的期望是 让initialData 在生命周期一直保持不变 .或者是变动但是是同一个内存地址。而不是创建全新的内存地址 即使他们值是一样的 。
+ * 直接影响会导致后面的代码对比 不是初始状态和编辑后的代码对比。
+ * <p>特别注意 initialData 在后面的D3操作中会发生变化。内存地址不变。但是值会发生变化。 </p>
+ */
 const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
 
     console.log("TreeChart render", initialData)
@@ -52,6 +57,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; } | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [jsonData, setJsonData] = useState('');
+    const lockedIconRef = useRef(null);
     const showModal = (data: string) => {
         setJsonData(data);
         setIsModalVisible(true);
@@ -60,19 +66,64 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         setIsModalVisible(false);
     };
 
-    const [isLocked, setIsLocked] = useState(false);
-    //
-    // // 处理局部刷新的函数
-    // const handleRefresh = () => {
-    //     // 刷新逻辑
-    // };
-    //
-    // // 处理锁定开关变化的函数
-    //
-    // // 处理重置布局的函数
-    // const handleResetLayout = () => {
-    //     // 重置布局逻辑
-    // };
+    useEffect(() => {
+        const lockedTongueElement = d3.select(lockedIconRef.current);
+
+        lockedTongueElement.on("mouseover", function () {
+            d3.select(this)
+                .transition() // 添加平滑过渡效果
+                .duration(150) // 过渡时间
+                // .attr("transform", "scale(1.1)") // 轻微放大元素，1.1表示放大到原来的110%
+                .style("opacity", "0.8"); // 添加透明背景的感觉
+
+
+        }).on("mouseout", function () {
+            // d3.select(this)
+            //     .transition()
+            //     .duration(150)
+            //     .attr("transform", null); // 清除transform属性
+        }).on("mousedown", function () {
+            d3.select(this)
+                .attr("opacity", "0.5"); // 示例：按压时降低透明度
+        }).on("mouseup", function () {
+            d3.select(this)
+                .attr("opacity", "1"); // 示例：释放后恢复透明度
+        }).on("mouseleave", function () {
+            d3.select(this)
+                .attr("opacity", "1"); // 示例：恢复透明度
+        });
+
+    }, []); // 确保这些事件监听器在组件加载时添加
+
+    const handleLockedIconClick = () => {
+        const lockedTongueElement = d3.select("#lockTongue");
+
+
+        // 获取元素的宽度，这里假设元素宽度为固定值18，实际应用中可能需要动态计算
+        const width = 18; // 例如，lockTongue的宽度
+
+        // 检查当前是否已经应用了旋转变换
+        const currentTransform = lockedTongueElement.attr('transform');
+        const isUnlocked = currentTransform && currentTransform.includes('scale(-1,1)');
+
+        if (isUnlocked) {
+            // 如果已经是解锁状态（已翻转），则恢复原状
+            lockedTongueElement
+                .transition()
+                .duration(500)
+                // 使用translate移动到原始位置
+                .attr('transform', `translate(0,0) scale(1, 1)`);
+        } else {
+            // 锁定状态，应用翻转
+            lockedTongueElement
+                .transition()
+                .duration(500)
+                // 先向右移动元素宽度的距离，应用翻转，然后再移回来
+                .attr('transform', `translate(${width},0) scale(-1, 1) translate(-${width},0)`);
+        }
+    };
+
+
     const handleContextMenu = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         event.preventDefault();
 
@@ -145,67 +196,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         DrawCircle(initState);
         setIsTreeChartStateReady(true);
 
-
-        const iconWidth = 15; // 每个图标的宽度
-        const iconSpacing = 30; // 图标之间的间距
-        const iconGroup = svgSelect.current.append('g')
-            .attr('transform', `translate(${width - 200}, 10)`); // 位于右上角，留出一些边距
-
-        // 添加图标到图标组
-        iconGroup.append('image')
-            .attr('href', refreshIcon)
-            .attr('width', 30)
-            .attr('height', 30)
-            .attr('x', 0) // 第一个图标的x坐标
-            .attr('y', 0)
-            .on('click', function () {
-
-                const x = parseFloat(d3.select(this).attr('x')) + iconWidth / 2;
-                const y = parseFloat(d3.select(this).attr('y')) + iconWidth / 2;
-
-                d3.select(this).transition()
-                    .duration(1000) // 旋转持续时间
-                    .attrTween('transform', function () {
-                        return d3.interpolateString(
-                            `rotate(0, ${x + 5}, ${y + 9})`,
-                            `rotate(360, ${x + 5}, ${y + 9})`
-                        );
-                    });
-                refresh(initState)
-            }) // 添加刷新逻辑
-
-
-        iconGroup.append('image')
-            .attr('href', isLocked ? lockedIcon : unlockedIcon)
-            .attr('width', 30)
-            .attr('height', 30)
-            .attr('x', iconWidth + iconSpacing) // 第二个图标的x坐标
-            .attr('y', 0)
-            // .attr('class', styles.iconHover) // 应用悬浮效果样式
-            .on('click', () => {
-                setIsLocked(prevState => !prevState);
-            });
-
-        // lockIcon
-        //     .on('mousedown', function () {
-        //         d3.select(this).classed(styles.iconActive, true); // 添加按压样式
-        //     })
-        //     .on('mouseup', function () {
-        //         d3.select(this).classed(styles.iconActive, false); // 移除按压样式
-        //     })
-        //     .on('mouseleave', function () {
-        //         d3.select(this).classed(styles.iconActive, false); // 鼠标离开时移除样式
-        //     });
-        // iconGroup.append('image')
-        //     .attr('href', isLocked ? 'path/to/locked_icon.svg' : 'path/to/unlocked_icon.svg')
-        //     .attr('width', 30)
-        //     .attr('height', 30)
-        //     .attr('x', 2 * (iconWidth + iconSpacing)) // 第三个图标的x坐标
-        //     .attr('y', 0)
-        //     .on('click', handleLockChange);
-
-
-        iconGroup.attr('pointer-events', 'all'); // 确保图标可以交互
         window.addEventListener('click', closeContextMenu);
         return () => {
             window.removeEventListener('click', closeContextMenu);
@@ -213,12 +203,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
 
     }, [treeStore]);
-    useEffect(() => {
-        const lockIconHref = isLocked ? lockedIcon : unlockedIcon;
-        svgSelect.current!
-            .select(`image.${styles.iconHover}`) // 使用模块化样式类选择元素
-            .attr('href', lockIconHref);
-    }, [isLocked]); // 监听isLocked状态的变化，以及styles.lockIcon以防它是动态的
 
     // 计算svg窗口大小
     const [windowWidth] = useState(window.innerWidth);
@@ -248,6 +232,23 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
     return (
         <div>
+
+
+            <svg
+                transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 220}, 10)` : 'translate(0, 0)'}
+                ref={lockedIconRef}
+                onClick={handleLockedIconClick}
+                width='40px'
+                height='40px'
+                xmlns="http://www.w3.org/2000/svg"
+                cursor={'pointer'}
+                viewBox="0 0 35 20" id="myLock">
+                <rect x="1" y="8" width="22" height="16" fill="black"></rect>
+                <path d="M 6,8 L 6,1 C 6,-2 9,-4 12,-4 C 15,-4 18,-2 18,1 L 18,8" fill="none" stroke="black"
+                      strokeWidth="2" id="lockTongue"/>
+            </svg>
+
+
             <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
             <svg>
                 <MovingArrowPattern/>
