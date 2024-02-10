@@ -8,18 +8,19 @@ import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts
 import {TreeStore} from "@/store/TreeStore.ts";
 import {DrawCircle, DrawLinks} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
-import {Dropdown, MenuProps, Modal} from "antd";
+import {Dropdown, MenuProps, message, Modal} from "antd";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
 import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
 import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {getWorkflowMetadata} from "@/network/api.ts";
 
 
 interface TreeChartProps {
     // workflowName: string;
     treeStore: TreeStore;
     initialData: WorkflowMetadata;
-    // updateTreeData: (newData: WorkflowMetadata) => void;
+    updateTreeData: (newData: WorkflowMetadata) => void;
 }
 
 const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
@@ -31,7 +32,7 @@ const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageMod
  * 直接影响会导致后面的代码对比 不是初始状态和编辑后的代码对比。
  * <p>特别注意 initialData 在后面的D3操作中会发生变化。内存地址不变。但是值会发生变化。 </p>
  */
-const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) => {
+const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, updateTreeData}) => {
 
     console.log("TreeChart render", initialData)
     const svgRef = useRef<SVGSVGElement>(null);
@@ -124,28 +125,36 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
         }
     };
     const handleRefreshIconClick = () => {
+
+
         let selection = d3.select(refreshIconRef.current);
-
-
 
         selection
             .transition()
             .duration(500)
-            .attrTween("transform", function() {
+            .attrTween("transform", function () {
                 // 获取当前的transform属性值，以便保留除旋转外的其他变换
                 const currentTransform = d3.select(this).attr("transform") || '';
                 // 插值器从当前角度到360度
-                return function(t) {
-                    // 此处不显式设置旋转中心，假设元素已正确定位
+                return function (t) {
+
+
                     const rotateTransform = `rotate(${360 * t})`;
                     return `${currentTransform} ${rotateTransform}`;
                 };
-            });
+            })
+
+            .on("end", function () {
+            getWorkflowMetadata(initialData.workflowId).then((res) => {
+                updateTreeData(res);
+            }).finally(() => {
+                message.success('刷新成功');
+            })
+
+        });
+
+
     };
-
-
-
-
 
 
     const handleContextMenu = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
@@ -257,10 +266,10 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
     return (
         <div>
 
-
             <svg
-                transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : 'translate(0, 0)'}
+                transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : undefined}
                 ref={lockedIconRef}
+                visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
                 onClick={handleLockedIconClick}
                 width='40px'
                 height='40px'
@@ -274,9 +283,10 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData}) 
 
             <svg fill="#000000" width='30px'
                  ref={refreshIconRef}
+                 visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
                  onClick={handleRefreshIconClick}
                  height='38px' version="1.1"
-                 transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 280}, 10)` : 'translate(0, 0)'}
+                 transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 280}, 10)` : undefined}
                  xmlns="http://www.w3.org/2000/svg"
                  viewBox="0 0 489.645 489.645">
                 <g>
