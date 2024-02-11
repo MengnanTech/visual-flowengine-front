@@ -6,7 +6,7 @@ import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
-import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
+import {debugWorkflow, getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
@@ -38,7 +38,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
     const [rotated, setRotated] = useState(false);
 
-    const [workflowMetadata, setWorkflowMetadata] = useState<WorkflowMetadata|null>(null);
+    const [workflowMetadata, setWorkflowMetadata] = useState<WorkflowMetadata | null>(null);
     const handleClick = () => {
         setRotated(!rotated); // 切换状态
     };
@@ -50,6 +50,20 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     const handleCancel = () => {
         setIsModalVisible(false);
     };
+
+
+    const handleDebugWorkflow = () => {
+        debugWorkflow(treeChartState.initialData.workflowId,new Map).then(
+            r => {
+                if (r) {
+                    message.success('调试成功').then(r => r);
+                } else {
+                    message.error('调试失败').then(r => r);
+                }
+            }
+        )
+
+    }
     const handleDetailCancel = () => {
         setCompareLines(null);
         setIsCompareModalVisible(false);
@@ -217,16 +231,16 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         setIsExpanded(!isExpanded);
     };
 
-    const handleWorkflowUpdate =  () => {
+    const handleWorkflowUpdate = () => {
 
 
-         updateWorkflow(treeChartState.initialData).then(r => {
+        updateWorkflow(treeChartState.initialData).then(r => {
             if (r) {
-               message.success('更新成功').then(r => r);
+                message.success('更新成功').then(r => r);
             } else {
                 message.error('更新失败').then(r => r);
             }
-         });
+        });
     }
 
     useEffect(() => {
@@ -262,7 +276,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 {/*{isExpanded ? <div ref={expandedContentRef} className={styles.expandedContent}>*/}
                 {isExpanded ? <div className={styles.expandedContent}>
 
-                        <div className={styles.icon}>
+                        <div onClick={handleDebugWorkflow} className={styles.icon}>
                             调试
                         </div>
                         <div onClick={toggleExpand} className={styles.icon}>
@@ -317,7 +331,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 <CodeDiffViewer
                     language='groovy'
                     onLineClick={handleLineClick}
-                    originalCode={JSON.stringify(workflowMetadata == null ? '':workflowMetadata.scriptMetadata, null, 2)}
+                    originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
                     modifiedCode={JSON.stringify(treeChartState.initialData.scriptMetadata, null, 2)}/>
             </Modal>
             <Modal

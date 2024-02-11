@@ -47,3 +47,7 @@ export async function getWorkflowMetadata(workflowId: number): Promise<WorkflowM
     return await HTTP.get(`${window.getWorkflowMetadataApiPath}?workflowId=${workflowId}`);
 }
 
+export async function debugWorkflow(workflowId: number,map:Map<any, any>): Promise<any> {
+    return await HTTP.post(`${window.executeWorkflowApiPath}?workflowId=${workflowId}`,JSON.stringify(map));
+}
+

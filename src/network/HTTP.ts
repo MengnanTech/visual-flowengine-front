@@ -8,12 +8,21 @@ class HTTP {
                 console.error("HTTP error:", response.status, response.statusText);
                 return null;
             }
-            return await response.json();
+
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                // 返回 JSON 数据
+                return await response.json();
+            } else {
+                // 返回字符串数据
+                return await response.text();
+            }
         } catch (error) {
             console.error("Network error:", error);
             return null;
         }
     }
+
 
     static get(url:string) {
         return this.request(`${API_BASE_URL}${url}`, {
