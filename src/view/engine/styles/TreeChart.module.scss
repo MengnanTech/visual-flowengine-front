@@ -32,5 +32,48 @@
     }
   }
 }
+.iconWrapper {
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.5); // 半透明背景
+  backdrop-filter: blur(5px); // 毛玻璃效果
+  padding: 8px 10px;
+  overflow: visible;
+  &:hover {
+    background-color: #ece9e9;
+    box-shadow: 0 0 10px rgb(149, 195, 232);
+  }
+
+  &:active {
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+
+//.icon-container {
+//  background-color: #1890ff;
+//  position: absolute;
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//  border-radius: 8px; // 圆角效果
+//  backdrop-filter: blur(5px); // 毛玻璃效果
+//  background-color: rgba(255, 255, 255, 0.5); // 轻微透明的背景色
+//  padding: 5px; // 根据需要调整
+//  box-sizing: border-box;
+//  border: 2px solid red;
+//  svg {
+//    cursor: pointer;
+//  }
+//
+//  &:hover {
+//    background-color: rgba(255, 255, 255, 0.7); // hover时背景更亮
+//  }
+//
+//  &:active {
+//    background-color: rgba(255, 255, 255, 0.8); // 按压时背景最亮
+//    transform: scale(0.95); // 轻微缩小效果
+//  }
+//}
 
 

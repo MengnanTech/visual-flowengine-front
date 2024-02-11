@@ -25,6 +25,7 @@ interface TreeChartProps {
 
 const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
 
+const pageContainerLockBackgroundColor = '#e6e6ea';
 /**
  * initialData 是引用传递，在后面的操作中，initialData 的值会发生变化 他不是一个不变的值。
  * 如果放在mobx里面的值发生变化，那么就会导致组件重新渲染 会创建一个全新的initialData。会导致你在操作D3的时候 例如CRUD。操作一次 刷新内存地址一次
@@ -70,35 +71,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         setIsModalVisible(false);
     };
 
-    useEffect(() => {
-        const lockedTongueElement = d3.select(lockedIconRef.current);
-
-        lockedTongueElement.on("mouseover", function () {
-            d3.select(this)
-                .transition() // 添加平滑过渡效果
-                .duration(150) // 过渡时间
-                // .attr("transform", "scale(1.1)") // 轻微放大元素，1.1表示放大到原来的110%
-                .style("opacity", "0.8"); // 添加透明背景的感觉
-
-
-        }).on("mouseout", function () {
-            // d3.select(this)
-            //     .transition()
-            //     .duration(150)
-            //     .attr("transform", null); // 清除transform属性
-        }).on("mousedown", function () {
-            d3.select(this)
-                .attr("opacity", "0.5"); // 示例：按压时降低透明度
-        }).on("mouseup", function () {
-            d3.select(this)
-                .attr("opacity", "1"); // 示例：释放后恢复透明度
-        }).on("mouseleave", function () {
-            d3.select(this)
-                .attr("opacity", "1"); // 示例：恢复透明度
-        });
-
-    }, []); // 确保这些事件监听器在组件加载时添加
-
     const handleLockedIconClick = () => {
         const lockedTongueElement = d3.select("#lockTongue");
 
@@ -112,6 +84,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
 
         if (isUnlocked) {
             setReadonly(true);
+            svgRef.current!.style.backgroundColor = pageContainerLockBackgroundColor;
             lockedTongueElement
                 .transition()
                 .duration(500)
@@ -131,6 +104,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
             });
         } else {
             setReadonly(false);
+            svgRef.current!.style.backgroundColor = '#c6c6e1';
             // 锁定状态，应用翻转
             lockedTongueElement
                 .transition()
@@ -147,13 +121,11 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                         .zoom()
                         .scaleExtent([0.4, 5])
                         .on('zoom', (event) => {
-                            console.log('zoom1', event.transform);
                             treeStore.setCurrentMenu(null);
                             treeStore.setCurrentTransform(event.transform);
                             treeGroup.attr('transform', event.transform);
                         })
 
-                    console.log("zoom2", zoomBehavior.transform);
                     svgSelect.current!.call(zoomBehavior);
                     svgSelect.current!.call(zoomBehavior.transform, treeStore.currentTransform == null ? d3.zoomIdentity.translate(x, y).scale(1) : treeStore.currentTransform);
 
@@ -295,45 +267,51 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
 
     return (
         <div>
+            <div style={{position: 'relative'}}>
+                <svg
+                    style={{position: 'absolute', left: '10px',borderRadius: '50%' }}
+                    className={styles.iconWrapper}
+                    transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : undefined}
+                    ref={lockedIconRef}
+                    visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
+                    onClick={handleLockedIconClick}
+                    width='40px'
+                    height='40px'
+                    xmlns="http://www.w3.org/2000/svg"
+                    cursor={'pointer'}
+                    viewBox="0 -2 25 25" id="myLock">
+                    <rect x="1" y="8" width="22" height="16" fill="black"></rect>
+                    <path d="M 6,8 L 6,1 C 6,-2 9,-4 12,-4 C 15,-4 18,-2 18,1 L 18,8" fill="none" stroke="black"
+                          strokeWidth="2" id="lockTongue"/>
+                </svg>
 
-            <svg
-                transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : undefined}
-                ref={lockedIconRef}
-                visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
-                onClick={handleLockedIconClick}
-                width='40px'
-                height='40px'
-                xmlns="http://www.w3.org/2000/svg"
-                cursor={'pointer'}
-                viewBox="0 0 35 20" id="myLock">
-                <rect x="1" y="8" width="22" height="16" fill="black"></rect>
-                <path d="M 6,8 L 6,1 C 6,-2 9,-4 12,-4 C 15,-4 18,-2 18,1 L 18,8" fill="none" stroke="black"
-                      strokeWidth="2" id="lockTongue"/>
-            </svg>
-
-            <svg fill="#000000" width='30px'
-                 ref={refreshIconRef}
-                 visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
-                 onClick={handleRefreshIconClick}
-                 height='38px' version="1.1"
-                 cursor={'pointer'}
-                 transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 280}, 10)` : undefined}
-                 xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 489.645 489.645">
-                <g>
-                    <path d="M460.656,132.911c-58.7-122.1-212.2-166.5-331.8-104.1c-9.4,5.2-13.5,16.6-8.3,27c5.2,9.4,16.6,13.5,27,8.3
+                <svg fill="#000000"
+                     style={{position: 'absolute', left: '50px',borderRadius: '50%'}}
+                     className={styles.iconWrapper}
+                     ref={refreshIconRef}
+                     visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
+                     onClick={handleRefreshIconClick}
+                     width='40px'
+                     height='40px'
+                     cursor={'pointer'}
+                     transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 280}, 10)` : undefined}
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 489.645 489.645">
+                    <g>
+                        <path d="M460.656,132.911c-58.7-122.1-212.2-166.5-331.8-104.1c-9.4,5.2-13.5,16.6-8.3,27c5.2,9.4,16.6,13.5,27,8.3
                         c99.9-52,227.4-14.9,276.7,86.3c65.4,134.3-19,236.7-87.4,274.6c-93.1,51.7-211.2,17.4-267.6-70.7l69.3,14.5
                         c10.4,2.1,21.8-4.2,23.9-15.6c2.1-10.4-4.2-21.8-15.6-23.9l-122.8-25c-20.6-2-25,16.6-23.9,22.9l15.6,123.8
                         c1,10.4,9.4,17.7,19.8,17.7c12.8,0,20.8-12.5,19.8-23.9l-6-50.5c57.4,70.8,170.3,131.2,307.4,68.2
                         C414.856,432.511,548.256,314.811,460.656,132.911z"/>
-                </g>
-            </svg>
+                    </g>
+                </svg>
 
+                <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
+                <svg>
+                    <MovingArrowPattern/>
+                </svg>
+            </div>
 
-            <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
-            <svg>
-                <MovingArrowPattern/>
-            </svg>
 
 
             {/* 编辑器 */}
