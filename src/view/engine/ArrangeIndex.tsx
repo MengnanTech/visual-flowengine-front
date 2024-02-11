@@ -133,7 +133,6 @@ const ArrangeIndex: React.FC = () => {
     };
 
     const treeStore = useMemo(() => {
-        console.log('treeStore');
         return new TreeStore().setSiderWidth(siderWidth).setTreeData(treeData);
 
 
@@ -340,14 +339,12 @@ const ArrangeIndex: React.FC = () => {
             >
                 <Suspense fallback={<div>Loading...</div>}>
                     {treeData && (
-                        <div className={styles.treeChartContainer}>
-                            <TreeChart
-                                key={Math.random()}
-                                treeStore={treeStore}
-                                initialData={treeData}
-                                updateTreeData={setTreeData}
-                            />
-                        </div>
+                        <TreeChart
+                            key={Math.random()}
+                            treeStore={treeStore}
+                            initialData={treeData}
+                            updateTreeData={setTreeData}
+                        />
                     )}
                 </Suspense>
                 {!treeData && (
