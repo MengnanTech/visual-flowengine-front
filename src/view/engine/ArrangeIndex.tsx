@@ -5,9 +5,9 @@ import {
     Col,
     Collapse,
     CollapseProps,
-    Descriptions,
+    Descriptions, Dropdown,
     Form,
-    Input,
+    Input, MenuProps,
     message,
     Modal,
     Popover,
@@ -27,19 +27,23 @@ import {
 import {TreeStore} from '@/store/TreeStore';
 
 import styles from './styles/ArrangeIndex.module.scss';
-import {generateMockMenuItemList, items, workflowMetadata1,} from '@/components/d3Helpers/D3mock.tsx';
+import {generateMockMenuItemList, items as itemsDes, workflowMetadata1,} from '@/components/d3Helpers/D3mock.tsx';
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
-import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
+import {createWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
 import {
     MenuItemsIdAndName,
     WorkflowCreateRequest,
     WorkflowMetadata
 } from "@/components/model/WorkflowModel.ts";
+import {MenuInfo} from "rc-menu/lib/interface";
+
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
-
+interface DropdownVisibleState {
+    [key: number]: {visible: boolean; data: any};
+}
 
 const ArrangeIndex: React.FC = () => {
 
@@ -85,7 +89,7 @@ const ArrangeIndex: React.FC = () => {
         const workflowMetadata = await getWorkflowMetadata(Number(e.key));
         if (workflowMetadata === null) {
             setTreeData(workflowMetadata1);
-        }else {
+        } else {
             setTreeData(workflowMetadata);
         }
     };
@@ -97,15 +101,11 @@ const ArrangeIndex: React.FC = () => {
         path: `/${item.workflowId}`,
     } as unknown as MenuDataItem));
 
-    const handleMenuSettingClick = async (e: MenuDataItem) => {
-        await deleteWorkflow(Number(e.key));
-
-    };
     const collapseItems: CollapseProps['items'] = [
         {
             key: treeData === null ? '' : treeData!.workflowId,
             label: treeData === null ? '' : treeData!.workflowName,
-            children: <Descriptions layout="vertical" items={items}/>,
+            children: <Descriptions layout="vertical" items={itemsDes}/>,
         },
     ];
 
@@ -138,6 +138,53 @@ const ArrangeIndex: React.FC = () => {
 
     }, [treeData]);
     // 内部数据改变时，重新渲染
+    const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
+    const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
+
+    const handleVisibleChange = (item: MenuDataItem, flag: boolean) => {
+
+        console.log('item', item);
+        setIsMenuDropdownVisible(item); // 更新全局状态
+
+        setSingleDropdownVisible(prev => ({
+            ...prev,
+            [Number(item.key)]: {
+                visible: flag,
+                data: item,
+            },
+        }));
+
+        console.log('singleDropdownVisible',  singleDropdownVisible[Number(item.key)]);
+    };
+
+
+    const items: MenuProps['items'] = [
+        {
+            key: '1',
+            label: (
+                <div>
+                  编辑
+                </div>
+            ),
+            onClick: () => {
+                isMenuDropdownVisible && message.info(isMenuDropdownVisible.key).then(r => r);
+
+                setIsMenuDropdownVisible(undefined);
+            }
+        },
+        {
+            key: '2',
+            label: (
+                <div>
+                    删除
+                </div>
+            ),
+            onClick: (e:MenuInfo) => {
+                message.info(e.key).then(r => r);
+                setIsMenuDropdownVisible(undefined);
+            }
+        }
+    ];
 
 
     return (
@@ -145,23 +192,31 @@ const ArrangeIndex: React.FC = () => {
             siderWidth={siderWidth}
             logo={logo}
             title="可视化流程引擎"
+            token={{
+
+              // sider:{
+              //     colorTextMenuSelected: '#da1678',
+              // }
+            }}
+
             menuItemRender={(item, dom) => (
                 <div
                     className={styles.menuItemContainer}
                     onClick={() => handleMenuClick(item)}
                 >
                     {dom}
-                    <div
-                        className={styles.menuIcons}
-                        onClick={(e) => {
-                            e.stopPropagation(); // 阻止事件冒泡
-                            handleMenuSettingClick(item).then(r => r);
-                        }}
+                    <Dropdown
+                        onOpenChange={flag => handleVisibleChange(item, flag)}
+                        menu={{ items }}
+                        trigger={['click']}
                     >
-                        <SettingOutlined className={styles.icon}/>
-                    </div>
+                        <div className={`${styles.menuIcons} ${singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}>
+                            <SettingOutlined />
+                        </div>
+                    </Dropdown>
                 </div>
             )}
+
             actionsRender={() => [
 
                 <div className={styles.maskDiv}>
@@ -206,9 +261,6 @@ const ArrangeIndex: React.FC = () => {
             menuDataRender={() => menuData}
             onMenuHeaderClick={() => {
                 message.info('菜单头部被点击').then((r) => r);
-            }}
-            onPageChange={() => {
-                // message.info('页面切换').then((r) => r);
             }}
         >
             <Modal

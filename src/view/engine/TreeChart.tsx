@@ -227,6 +227,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         } as TreeChartState
         treeChartState.current = initState;
 
+        rootNode.current.descendants().forEach(d => {
+
+            d.previousX = d.x
+            d.previousY = d.y
+        });
+
         DrawLinks(initState);
         DrawCircle(initState, false);
         setIsTreeChartStateReady(true);

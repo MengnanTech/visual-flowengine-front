@@ -100,26 +100,22 @@
 }
 
 .menuIcons {
-  padding: 5px;
+  padding: 10px;
   opacity: 0; // 默认透明
   transition: opacity 0.3s ease;
   position: absolute;
   right: 0; // 图标靠右显示
   top: 50%;
   transform: translateY(-50%);
-  visibility: hidden; // 默认不显示
+  //visibility: hidden; // 默认不显示
 }
 
 .menuItemContainer:hover .menuIcons {
   background-color: #eaeae9;
   opacity: 1;
 }
-
-.icon {
-  color: #000; // 默认颜色
-  transition: color 0.3s; // 颜色变化过渡效果
-
-  &:hover {
-    color: rgba(0, 0, 0, 0.5); // 悬浮时颜色变淡
-  }
+.iconVisible {
+  opacity: 1 !important; // 确保图标保持可见
+  visibility: visible !important; // 确保图标不会因为默认的隐藏而消失
 }
+
