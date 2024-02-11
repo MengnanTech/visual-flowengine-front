@@ -9,6 +9,8 @@ import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 import {debugWorkflow, getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
 
+import DebugForm from "@/view/engine/DebugForm.tsx";
+
 type NotificationPlacement = NotificationArgsProps['placement'];
 
 interface BubbleRef {
@@ -29,11 +31,14 @@ interface LineContent {
 const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const [api, contextHolder] = notification.useNotification();
+    const [messageApi, messageContextHolder] = message.useMessage();
+
     const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
     const [isDragging, setIsDragging] = useState(false);
     const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isDebugVisible, setIsDebugVisible] = useState(false);
     const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
     const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
     const [rotated, setRotated] = useState(false);
@@ -53,7 +58,10 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
 
     const handleDebugWorkflow = () => {
-        debugWorkflow(treeChartState.initialData.workflowId,new Map).then(
+        setIsDebugVisible(true);
+
+
+        debugWorkflow(treeChartState.initialData.workflowId, new Map).then(
             r => {
                 if (r) {
                     message.success('调试成功').then(r => r);
@@ -233,14 +241,33 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const handleWorkflowUpdate = () => {
 
-
-        updateWorkflow(treeChartState.initialData).then(r => {
-            if (r) {
-                message.success('更新成功').then(r => r);
-            } else {
-                message.error('更新失败').then(r => r);
-            }
+        messageApi.open({
+            key: 'loading',
+            type: 'loading',
+            content: 'Loading...',
         });
+
+        setTimeout(() => {
+            updateWorkflow(treeChartState.initialData).then(r => {
+                if (r) {
+                    messageApi.open({
+                        key: 'loading',
+                        type: 'success',
+                        content: '更新成功!',
+                        duration: 2,
+                    });
+                } else {
+                    messageApi.open({
+                        key: 'loading',
+                        type: 'error',
+                        content: '更新失败!',
+                        duration: 2,
+                    });
+                }
+            });
+        }, 500);
+
+
     }
 
     useEffect(() => {
@@ -260,6 +287,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     }, [isDragging]);
     return (
         <> {contextHolder}
+            {messageContextHolder}
             <div
                 style={{
                     left: `${bubblePosition.x}px`,
@@ -348,6 +376,22 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                     language='groovy'
                     originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}
                     modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}/>
+            </Modal>
+
+            <Modal
+                title="Debug Workflow"
+                open={isDebugVisible}
+                centered
+                onCancel={() => {
+                    setIsDebugVisible(false)
+                }}
+                maskClosable={false}
+                footer={null}
+                width={1000}
+                style={{height: '80vh'}}
+            >
+                <DebugForm/>
+
             </Modal>
 
 
