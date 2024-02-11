@@ -269,7 +269,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         <div>
             <div style={{position: 'relative'}}>
                 <svg
-                    style={{position: 'absolute', left: '10px',borderRadius: '50%' }}
+                    style={{position: 'absolute', left: '10px',borderRadius: '50%',padding: '8px 10px'}}
                     className={styles.iconWrapper}
                     transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : undefined}
                     ref={lockedIconRef}
@@ -286,7 +286,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                 </svg>
 
                 <svg fill="#000000"
-                     style={{position: 'absolute', left: '50px',borderRadius: '50%'}}
+                     style={{position: 'absolute', left: '50px',borderRadius: '50%' ,padding: '8px 2px'}}
                      className={styles.iconWrapper}
                      ref={refreshIconRef}
                      visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
