@@ -37,12 +37,11 @@ import {
     WorkflowCreateRequest,
     WorkflowMetadata
 } from "@/components/model/WorkflowModel.ts";
-import {MenuInfo} from "rc-menu/lib/interface";
-
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
+
 interface DropdownVisibleState {
-    [key: number]: {visible: boolean; data: any};
+    [key: number]: { visible: boolean; data: any };
 }
 
 const ArrangeIndex: React.FC = () => {
@@ -55,22 +54,26 @@ const ArrangeIndex: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [workflowForm] = Form.useForm();
     const [popoverVisible, setPopoverVisible] = useState(false);
-    useEffect(() => {
-        // Fetch menu items when the component mounts
-        const fetchMenuItems = async () => {
-            try {
-                const workflowMetadata = await ListWorkflow();
-                if (workflowMetadata == null || workflowMetadata.length <= 0) {
-                    setMenuItems(generateMockMenuItemList());
-                } else {
-                    setMenuItems(workflowMetadata);
-                }
+    // 内部数据改变时，重新渲染
+    const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
+    const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
+    const [editingKey, setEditingKey] = useState<number|null>(null);
 
-            } catch (err: any) {
-                message.error(err.message);
+    const fetchMenuItems = async () => {
+        try {
+            const workflowMetadata = await ListWorkflow();
+            if (workflowMetadata == null || workflowMetadata.length <= 0) {
+                setMenuItems(generateMockMenuItemList());
+            } else {
+                setMenuItems(workflowMetadata);
             }
-        };
 
+        } catch (err: any) {
+            message.error(err.message);
+        }
+    };
+
+    useEffect(() => {
         fetchMenuItems().then((r) => r);
     }, []);
 
@@ -137,15 +140,10 @@ const ArrangeIndex: React.FC = () => {
 
 
     }, [treeData]);
-    // 内部数据改变时，重新渲染
-    const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
-    const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
 
+// 更新 handleVisibleChange 函数以处理编辑状态
     const handleVisibleChange = (item: MenuDataItem, flag: boolean) => {
-
-        console.log('item', item);
         setIsMenuDropdownVisible(item); // 更新全局状态
-
         setSingleDropdownVisible(prev => ({
             ...prev,
             [Number(item.key)]: {
@@ -153,8 +151,12 @@ const ArrangeIndex: React.FC = () => {
                 data: item,
             },
         }));
-
-        console.log('singleDropdownVisible',  singleDropdownVisible[Number(item.key)]);
+    };
+    const handlePressEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        const value = e.currentTarget.value
+        message.success(`You have entered: ${value}`).then(r => r);
+        setEditingKey(null);
+        fetchMenuItems().then((r) => r);
     };
 
 
@@ -163,12 +165,15 @@ const ArrangeIndex: React.FC = () => {
             key: '1',
             label: (
                 <div>
-                  编辑
+                    编辑
                 </div>
             ),
             onClick: () => {
-                isMenuDropdownVisible && message.info(isMenuDropdownVisible.key).then(r => r);
 
+                // 设置当前正在编辑的菜单项
+                if (isMenuDropdownVisible) {
+                    setEditingKey(Number(isMenuDropdownVisible.key));
+                }
                 setIsMenuDropdownVisible(undefined);
             }
         },
@@ -179,13 +184,16 @@ const ArrangeIndex: React.FC = () => {
                     删除
                 </div>
             ),
-            onClick: (e:MenuInfo) => {
-                message.info(e.key).then(r => r);
+            onClick: () => {
+                message.info(isMenuDropdownVisible?.key).then(r => r);
                 setIsMenuDropdownVisible(undefined);
             }
         }
     ];
-
+    const handleSettingClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.stopPropagation(); // 阻止事件冒泡
+        // 这里是点击 SettingOutlined 图标后要执行的逻辑
+    };
 
     return (
         <ProLayout
@@ -194,9 +202,9 @@ const ArrangeIndex: React.FC = () => {
             title="可视化流程引擎"
             token={{
 
-              // sider:{
-              //     colorTextMenuSelected: '#da1678',
-              // }
+                // sider:{
+                //     colorTextMenuSelected: '#da1678',
+                // }
             }}
 
             menuItemRender={(item, dom) => (
@@ -204,16 +212,35 @@ const ArrangeIndex: React.FC = () => {
                     className={styles.menuItemContainer}
                     onClick={() => handleMenuClick(item)}
                 >
-                    {dom}
-                    <Dropdown
-                        onOpenChange={flag => handleVisibleChange(item, flag)}
-                        menu={{ items }}
-                        trigger={['click']}
-                    >
-                        <div className={`${styles.menuIcons} ${singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}>
-                            <SettingOutlined />
+
+                    {editingKey === Number(item.key) ? (
+
+                        // 如果当前菜单项正在被编辑，渲染一个输入框
+                        <Input defaultValue={item.name} onPressEnter={handlePressEnter}    onClick={(e) => handleSettingClick(e)}/>
+                    ) : (
+                        <div>
+
+                            {dom}
+                            <div   onClick={(e) => handleSettingClick(e)}>
+                                <Dropdown
+                                    onOpenChange={flag => handleVisibleChange(item, flag)}
+                                    menu={{items}}
+                                    trigger={['click']}
+                                >
+                                    <div
+                                        className={`${styles.menuIcons} ${singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
+                                        onClick={(e) => handleSettingClick(e)}
+                                    >
+
+                                        <SettingOutlined/>
+                                    </div>
+
+                                </Dropdown>
+                            </div>
+
                         </div>
-                    </Dropdown>
+
+                    )}
                 </div>
             )}
 
