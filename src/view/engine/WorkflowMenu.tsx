@@ -6,8 +6,8 @@ import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
-import {debugWorkflow, getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
-import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
+import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 
 import DebugForm from "@/view/engine/DebugForm.tsx";
 
@@ -49,7 +49,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     };
     const showModal = async () => {
 
-        setWorkflowMetadata(await getWorkflowMetadata(treeChartState.initialData.workflowId));
+        setWorkflowMetadata(await getWorkflowMetadata(treeChartState.currentData.workflowId));
         setIsModalVisible(true);
     };
     const handleCancel = () => {
@@ -59,18 +59,6 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const handleDebugWorkflow = () => {
         setIsDebugVisible(true);
-
-
-        debugWorkflow(treeChartState.initialData.workflowId, new Map).then(
-            r => {
-                if (r) {
-                    message.success('调试成功').then(r => r);
-                } else {
-                    message.error('调试失败').then(r => r);
-                }
-            }
-        )
-
     }
     const handleDetailCancel = () => {
         setCompareLines(null);
@@ -248,7 +236,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         });
 
         setTimeout(() => {
-            updateWorkflow(treeChartState.initialData).then(r => {
+            updateWorkflow(treeChartState.currentData).then(r => {
                 if (r) {
                     messageApi.open({
                         key: 'loading',
@@ -360,7 +348,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                     language='groovy'
                     onLineClick={handleLineClick}
                     originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
-                    modifiedCode={JSON.stringify(treeChartState.initialData.scriptMetadata, null, 2)}/>
+                    modifiedCode={JSON.stringify(treeChartState.currentData.scriptMetadata, null, 2)}/>
             </Modal>
             <Modal
                 title="详细代码对比"
@@ -390,7 +378,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 width={1000}
                 style={{height: '80vh'}}
             >
-                <DebugForm/>
+                <DebugForm treeChartState={treeChartState}/>
 
             </Modal>
 

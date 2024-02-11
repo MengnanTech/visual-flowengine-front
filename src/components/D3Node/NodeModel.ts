@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import {TreeStore} from "@/store/TreeStore.ts";
 import {makeObservable} from "mobx";
-import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 
 export class NodeData {
     scriptId: string;
@@ -54,5 +54,5 @@ export interface TreeChartState {
     treeLayout: d3.TreeLayout<NodeData>;
     closestNodeRef:D3Node | null;
     treeStore: TreeStore;
-    initialData: WorkflowMetadata;
+    currentData: WorkflowMetadata;
 }

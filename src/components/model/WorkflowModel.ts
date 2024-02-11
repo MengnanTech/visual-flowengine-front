@@ -48,3 +48,7 @@ export interface Diagnostic {
     message: string;
     severity: monaco.MarkerSeverity;
 }
+export interface DebugRequest{
+    scriptMetadata:NodeData;
+    inputValues:any
+}

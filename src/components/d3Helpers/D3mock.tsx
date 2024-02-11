@@ -1,81 +1,14 @@
 import {NodeData} from "@/components/D3Node/NodeModel.ts";
 import {CollapseProps, Descriptions, DescriptionsProps} from "antd";
-import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 
 
-export function createInitialData(): NodeData {
-    return {
-        "scriptId": "1",
-        "scriptName": "Root",
-        "scriptType": "Start",
-        "scriptText": "开始节点定义好入参数",
-        "scriptDesc": "nodeDesc",
-        "children": [
-            {
-                "scriptId": "root123",
-                "scriptName": "root123",
-                "scriptType": "nodeType",
-                "scriptText": "root123scriptText是",
-                "scriptDesc": "nodeDesc",
-                "children": [
-                    {
-                        "scriptId": "c00b92b0-00f8-4999-b5a0-c0bab728ca20",
-                        "scriptName": "End",
-                        "scriptType": "End",
-                        "scriptDesc": "",
-                        "scriptText": ""
-                    }
-                ]
-            },
-            {
-                "scriptId": "root369",
-                "scriptName": "root369",
-                "scriptType": "nodeType",
-                "scriptText": "scriptText",
-                "scriptDesc": "nodeDesc",
-                "children": [
-                    {
-                        "scriptId": "root456",
-                        "scriptName": "root456",
-                        "scriptType": "nodeType",
-                        "scriptText": "Grandchild 2-1scriptText收到",
-                        "scriptDesc": "nodeDesc"
-                    },
-                    {
-                        "scriptId": "root789",
-                        "scriptName": "root789",
-                        "scriptType": "nodeType",
-                        "scriptText": "Grandchild 2-2scriptTextv啊",
-                        "scriptDesc": "nodeDesc"
-                    },
-                    {
-                        "scriptId": "root110",
-                        "scriptName": "root110",
-                        "scriptType": "nodeType",
-                        "scriptText": "scriptText",
-                        "scriptDesc": "nodeDesc"
-                    },
-                    {
-                        "scriptId": "root120",
-                        "scriptName": "root120",
-                        "scriptType": "nodeType",
-                        "scriptText": "scriptText",
-                        "scriptDesc": "nodeDesc"
-                    }
-                ]
-            },
-            {
-                "scriptId": "root857",
-                "scriptName": "root857",
-                "scriptType": "nodeType",
-                "scriptText": "scriptText",
-                "scriptDesc": "nodeDesc"
-            }
-        ]
-    }
-
-}
-
+export   const fields = [
+    { name: 'username', label: 'Username' },
+    { name: 'email', label: 'Email' },
+    { name: 'password', label: 'Password' },
+    // 添加更多字段...
+];
 export const workflowMetadata1 = {
     "workflowId": 1,
     "workflowName": "mockMenuItems",

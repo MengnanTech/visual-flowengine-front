@@ -6,6 +6,7 @@ declare global {
     interface Window {
         compileScriptApiPath: string;
         executeWorkflowApiPath: string;
+        debugWorkflowApiPath: string;
         createWorkflowApiPath: string;
         deleteWorkflowApiPath: string;
         updateWorkflowApiPath: string;

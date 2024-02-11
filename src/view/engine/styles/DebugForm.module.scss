@@ -1,0 +1,13 @@
+// DebugForm.module.scss
+.formFieldColumn {
+  .formItemLabel {
+    font-weight: bold; // 加粗标签文本
+    margin-right: 8px; // 标签和图标之间的距离
+  }
+
+  .infoIcon {
+    color: #1890ff; // 图标颜色
+    margin-left: 4px; // 保持图标和文本之间的距离
+    cursor: help; // 鼠标悬停时的光标形状
+  }
+}

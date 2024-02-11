@@ -36,7 +36,7 @@ import {
     MenuItemsIdAndName,
     WorkflowCreateRequest,
     WorkflowMetadata
-} from "@/components/workflow/model/WorkflowModel.ts";
+} from "@/components/model/WorkflowModel.ts";
 
 const TreeChart = React.lazy(() => import('./TreeChart'));
 

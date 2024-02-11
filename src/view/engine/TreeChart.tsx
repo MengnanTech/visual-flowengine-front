@@ -12,7 +12,7 @@ import {Dropdown, MenuProps, message, Modal} from "antd";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
 import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
-import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 import {getWorkflowMetadata} from "@/network/api.ts";
 
 
@@ -223,7 +223,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
             treeLayout: treeLayout.current!,
             closestNodeRef: closestNodeRef.current!,
             treeStore: treeStore,
-            initialData: initialData
+            currentData: initialData
         } as TreeChartState
         treeChartState.current = initState;
 

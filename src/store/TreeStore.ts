@@ -1,7 +1,7 @@
 import {action, makeAutoObservable} from "mobx";
 import * as d3 from 'd3';
 import {D3Node} from "@/components/D3Node/NodeModel.ts";
-import {WorkflowMetadata} from "@/components/workflow/model/WorkflowModel.ts";
+import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 export class TreeStore {
     treeData: WorkflowMetadata | null = null;
     draggingNode: D3Node | null = null;
