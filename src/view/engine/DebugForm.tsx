@@ -4,7 +4,8 @@ import Editor from "@monaco-editor/react";
 import style from './styles/DebugForm.module.scss';
 import {debugWorkflow} from "@/network/api.ts";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {DebugRequest} from "@/components/model/WorkflowModel.ts";
+import {DebugRequest, findNodeDataById} from "@/components/model/WorkflowModel.ts";
+import {CheckOutlined, EditOutlined} from "@ant-design/icons";
 
 
 interface DebugFormProps {
@@ -14,21 +15,38 @@ interface DebugFormProps {
 const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
     const [activeTabKey, setActiveTabKey] = useState('1');
+    const [editorValue, setEditorValue] = useState('');
+    const [scriptId, setScriptId] = useState("1");
+    const [isScriptIdEditable, setIsScriptIdEditable] = useState(false);
+
+    const toggleScriptIdEditability = () => {
+        setIsScriptIdEditable((prevEditable) => !prevEditable);
+    };
+
+    const handleEditorChange = (value: string | undefined) => {
+        setEditorValue(value || '');
+    };
 
     const onFinish = (values: any) => {
-        console.log('Success:', values);
-        const { jsonInput, ...inputValuesWithoutJsonInput } = values;
+        const {jsonInput, ...inputValuesWithoutJsonInput} = values;
+
+        const nodeData = findNodeDataById(treeChartState.currentData.scriptMetadata, scriptId);
+        if (!nodeData) {
+            message.error('Script ID not found').then(r => r);
+            return;
+        }
+
         let debugRequest: DebugRequest;
         if (activeTabKey === '1') {
 
             debugRequest = {
-                scriptMetadata: treeChartState.currentData.scriptMetadata,
+                scriptMetadata: nodeData,
                 inputValues: inputValuesWithoutJsonInput
             }
-        } else  {
+        } else {
             debugRequest = {
-                scriptMetadata: treeChartState.currentData.scriptMetadata,
-                inputValues: JSON.parse(jsonInput)
+                scriptMetadata: nodeData,
+                inputValues: editorValue ? JSON.parse(editorValue) : {}
             }
         }
 
@@ -54,9 +72,9 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         <Col span={24} key={field.parameterName} className={style.formFieldColumn}>
                             <Form.Item
                                 label={
-                                    <div >
+                                    <div>
                                         {field.parameterName}{'      '}
-                                        <span style={{color:"red"}}> ({field.parameterType})</span>
+                                        <span style={{color: "red"}}> ({field.parameterType})</span>
                                     </div>
                                 }
                                 name={field.parameterName}
@@ -76,14 +94,22 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     name="jsonInput"
                     label="JSON Content"
                 >
-                    <Editor
-                        height="500px"
-                        defaultLanguage="json"
-                        options={{
-                            scrollBeyondLastLine: false,
-                            fontSize: 16,
-                        }}
-                    />
+                    <div style={{
+                        border: '1px solid #e1e4e8',
+                        background: '#f6f8fa',
+                        borderRadius: '4px',
+                        padding: '10px',
+                    }}>
+                        <Editor
+                            height="500px"
+                            defaultLanguage="json"
+                            onChange={handleEditorChange}
+                            options={{
+                                scrollBeyondLastLine: false,
+                                fontSize: 16,
+                            }}
+                        />
+                    </div>
                 </Form.Item>
             ),
         },
@@ -96,6 +122,21 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             onFinish={onFinish}
             className={style.debugForm}
         >
+            <Form.Item label="Script ID">
+                <Input
+                    value={scriptId}
+                    onChange={(e) => setScriptId(e.target.value)}
+                    disabled={!isScriptIdEditable}
+                    addonAfter={
+                        isScriptIdEditable ? (
+                            <CheckOutlined onClick={toggleScriptIdEditability}/>
+                        ) : (
+                            <EditOutlined onClick={toggleScriptIdEditability}/>
+                        )
+                    }
+                />
+            </Form.Item>
+
             <Tabs items={tabItems} defaultActiveKey="1" type="card" onChange={setActiveTabKey}/>
             <Form.Item>
                 <Button type="primary" htmlType="submit" style={{width: '100%'}}>

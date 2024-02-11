@@ -1,4 +1,4 @@
-import {D3Node} from "@/components/D3Node/NodeModel.ts";
+import {D3Node, NodeData} from "@/components/D3Node/NodeModel.ts";
 import {v4 as uuid} from "uuid";
 
 
@@ -33,6 +33,20 @@ export const GenerateUUID =()=> {
     return uuid();
 }
 export const END_NODE_LENGTH = 200;
+
+export const findNodeDataById = (nodes: NodeData[], scriptId: string): NodeData | undefined => {
+    for (const node of nodes) {
+        if (node.scriptId === scriptId) {
+            return node;
+        }
+        if (node.children) {
+            const foundInChildren = findNodeDataById(node.children, scriptId);
+            if (foundInChildren) return foundInChildren;
+        }
+    }
+    return undefined;
+};
+
 export const javaTypes = [
     'Object', // 可以让用户输入自定义的类名
     'String',

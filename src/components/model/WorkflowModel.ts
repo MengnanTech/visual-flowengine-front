@@ -29,6 +29,20 @@ export interface WorkflowMetadata {
     scriptMetadata: NodeData;
 }
 
+export const findNodeDataById = (node: NodeData, scriptId: string): NodeData | undefined => {
+    if (node.scriptId === scriptId) {
+        return node;
+    }
+    if (node.children) {
+        for (const child of node.children) {
+            const found = findNodeDataById(child, scriptId);
+            if (found) {
+                return found;
+            }
+        }
+    }
+    return undefined;
+};
 
 export enum ScriptType {
     Start,

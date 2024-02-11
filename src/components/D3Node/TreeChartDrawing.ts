@@ -67,17 +67,7 @@ export function circleEvent(circle: d3.Selection<SVGCircleElement, D3Node, null,
                 .attr("r", 20) // 恢复圆的半径
                 .style("fill", "#c0f1b0"); // 恢复填充色
         })
-        .on('click', function (_event, d) {
-            d3.select(this)
-                .transition()
-                .duration(50) // 闪烁效果快速发生
-                .style('fill', '#a1c26f') // 临时变为新颜色
-                .transition()
-                .duration(10)
-                .style('fill', '#c0f1b0'); // 然后迅速变回原色
-            // 继续执行添加节点的函数或其他操作
-            treeStore.setClickNode(d)
-        })
+
         .on('contextmenu', function (event,) {
             event.preventDefault(); // 阻止默认的右键菜单
 
@@ -149,7 +139,9 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
             if (needEvent) {
                 circleEvent(circle, svgRef, treeStore);
             }
-
+            circle.on('click', function (_event, d) {
+                treeStore.setClickNode(d)
+            })
 
             nodeGroup.append("text")
                 .attr("dy", "-2em")

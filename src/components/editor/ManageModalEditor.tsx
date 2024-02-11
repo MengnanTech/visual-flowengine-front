@@ -1,5 +1,5 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
-import {Badge, Button, Descriptions, message, Modal, Tooltip} from 'antd';
+import {Badge, Button, Col, Descriptions, message, Modal, Tooltip} from 'antd';
 import {Monaco} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
@@ -7,7 +7,7 @@ import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
-import {CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from "@ant-design/icons";
+import {CheckCircleFilled, CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -18,11 +18,12 @@ import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
-    readonly : boolean;
+    readonly: boolean;
 }
+
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
-const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore,readonly}) => {
+const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore, readonly}) => {
 
     const clickNode = treeStore.clickNode;
 
@@ -30,6 +31,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
     };
@@ -76,6 +79,10 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             treeStore.setClickNode(clickNode);
         }
     };
+    const handleCopySuccess = () => {
+        setShowConfirmation(true);
+        setTimeout(() => setShowConfirmation(false), 5000); // 3秒后隐藏图标
+    };
 
     const handleSubmit = () => {
 
@@ -114,7 +121,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     function handleEditorValidation(markers: any[]) {
         markers.forEach(marker => console.log('onValidate:', marker.message));
     }
-    const [modalSize, setModalSize] = useState({ width: '90vh', height: '80vh' });
+
+    const [modalSize, setModalSize] = useState({width: '90vh', height: '80vh'});
     // 是否全屏
     const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -123,10 +131,10 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setIsFullScreen(!isFullScreen);
         if (!isFullScreen) {
             // 全屏时使用视口宽度和高度
-            setModalSize({ width: '90vw', height: '100vh' });
+            setModalSize({width: '90vw', height: '100vh'});
         } else {
             // 恢复到初始尺寸，这里你可以根据需要调整
-            setModalSize({ width: '90vh', height: '80vh' });
+            setModalSize({width: '90vh', height: '80vh'});
         }
     };
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
@@ -141,11 +149,18 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 <div style={{display: 'flex', alignItems: 'center'}}>
                                     <span>{clickNode?.data.scriptId}</span>
                                     <Tooltip title="复制">
-                                        <CopyToClipboard text={clickNode?.data.scriptId || ''}>
+                                        <CopyToClipboard text={clickNode?.data.scriptId || ''}
+                                                         onCopy={handleCopySuccess}>
                                             <Button size="small" type="link"
                                                     icon={<CopyFilled style={{color: 'gray'}}/>}/>
                                         </CopyToClipboard>
+
                                     </Tooltip>
+                                    {showConfirmation && (
+                                        <Col>
+                                            <CheckCircleFilled style={{color: '#36f33e',fontSize:'16px'}}/>
+                                        </Col>
+                                    )}
                                 </div>
                             </Descriptions.Item>
 
@@ -227,7 +242,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 scrollBeyondLastLine: false,
                                 automaticLayout: true,
                                 fontSize: 16,
-                                readOnly:readonly,
+                                readOnly: readonly,
 
                             }}
                             defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
