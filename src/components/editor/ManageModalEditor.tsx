@@ -27,6 +27,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     const clickNode = treeStore.clickNode;
 
+
     const [title, setTitle] = useState(clickNode?.data.scriptName || '');
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -207,7 +208,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 width={modalSize.width}
                 style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
                 footer={
-                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
+                    clickNode && clickNode.data.scriptType === 'Start' ? null :( <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
                         <div>
                             <Button onClick={handleCompile} style={{marginRight: '8px'}}>编译</Button>
                             <Button type="primary" onClick={handleDebug} style={{marginRight: '8px'}}>调试</Button>
@@ -217,17 +218,17 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             <Button type="primary" onClick={handleSubmit} style={{marginRight: '8px'}}>提交</Button>
                             <Button type="primary" onClick={handleClose}>关闭</Button>
                         </div>
-                    </div>
+                    </div>)
                 }
             >
-                <div style={{
+                {!(clickNode && clickNode.data.scriptType === 'Start') && (<div style={{
                     border: '1px solid #e1e4e8',
                     background: '#f6f8fa',
                     borderRadius: '4px',
                     padding: '10px',
                     height: editorHeight, // 使用动态计算的高度
                 }}>
-                    <Suspense fallback={<div>Loading Editor...</div>}>
+                   <Suspense fallback={<div>Loading Editor...</div>}>
                         <MonacoEditor
                             key={clickNode ? clickNode.data.scriptId : 'editor'}
                             height={editorHeight}
@@ -248,7 +249,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
                         />
                     </Suspense>
-                </div>
+                </div>)}
             </Modal>
         </div>
 
