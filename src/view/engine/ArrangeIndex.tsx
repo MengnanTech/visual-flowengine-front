@@ -31,7 +31,7 @@ import {generateMockMenuItemList, items as itemsDes, workflowMetadata1,} from '@
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
-import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
+import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow, updateWorkflowName} from "@/network/api.ts";
 import {
     MenuItemsIdAndName,
     WorkflowCreateRequest,
@@ -154,9 +154,18 @@ const ArrangeIndex: React.FC = () => {
     };
     const handlePressEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const value = e.currentTarget.value
-        message.success(`You have entered: ${value}`).then(r => r);
-        setEditingKey(null);
-        fetchMenuItems().then((r) => r);
+        updateWorkflowName(Number(isMenuDropdownVisible?.key), value)
+            .then(
+                () => {
+                    setKeyValue('');
+                    setEditingKey(null);
+                    setTreeData(null);
+                    fetchMenuItems().then((r) => r);
+
+                }
+            )
+
+
     };
 
 
