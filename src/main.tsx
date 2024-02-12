@@ -7,11 +7,8 @@ import Arrange from "@/view/engine/ArrangeIndex.tsx";
 import {loader} from "@monaco-editor/react";
 // import * as monaco from 'monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-// loader.config({
-//     paths: {
-//         vs: 'src/components/editor/vs'
-//     }
-// });
+
+import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
@@ -22,10 +19,11 @@ self.MonacoEnvironment = {
     // @ts-ignore
     getWorker: function (_: any, label: string) {
 
+        console.log("label", label)
         if (label === 'json') {
             return new jsonWorker()
         }
-        new editorWorker()
+        return new editorWorker()
     },
 }
 
