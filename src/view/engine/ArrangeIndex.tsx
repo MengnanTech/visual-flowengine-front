@@ -58,6 +58,7 @@ const ArrangeIndex: React.FC = () => {
     const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
     const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
     const [editingKey, setEditingKey] = useState<number | null>(null);
+    const [updateCounter] = useState(0);
 
     const fetchMenuItems = async () => {
         try {
@@ -448,7 +449,7 @@ const ArrangeIndex: React.FC = () => {
                 <Suspense fallback={<div>Loading...</div>}>
                     {treeData && (
                         <TreeChart
-                            key={Math.random()}
+                            key={`${treeData.workflowId}-${updateCounter}`}
                             treeStore={treeStore}
                             initialData={treeData}
                             updateTreeData={setTreeData}
