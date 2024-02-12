@@ -1,9 +1,13 @@
 import React, {useEffect, useRef} from 'react';
-import * as monaco from 'monaco-editor';
-// import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+//对比的那个小加号和小减号
+import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css';
 
 
-import 'monaco-editor/esm/vs/base/browser/ui/hover/hover.css';
+
+
+
 import styles from './style/diff.module.scss';
 
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
