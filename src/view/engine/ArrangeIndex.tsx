@@ -80,7 +80,6 @@ const ArrangeIndex: React.FC = () => {
 
     const handleMenuClick = async (e: MenuDataItem) => {
 
-        console.log("handleMenuClick", e.key);
         if (e.key === keyValue) {
             setKeyValue(e.key);
             return;

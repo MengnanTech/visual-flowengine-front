@@ -198,9 +198,6 @@ export function refresh(treeChartState: TreeChartState) {
 
     rootNode.descendants().forEach(d => {
 
-        if (d.data.scriptId=="4565ffe0-cb79-4edf-83ca-71140522d193"){
-            console.log(d)
-        }
         d.previousX = d.x
         d.previousY = d.y
     });
@@ -247,9 +244,6 @@ function updateLinkPath(ele: SVGPathElement, d3Link: D3Link, rootNode: D3Node) {
 
                 let nodePreviousPosition: number[] | null = null;
                 const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
-
-                console.log("d1",node)
-                console.log("d2",d)
 
                 // if (node?.previousX && node?.previousY) 这里巨坑。如果是0的话。也会被判断为false 其实想想也对。弱类型的判断0都是false
                 if (node?.previousX !== undefined && node?.previousX !== null && node?.previousY !== undefined && node?.previousY !== null) {
