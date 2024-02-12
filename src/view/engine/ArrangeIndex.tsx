@@ -58,8 +58,10 @@ const ArrangeIndex: React.FC = () => {
     const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
     const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
     const [editingKey, setEditingKey] = useState<number | null>(null);
-    const [updateCounter] = useState(0);
-
+    const [updateCounter,setUpdateCounter] = useState(0);
+    const forceUpdateTreeChart = () => {
+        setUpdateCounter(prevCounter => prevCounter + 1);
+    };
     const fetchMenuItems = async () => {
         try {
             const workflowMetadata = await ListWorkflow();
@@ -444,6 +446,7 @@ const ArrangeIndex: React.FC = () => {
                             treeStore={treeStore}
                             initialData={treeData}
                             updateTreeData={setTreeData}
+                            forceUpdateTreeChart={forceUpdateTreeChart}
                         />
                     )}
                 </Suspense>
