@@ -44,7 +44,7 @@ export interface D3Link extends d3.HierarchyLink<NodeData> {
     }
     x?: number;
     y?: number;
-    needTransition?: boolean;
+    // needTransition?: boolean;
 }
 
 export interface TreeChartState {

@@ -57,7 +57,7 @@ const ArrangeIndex: React.FC = () => {
     // 内部数据改变时，重新渲染
     const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
     const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
-    const [editingKey, setEditingKey] = useState<number|null>(null);
+    const [editingKey, setEditingKey] = useState<number | null>(null);
 
     const fetchMenuItems = async () => {
         try {
@@ -80,6 +80,7 @@ const ArrangeIndex: React.FC = () => {
 
     const handleMenuClick = async (e: MenuDataItem) => {
 
+        console.log("handleMenuClick", e.key);
         if (e.key === keyValue) {
             setKeyValue(e.key);
             return;
@@ -216,12 +217,13 @@ const ArrangeIndex: React.FC = () => {
                     {editingKey === Number(item.key) ? (
 
                         // 如果当前菜单项正在被编辑，渲染一个输入框
-                        <Input defaultValue={item.name} onPressEnter={handlePressEnter}    onClick={(e) => handleSettingClick(e)}/>
+                        <Input defaultValue={item.name} onPressEnter={handlePressEnter}
+                               onClick={(e) => handleSettingClick(e)}/>
                     ) : (
                         <div>
 
                             {dom}
-                            <div   onClick={(e) => handleSettingClick(e)}>
+
                                 <Dropdown
                                     onOpenChange={flag => handleVisibleChange(item, flag)}
                                     menu={{items}}
@@ -238,7 +240,6 @@ const ArrangeIndex: React.FC = () => {
                                 </Dropdown>
                             </div>
 
-                        </div>
 
                     )}
                 </div>
