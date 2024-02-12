@@ -31,7 +31,7 @@ import {generateMockMenuItemList, items as itemsDes, workflowMetadata1,} from '@
 
 import logo from '@/assets/logo/logo.jpeg';
 import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
-import {createWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
+import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow} from "@/network/api.ts";
 import {
     MenuItemsIdAndName,
     WorkflowCreateRequest,
@@ -185,8 +185,28 @@ const ArrangeIndex: React.FC = () => {
                 </div>
             ),
             onClick: () => {
-                message.info(isMenuDropdownVisible?.key).then(r => r);
-                setIsMenuDropdownVisible(undefined);
+                if (isMenuDropdownVisible?.key) {
+                    const keyToDelete = Number(isMenuDropdownVisible.key);
+                    Modal.confirm({
+                        title: '确认删除',
+                        content: '您确定要删除这个工作流吗？此操作无法撤销。',
+                        okText: '确认',
+                        okType: 'danger',
+                        cancelText: '取消',
+                        onOk: () => {
+                            deleteWorkflow(keyToDelete).then(() => {
+                                // 更新UI
+                                setIsMenuDropdownVisible(undefined);
+                                setTreeData(null);
+                                fetchMenuItems().then(r => r);
+                                message.success('删除成功');
+                            }).catch((err) => {
+                                // 处理删除过程中的错误
+                                message.error(`删除失败: ${err.message}`);
+                            });
+                        },
+                    });
+                }
             }
         }
     ];
