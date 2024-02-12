@@ -229,7 +229,7 @@ const ArrangeIndex: React.FC = () => {
                                     trigger={['click']}
                                 >
                                     <div
-                                        className={`${styles.menuIcons} ${singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
+                                        className={`${styles.menuIcons} ${isMenuDropdownVisible&&singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
                                         onClick={(e) => handleSettingClick(e)}
                                     >
 
