@@ -174,7 +174,7 @@ const ArrangeIndex: React.FC = () => {
             key: '1',
             label: (
                 <div>
-                    编辑
+                    Rename
                 </div>
             ),
             onClick: () => {
@@ -190,7 +190,7 @@ const ArrangeIndex: React.FC = () => {
             key: '2',
             label: (
                 <div>
-                    删除
+                    Delete
                 </div>
             ),
             onClick: () => {
