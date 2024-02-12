@@ -11,6 +11,13 @@ export interface WorkflowCreateRequest {
     remark: string;
 }
 
+// private Map<String, Object> inputValues;
+// private String code;
+export interface DebugScriptRequest {
+    code: string;
+    inputValues: any;
+}
+
 export interface Parameter {
     parameterName: string;
     parameterType: string;

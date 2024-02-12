@@ -1,17 +1,27 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
-import {Badge, Button, Col, Descriptions, message, Modal, Tooltip} from 'antd';
-import {Monaco} from '@monaco-editor/react';
+import {Badge, Button, Col, Descriptions, Form, message, Modal, Tooltip} from 'antd';
+import Editor, {Monaco} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
 //这样导入少包体积少2M
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
-import {CheckCircleFilled, CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from "@ant-design/icons";
+import {
+    CheckCircleFilled,
+
+    CopyFilled,
+    EditFilled,
+    FullscreenExitOutlined,
+    FullscreenOutlined
+} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
+
+import style from "@/view/engine/styles/DebugForm.module.scss";
+import { DebugScriptRequest} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -33,7 +43,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
-
+    const [isDebugVisible, setIsDebugVisible] = useState(false);
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
     };
@@ -70,14 +80,15 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     };
 
     const handleDebug = async () => {
-        const res = await debugGroovyScript(editorCode);
-        message.success(res);
+
+        setIsDebugVisible(true);
     };
 
     const handleSave = () => {
         if (clickNode) {
             clickNode.data.scriptText = editorCode;
             treeStore.setClickNode(clickNode);
+            message.success('暂存成功');
         }
     };
     const handleCopySuccess = () => {
@@ -85,9 +96,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setTimeout(() => setShowConfirmation(false), 5000); // 3秒后隐藏图标
     };
 
-    const handleSubmit = () => {
-
-    };
 
     function handleClose() {
         treeStore.setClickNode(null);
@@ -139,6 +147,26 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         }
     };
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
+    const onFinish = (values: any) => {
+        const {jsonInput} = values;
+
+        console.log('Received values of form: ', values,jsonInput);
+        let debugScriptRequest: DebugScriptRequest = {
+            code: clickNode!.data.scriptText,
+            inputValues: jsonInput ? JSON.parse(jsonInput) : {}
+        }
+
+        debugGroovyScript(debugScriptRequest).then(
+            r => {
+                if (r) {
+                    message.success('调试成功').then(r => r);
+                } else {
+                    message.error('调试失败').then(r => r);
+                }
+            }
+        )
+    };
+
 
     return (
         <div>
@@ -159,7 +187,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                     </Tooltip>
                                     {showConfirmation && (
                                         <Col>
-                                            <CheckCircleFilled style={{color: '#36f33e',fontSize:'16px'}}/>
+                                            <CheckCircleFilled style={{color: '#36f33e', fontSize: '16px'}}/>
                                         </Col>
                                     )}
                                 </div>
@@ -208,17 +236,18 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 width={modalSize.width}
                 style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
                 footer={
-                    clickNode && clickNode.data.scriptType === 'Start' ? null :( <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
-                        <div>
-                            <Button onClick={handleCompile} style={{marginRight: '8px'}}>编译</Button>
-                            <Button type="primary" onClick={handleDebug} style={{marginRight: '8px'}}>调试</Button>
-                        </div>
-                        <div>
-                            <Button type="primary" onClick={handleSave} style={{marginRight: '8px'}}>暂存</Button>
-                            <Button type="primary" onClick={handleSubmit} style={{marginRight: '8px'}}>提交</Button>
-                            <Button type="primary" onClick={handleClose}>关闭</Button>
-                        </div>
-                    </div>)
+                    clickNode && clickNode.data.scriptType === 'Start' ? null : (
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
+                            <div>
+                                <Button type="primary" onClick={handleCompile}
+                                        style={{marginRight: '8px'}}>编译</Button>
+                                <Button type="primary" onClick={handleDebug} style={{marginRight: '8px'}}>调试</Button>
+                            </div>
+                            <div>
+                                <Button type="primary" onClick={handleSave} style={{marginRight: '8px'}}>暂存</Button>
+                                <Button type="primary" onClick={handleClose}>关闭</Button>
+                            </div>
+                        </div>)
                 }
             >
                 {!(clickNode && clickNode.data.scriptType === 'Start') && (<div style={{
@@ -228,7 +257,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     padding: '10px',
                     height: editorHeight, // 使用动态计算的高度
                 }}>
-                   <Suspense fallback={<div>Loading Editor...</div>}>
+                    <Suspense fallback={<div>Loading Editor...</div>}>
                         <MonacoEditor
                             key={clickNode ? clickNode.data.scriptId : 'editor'}
                             height={editorHeight}
@@ -251,6 +280,56 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     </Suspense>
                 </div>)}
             </Modal>
+
+            <Modal
+                title="Debug Node"
+                open={isDebugVisible}
+                centered
+                onCancel={() => {
+                    setIsDebugVisible(false)
+                }}
+                maskClosable={false}
+                footer={null}
+                width={1000}
+                style={{height: '80vh'}}
+            >
+                <Form
+                    name="Debug Node"
+                    autoComplete="off"
+                    layout="vertical"
+                    onFinish={onFinish}
+                    className={style.debugForm}
+                >
+                    <Form.Item
+                        name="jsonInput"
+                        label="JSON Content"
+                    >
+                        <div style={{
+                            border: '1px solid #e1e4e8',
+                            background: '#f6f8fa',
+                            borderRadius: '4px',
+                            padding: '10px',
+                        }}>
+                            <Editor
+                                height="500px"
+                                defaultLanguage="json"
+                                options={{
+                                    scrollBeyondLastLine: false,
+                                    fontSize: 16,
+                                }}
+                            />
+                        </div>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" style={{width: '100%'}}>
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+
+            </Modal>
+
+
         </div>
 
 

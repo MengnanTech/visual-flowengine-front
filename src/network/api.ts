@@ -1,6 +1,6 @@
 import HTTP from "@/network/HTTP.ts";
 import {
-    DebugRequest,
+    DebugRequest, DebugScriptRequest,
     Diagnostic,
     MenuItemsIdAndName,
     WorkflowCreateRequest,
@@ -43,8 +43,8 @@ export async function updateWorkflowName(workflowId: number, workflowName: strin
     return await HTTP.put(`${window.updateWorkflowNameApiPath}?workflowId=${workflowId}&workflowName=${workflowName}`, null);
 }
 
-export async function debugGroovyScript(code: string): Promise<any> {
-    return await HTTP.post(window.runGroovyScriptApiPath, JSON.stringify({code: code}));
+export async function debugGroovyScript(debugScriptRequest: DebugScriptRequest): Promise<any> {
+    return await HTTP.post(window.runGroovyScriptApiPath, JSON.stringify(debugScriptRequest));
 }
 
 export async function getWorkflowMetadata(workflowId: number): Promise<WorkflowMetadata> {
