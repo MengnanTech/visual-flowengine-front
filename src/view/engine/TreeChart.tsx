@@ -49,8 +49,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         .separation(function () {
             return 1;
         }));
-    // const currentTransform = useRef<d3.ZoomTransform | null>(null);
-
 
     const closestNodeRef = useRef<D3Node | null>();
     const treeChartState = useRef<TreeChartState | null>();
@@ -74,7 +72,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
 
     const handleLockedIconClick = () => {
         const lockedTongueElement = d3.select("#lockTongue");
-
 
         // 获取元素的宽度，这里假设元素宽度为固定值18，实际应用中可能需要动态计算
         const width = 18; // 例如，lockTongue的宽度
@@ -167,12 +164,8 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                 }).finally(() => {
                     message.success('刷新成功');
                 })
-
             });
-
-
     };
-
 
     const handleContextMenu = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         event.preventDefault();
@@ -188,7 +181,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
     const closeContextMenu = () => {
         setContextMenu(null);
     };
-
 
     useEffect(() => {
 
@@ -216,7 +208,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         // 设置初始缩放和平移
         //很容易双击，所以先取消双击事件
         svgSelect.current!.on("dblclick.zoom", null);
-
 
         const initState = {
             gRef: gRef.current!,
@@ -272,7 +263,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
         readOnly: true,
     };
 
-
     return (
         <div>
             <div style={{position: 'relative'}}>
@@ -319,7 +309,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                     <MovingArrowPattern/>
                 </svg>
             </div>
-
 
 
             {/* 编辑器 */}
