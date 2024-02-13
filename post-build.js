@@ -17,15 +17,31 @@ async function updateIndexHtml() {
         html = html.replace(/\/\/\s*(window\.\w+ApiPath = \[\[\$\{.*?\}\]\];)/g, '$1');
 
 
-        // 替换 JavaScript 和 CSS 路径
+        // 替换 JavaScript 文件路径为 Thymeleaf 动态路径
         html = html.replace(
             /src="\/assets\/(.*?)\.js"/g,
             `th:src="\${visualFlowProperties.getResourcePath('/assets/$1.js')}"`
         );
+
+// 替换 CSS 文件路径为 Thymeleaf 动态路径
         html = html.replace(
             /href="\/assets\/(.*?)\.css"/g,
             `th:href="\${visualFlowProperties.getResourcePath('/assets/$1.css')}"`
         );
+
+// 替换 modulepreload 的 JavaScript 资源路径为 Thymeleaf 动态路径
+        html = html.replace(
+            /<link rel="modulepreload" crossorigin href="\/assets\/(.*?)\.js">/g,
+            `<link rel="modulepreload" crossorigin th:href="\${visualFlowProperties.getResourcePath('/assets/$1.js')}">`
+        );
+
+// 替换 stylesheet 的 CSS 资源路径为 Thymeleaf 动态路径
+        html = html.replace(
+            /<link rel="stylesheet" crossorigin href="\/assets\/(.*?)\.css">/g,
+            `<link rel="stylesheet" crossorigin th:href="\${visualFlowProperties.getResourcePath('/assets/$1.css')}">`
+        );
+
+
 
         // 写回修改后的内容
         await fs.writeFile(indexPath, html, 'utf-8');
