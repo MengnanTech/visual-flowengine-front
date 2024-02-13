@@ -155,11 +155,8 @@ const ArrangeIndex: React.FC = () => {
                     setEditingKey(null);
                     setTreeData(null);
                     fetchMenuItems().then((r) => r);
-
                 }
             )
-
-
     };
 
 
@@ -235,17 +232,13 @@ const ArrangeIndex: React.FC = () => {
                     className={styles.menuItemContainer}
                     onClick={() => handleMenuClick(item)}
                 >
-
                     {editingKey === Number(item.key) ? (
-
                         // 如果当前菜单项正在被编辑，渲染一个输入框
                         <Input defaultValue={item.name} onPressEnter={handlePressEnter}
                                onClick={(e) => handleSettingClick(e)}/>
                     ) : (
                         <div>
-
                             {dom}
-
                                 <Dropdown
                                     onOpenChange={flag => handleVisibleChange(item, flag)}
                                     menu={{items}}
@@ -255,14 +248,10 @@ const ArrangeIndex: React.FC = () => {
                                         className={`${styles.menuIcons} ${isMenuDropdownVisible&&singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
                                         onClick={(e) => handleSettingClick(e)}
                                     >
-
                                         <SettingOutlined/>
                                     </div>
-
                                 </Dropdown>
                             </div>
-
-
                     )}
                 </div>
             )}
@@ -421,7 +410,6 @@ const ArrangeIndex: React.FC = () => {
 
                 </Form>
 
-
             </Modal>
             <PageContainer
 
@@ -456,7 +444,6 @@ const ArrangeIndex: React.FC = () => {
                         <span>请选择左侧列表中的一个节点查看详情。</span>
                     </div>
                 )}
-
 
             </PageContainer>
         </ProLayout>

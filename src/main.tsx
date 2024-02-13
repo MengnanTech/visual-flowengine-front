@@ -11,7 +11,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+// import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
 
@@ -23,7 +23,9 @@ self.MonacoEnvironment = {
         if (label === 'json') {
             return new jsonWorker()
         }
-        return new editorWorker()
+        //editorWorkerService
+        // 如果默认的worker diff 的小红点会失效。
+        // return new editorWorker()
     },
 }
 
