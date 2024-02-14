@@ -48,8 +48,9 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     // 是否全屏
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [debugValue, setDebugValue] = useState('');
-    const [debugOutput, setDebugOutput] = useState<WorkflowTaskLog | null>(null);
+    const [debugOutput, setDebugOutput] = useState<WorkflowTaskLog | ''>('');
     const [activeKey, setActiveKey] = useState('');
+    const [clinkNodeChangeCount, setClinkNodeChangeCount] = useState(0);
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
     };
@@ -87,7 +88,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     };
 
     const handleDebug = async () => {
-
+        clickNode!.data.scriptText = editorCode;
         setIsDebugVisible(true);
     };
 
@@ -106,8 +107,14 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     function handleClose() {
         treeStore.setClickNode(null);
+        setClinkNodeChangeCount(prevCounter => prevCounter + 1);
         setTitle('');
         setEditorCode('');
+    }
+
+    function  handleEditModalClose (){
+        treeStore.setClickNode(null);
+        setClinkNodeChangeCount(prevCounter => prevCounter + 1);
     }
 
     function handleEditorChange(value: string | undefined) {
@@ -157,6 +164,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
     const onFinish = () => {
 
+        console.log('Finish',debugValue);
 
         let debugScriptRequest: DebugScriptRequest = {
             code: clickNode!.data.scriptText,
@@ -178,7 +186,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             label: "Debug Output",
             children: <MonacoEditor
                 key={Math.random()}
-                height={"50vh"}
+                height={"30vh"}
                 defaultLanguage="json"
                 options={{
                     contextmenu: true,
@@ -189,7 +197,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     readOnly: readonly,
 
                 }}
-                defaultValue={JSON.stringify(debugOutput, null, 2)}
+                defaultValue={debugOutput==''?'':JSON.stringify(debugOutput, null, 2)}
             />,
         },
     ];
@@ -272,7 +280,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 centered
                 maskClosable={false}
                 open={treeStore.clickNode !== null}
-                onCancel={() => treeStore.setClickNode(null)}
+                onCancel={handleEditModalClose}
                 width={modalSize.width}
                 style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
                 footer={
@@ -285,7 +293,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             </div>
                             <div>
                                 <Button type="primary" onClick={handleSave} style={{marginRight: '8px'}}>暂存</Button>
-                                <Button type="primary" onClick={handleClose}>关闭</Button>
+                                <Button type="primary" onClick={handleClose}>取消</Button>
                             </div>
                         </div>)
                 }
@@ -327,11 +335,13 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 centered
                 onCancel={() => {
                     setIsDebugVisible(false)
+                    setDebugOutput('')
+                    setActiveKey('')
                 }}
                 maskClosable={false}
                 footer={null}
                 width={1000}
-                style={{height: '80vh'}}
+                style={{height: '95vh'}}
             >
                 <Form
                     name="Debug Node"
@@ -354,7 +364,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 height="500px"
                                 defaultLanguage="json"
                                 onChange={handleDebugJsonChange}
-                                key={clickNode?.data.scriptId}
+                                key={clickNode ? clickNode.data.scriptId +clinkNodeChangeCount: 'jsonInput'}
+                                defaultValue={debugValue}
                                 options={{
                                     scrollBeyondLastLine: false,
                                     fontSize: 16,
