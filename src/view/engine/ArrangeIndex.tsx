@@ -332,22 +332,22 @@ const ArrangeIndex: React.FC = () => {
 
 
                     <Form.Item
-                        required
+                        // required
                         label="定义workflow 输入参数"
                         tooltip="只是定义,不会增加代码的逻辑。只是文字性描述,规范使用"
                     >
                         {/* 这里使用Form.List，不再额外嵌套Form.Item */}
                         <Form.List
                             name="workflowParameters"
-                            rules={[
-                                {
-                                    validator: async (_, parameters) => {
-                                        if (!parameters || parameters.length < 1) {
-                                            return Promise.reject(new Error('至少需要一个入参定义'));
-                                        }
-                                    },
-                                },
-                            ]}
+                            // rules={[
+                            //     {
+                            //         validator: async (_, parameters) => {
+                            //             if (!parameters || parameters.length < 1) {
+                            //                 return Promise.reject(new Error('至少需要一个入参定义'));
+                            //             }
+                            //         },
+                            //     },
+                            // ]}
                         >
                             {(fields, {add, remove}, {errors}) => (
                                 <>

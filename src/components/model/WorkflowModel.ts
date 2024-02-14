@@ -73,3 +73,15 @@ export interface DebugRequest{
     scriptMetadata:NodeData;
     inputValues:any
 }
+export type ScriptRunStatus = 'Start' | 'End' | 'Success' | 'Error';
+
+export interface WorkflowTaskLog {
+    scriptId: string;
+    scriptName: string;
+    beforeRunBinding: Record<string, any>;
+    afterRunBinding: Record<string, any>;
+    scriptRunStatus: ScriptRunStatus;
+    scriptRunResult: any;
+    scriptRunTime: Date;
+    scriptRunError: string;
+}

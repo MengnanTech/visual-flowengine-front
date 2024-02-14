@@ -444,7 +444,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
     }
 
     const nodeActions: NodeAction[] = [
-        // 添加代码节点
+
         {
             icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '添加代码节点',
@@ -452,15 +452,14 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: isEndNodeType,
             action: () => handleScriptNode(treeStore.menuNode!, "Script")
         },
-        // 条件节点
+
         {
             icon: <CheckCircleOutlined className={NodeMenuStyles.icon}/>,
-            label: '条件节点todo',
+            label: '条件节点',
             nodeType: "Condition",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleAddNode(treeStore.menuNode!, "Condition")
         },
-        // 规则节点
         {
             icon: <ShrinkOutlined className={NodeMenuStyles.icon}/>,
             label: '规则节点todo',
@@ -468,7 +467,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleScriptNode(treeStore.menuNode!, "Rule")
         },
-        // 删除节点树
         {
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除节点树',
@@ -476,7 +474,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: isEndNodeType || isStartNodeType,
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
-        // 删除当前节点
         {
             icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
             label: '删除当前节点',
@@ -484,7 +481,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: hasEndChildNode || isStartNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
-        // 结束节点
         {
             icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
             label: '结束节点',
@@ -492,7 +488,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: hasChildren || isEndNodeType,
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
-        // 拖拽节点
         {
             icon: <DragOutlined className={NodeMenuStyles.icon}/>,
             label: '拖拽节点',
@@ -500,7 +495,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             disabled: isEndNodeType || isStartNodeType,
             action: () => handDragNode()
         },
-        // json批量创建节点
         {
             icon: <FileOutlined className={NodeMenuStyles.icon}/>,
             label: 'json批量创建节点',

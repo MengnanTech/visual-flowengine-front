@@ -1,5 +1,5 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
-import {Badge, Button, Col, Descriptions, Form, message, Modal, Tooltip} from 'antd';
+import {Badge, Button, Col, Collapse, CollapseProps, Descriptions, Form, Input, message, Modal, Tooltip} from 'antd';
 import Editor, {Monaco} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
@@ -21,7 +21,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
 
 import style from "@/view/engine/styles/DebugForm.module.scss";
-import { DebugScriptRequest} from "@/components/model/WorkflowModel.ts";
+import {DebugScriptRequest} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -44,6 +44,11 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const [isEditing, setIsEditing] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isDebugVisible, setIsDebugVisible] = useState(false);
+    const [modalSize, setModalSize] = useState({width: '90vh', height: '80vh'});
+    // 是否全屏
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [debugValue, setDebugValue] = useState('');
+    const [debugOutput, setDebugOutput] = useState('');
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
     };
@@ -107,6 +112,10 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setEditorCode(value || '');
     }
 
+    function handleDebugJsonChange(value: string | undefined) {
+        setDebugValue(value || '');
+    }
+
     // 编辑器挂载完成时执行，可以获取到编辑器实例和 Monaco 实例
     const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor;
@@ -131,9 +140,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         markers.forEach(marker => console.log('onValidate:', marker.message));
     }
 
-    const [modalSize, setModalSize] = useState({width: '90vh', height: '80vh'});
-    // 是否全屏
-    const [isFullScreen, setIsFullScreen] = useState(false);
 
     // 切换全屏状态
     const toggleFullScreen = () => {
@@ -147,26 +153,28 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         }
     };
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
-    const onFinish = (values: any) => {
-        const {jsonInput} = values;
+    const onFinish = () => {
 
-        console.log('Received values of form: ', values,jsonInput);
+
         let debugScriptRequest: DebugScriptRequest = {
             code: clickNode!.data.scriptText,
-            inputValues: jsonInput ? JSON.parse(jsonInput) : {}
+            inputValues: debugValue ? JSON.parse(debugValue) : {}
         }
-
         debugGroovyScript(debugScriptRequest).then(
-            r => {
-                if (r) {
-                    message.success('调试成功').then(r => r);
-                } else {
-                    message.error('调试失败').then(r => r);
-                }
+            (r) => {
+                const formattedOutput = `Script ID: ${r.scriptId}\nScript Name: ${r.scriptName}\nBefore Run Binding: ${JSON.stringify(r.beforeRunBinding, null, 2)}\nAfter Run Binding: ${JSON.stringify(r.afterRunBinding, null, 2)}\nScript Run Status: ${r.scriptRunStatus}\nScript Run Result: ${r.scriptRunResult}\nScript Run Time: ${r.scriptRunTime}\nScript Run Error: ${r.scriptRunError}`;
+                setDebugOutput(formattedOutput);
             }
         )
     };
 
+    const collapseItems: CollapseProps['items'] = [
+        {
+            key: "1",
+            label: "Debug Output",
+            children: <Input.TextArea rows={10} value={debugOutput} readOnly/>,
+        },
+    ];
 
     return (
         <div>
@@ -313,6 +321,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             <Editor
                                 height="500px"
                                 defaultLanguage="json"
+                                onChange={handleDebugJsonChange}
                                 options={{
                                     scrollBeyondLastLine: false,
                                     fontSize: 16,
@@ -324,6 +333,9 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         <Button type="primary" htmlType="submit" style={{width: '100%'}}>
                             Submit
                         </Button>
+                    </Form.Item>
+                    <Form.Item>
+                        <Collapse bordered={true} items={collapseItems}/>
                     </Form.Item>
                 </Form>
 

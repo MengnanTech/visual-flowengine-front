@@ -4,7 +4,7 @@ import {
     Diagnostic,
     MenuItemsIdAndName,
     WorkflowCreateRequest,
-    WorkflowMetadata
+    WorkflowMetadata, WorkflowTaskLog
 } from "@/components/model/WorkflowModel.ts";
 
 
@@ -43,7 +43,7 @@ export async function updateWorkflowName(workflowId: number, workflowName: strin
     return await HTTP.put(`${window.updateWorkflowNameApiPath}?workflowId=${workflowId}&workflowName=${workflowName}`, null);
 }
 
-export async function debugGroovyScript(debugScriptRequest: DebugScriptRequest): Promise<any> {
+export async function debugGroovyScript(debugScriptRequest: DebugScriptRequest): Promise<WorkflowTaskLog> {
     return await HTTP.post(window.runGroovyScriptApiPath, JSON.stringify(debugScriptRequest));
 }
 
@@ -51,7 +51,7 @@ export async function getWorkflowMetadata(workflowId: number): Promise<WorkflowM
     return await HTTP.get(`${window.getWorkflowMetadataApiPath}?workflowId=${workflowId}`);
 }
 
-export async function debugWorkflow(debugRequest: DebugRequest): Promise<any> {
+export async function debugWorkflow(debugRequest: DebugRequest): Promise<WorkflowTaskLog[]> {
     return await HTTP.post(`${window.debugWorkflowApiPath}`, JSON.stringify(debugRequest));
 }
 
