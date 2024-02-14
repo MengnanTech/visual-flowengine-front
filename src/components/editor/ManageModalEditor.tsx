@@ -1,5 +1,5 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
-import {Badge, Button, Col, Collapse, CollapseProps, Descriptions, Form, Input, message, Modal, Tooltip} from 'antd';
+import {Badge, Button, Col, Collapse, CollapseProps, Descriptions, Form, message, Modal, Tooltip} from 'antd';
 import Editor, {Monaco} from '@monaco-editor/react';
 import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
@@ -21,7 +21,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
 
 import style from "@/view/engine/styles/DebugForm.module.scss";
-import {DebugScriptRequest} from "@/components/model/WorkflowModel.ts";
+import {DebugScriptRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -48,7 +48,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     // 是否全屏
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [debugValue, setDebugValue] = useState('');
-    const [debugOutput, setDebugOutput] = useState('');
+    const [debugOutput, setDebugOutput] = useState<WorkflowTaskLog | null>(null);
     const [activeKey, setActiveKey] = useState('');
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
@@ -71,6 +71,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         if (clickNode?.data.scriptText) {
             compileCode(clickNode.data.scriptText).then(r => r);
         }
+        setDebugValue('')
         // 更新标题
     }, [clickNode]);
 
@@ -163,18 +164,33 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         }
         debugGroovyScript(debugScriptRequest).then(
             (r) => {
-                const formattedOutput = `Script ID: ${r.scriptId}\nScript Name: ${r.scriptName}\nBefore Run Binding: ${JSON.stringify(r.beforeRunBinding, null, 2)}\nAfter Run Binding: ${JSON.stringify(r.afterRunBinding, null, 2)}\nScript Run Status: ${r.scriptRunStatus}\nScript Run Result: ${r.scriptRunResult}\nScript Run Time: ${r.scriptRunTime}\nScript Run Error: ${r.scriptRunError}`;
-                setDebugOutput(formattedOutput);
-                setActiveKey("1");
+                r.scriptId = clickNode!.data.scriptId;
+                r.scriptName = clickNode!.data.scriptName;
+                setDebugOutput(r);
+                setActiveKey(clickNode?.data.scriptId || '1');
             }
         )
     };
 
     const collapseItems: CollapseProps['items'] = [
         {
-            key: "1",
+            key: clickNode?.data.scriptId || '1',
             label: "Debug Output",
-            children: <Input.TextArea rows={10} value={debugOutput} readOnly/>,
+            children: <MonacoEditor
+                key={Math.random()}
+                height={"50vh"}
+                defaultLanguage="json"
+                options={{
+                    contextmenu: true,
+                    wordWrap: 'off',
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    fontSize: 16,
+                    readOnly: readonly,
+
+                }}
+                defaultValue={JSON.stringify(debugOutput, null, 2)}
+            />,
         },
     ];
 
@@ -186,7 +202,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             newActiveKey = keys.includes(activeKey) ? '' : keys[0];
         } else {
             // 如果 keys 不是数组，直接比较
-            newActiveKey = activeKey === keys ? '' : keys;
+            newActiveKey = activeKey === keys ? '1' : keys;
         }
 
         setActiveKey(newActiveKey);
@@ -338,6 +354,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 height="500px"
                                 defaultLanguage="json"
                                 onChange={handleDebugJsonChange}
+                                key={clickNode?.data.scriptId}
                                 options={{
                                     scrollBeyondLastLine: false,
                                     fontSize: 16,
@@ -351,7 +368,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         </Button>
                     </Form.Item>
                     <Form.Item>
-                        <Collapse onChange={handleCollapseChange} activeKey={activeKey} bordered={true} items={collapseItems}/>
+                        <Collapse key={clickNode?.data.scriptId} onChange={handleCollapseChange} activeKey={activeKey}
+                                  bordered={true} items={collapseItems}/>
                     </Form.Item>
                 </Form>
 
