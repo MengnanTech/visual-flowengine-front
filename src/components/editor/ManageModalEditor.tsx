@@ -178,10 +178,18 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         },
     ];
 
-    const handleCollapseChange = (key:string) => {
-        // 如果当前已展开的 key 包含点击的 key，则清空 activeKey 以折叠它
-        // 否则设置为当前点击的 key 以展开它
-        setActiveKey(activeKey === key ? '' : key);
+    const handleCollapseChange = (keys: string | string[]) => {
+        let newActiveKey = '';
+
+        if (Array.isArray(keys)) {
+            // 如果 keys 是数组，检查 activeKey 是否在其中，逻辑假定只处理单个面板逻辑
+            newActiveKey = keys.includes(activeKey) ? '' : keys[0];
+        } else {
+            // 如果 keys 不是数组，直接比较
+            newActiveKey = activeKey === keys ? '' : keys;
+        }
+
+        setActiveKey(newActiveKey);
     };
 
     return (
