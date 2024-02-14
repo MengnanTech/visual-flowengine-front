@@ -49,6 +49,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [debugValue, setDebugValue] = useState('');
     const [debugOutput, setDebugOutput] = useState('');
+    const [activeKey, setActiveKey] = useState('');
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue); // 更新局部状态
     };
@@ -164,6 +165,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             (r) => {
                 const formattedOutput = `Script ID: ${r.scriptId}\nScript Name: ${r.scriptName}\nBefore Run Binding: ${JSON.stringify(r.beforeRunBinding, null, 2)}\nAfter Run Binding: ${JSON.stringify(r.afterRunBinding, null, 2)}\nScript Run Status: ${r.scriptRunStatus}\nScript Run Result: ${r.scriptRunResult}\nScript Run Time: ${r.scriptRunTime}\nScript Run Error: ${r.scriptRunError}`;
                 setDebugOutput(formattedOutput);
+                setActiveKey("1");
             }
         )
     };
@@ -175,6 +177,12 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             children: <Input.TextArea rows={10} value={debugOutput} readOnly/>,
         },
     ];
+
+    const handleCollapseChange = (key:string) => {
+        // 如果当前已展开的 key 包含点击的 key，则清空 activeKey 以折叠它
+        // 否则设置为当前点击的 key 以展开它
+        setActiveKey(activeKey === key ? '' : key);
+    };
 
     return (
         <div>
@@ -335,7 +343,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                         </Button>
                     </Form.Item>
                     <Form.Item>
-                        <Collapse bordered={true} items={collapseItems}/>
+                        <Collapse onChange={handleCollapseChange} activeKey={activeKey} bordered={true} items={collapseItems}/>
                     </Form.Item>
                 </Form>
 
