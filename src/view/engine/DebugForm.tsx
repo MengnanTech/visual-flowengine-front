@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import {Form, Input, Button, Tabs, Row, Col, message} from 'antd';
+import {Form, Input, Button, Tabs, Row, Col, message, CollapseProps, Collapse} from 'antd';
 import Editor from "@monaco-editor/react";
 import style from './styles/DebugForm.module.scss';
 import {debugWorkflow} from "@/network/api.ts";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {DebugRequest, findNodeDataById} from "@/components/model/WorkflowModel.ts";
+import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 import {CheckOutlined, EditOutlined} from "@ant-design/icons";
+import {ItemType} from "rc-collapse/es/interface";
 
 
 interface DebugFormProps {
@@ -18,6 +19,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     const [editorValue, setEditorValue] = useState('');
     const [scriptId, setScriptId] = useState("1");
     const [isScriptIdEditable, setIsScriptIdEditable] = useState(false);
+    const [debugResults, setDebugResults] = useState<Record<string, WorkflowTaskLog[]>>({});
 
     const toggleScriptIdEditability = () => {
         setIsScriptIdEditable((prevEditable) => !prevEditable);
@@ -25,6 +27,60 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
     const handleEditorChange = (value: string | undefined) => {
         setEditorValue(value || '');
+    };
+
+    const generateItemsNest = () => {
+        return Object.entries(debugResults).flatMap(([step, logs]) => {
+            // 当一个步骤中有多个WorkflowTaskLog对象
+            if (logs.length > 1) {
+                const scriptNames = logs.map(log => log.scriptName).join(", ");
+                const children = logs.map((log, index) => {
+                    // 根据log.scriptRunResult的值动态设置文本颜色
+                    // const resultColor = log.scriptRunResult === true ? 'green' : 'inherit'; // 假设true时为绿色
+                    return {
+                        key: `${step}-${index}`,
+                        label: log.scriptName,
+                        style: {backgroundColor:  log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
+                        children: (
+                            <div>
+                                <p>Status: {log.scriptRunStatus}</p>
+                                <p >Result: {JSON.stringify(log.scriptRunResult)}</p>
+                                {/* 其他需要显示的信息 */}
+                            </div>
+                        ),
+                    } as ItemType;
+                });
+                const label = (
+                    <React.Fragment>
+                        {`Condition: `}
+                        <span style={{ color: 'red' }}>({scriptNames})-{` ${step}`}</span>
+                    </React.Fragment>
+                );
+                return [{
+                    key: step,
+                    label: label,
+                    children: <Collapse size="small" defaultActiveKey={[step]} items={children} />,
+                }as ItemType];
+            }
+            // 当只有一个WorkflowTaskLog对象
+            else if (logs.length === 1) {
+                const log = logs[0];
+                // 注意这里的逻辑，确保它符合您的要求
+                const label = log.scriptRunStatus === 'End' ? 'End' : log.scriptName;
+                return [{
+                    key: step,
+                    label: label,
+                    children: (
+                        <div>
+                            <p>Status: {log.scriptRunStatus}</p>
+                            <p>Result: {JSON.stringify(log.scriptRunResult)}</p>
+                            {/* 其他需要显示的信息 */}
+                        </div>
+                    ),
+                }as ItemType];
+            }
+            return [];
+        });
     };
 
     const onFinish = (values: any) => {
@@ -52,15 +108,18 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
         debugWorkflow(debugRequest).then(
             r => {
-                if (r) {
-                    message.success('调试成功').then(r => r);
-                } else {
-                    message.error('调试失败').then(r => r);
-                }
+                setDebugResults(r);
             }
         )
     };
 
+    const items: CollapseProps['items'] = [
+        {
+            key: '1',
+            label: 'Debug Output',
+            children: <Collapse size="small" defaultActiveKey="1" items={generateItemsNest()} />,
+        }
+    ];
 
     const tabItems = [
         {
@@ -83,7 +142,9 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                             </Form.Item>
                         </Col>
                     ))}
+
                 </Row>
+
             ),
         },
         {
@@ -143,6 +204,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     Submit
                 </Button>
             </Form.Item>
+            <Collapse size="small" items={items} />
         </Form>
     );
 };

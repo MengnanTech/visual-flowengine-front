@@ -164,8 +164,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
     const onFinish = () => {
 
-        console.log('Finish',debugValue);
-
         let debugScriptRequest: DebugScriptRequest = {
             code: clickNode!.data.scriptText,
             inputValues: debugValue ? JSON.parse(debugValue) : {}
