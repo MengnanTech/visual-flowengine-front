@@ -162,7 +162,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             key: '1',
             children: (
                 <Row gutter={16}>
-                    {treeChartState.currentData.workflowParameters.map((field) => (
+                    {treeChartState.currentData.workflowParameters&&treeChartState.currentData.workflowParameters.map((field) => (
                         <Col span={24} key={field.parameterName} className={style.formFieldColumn}>
                             <Form.Item
                                 label={

@@ -1,7 +1,7 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
 import {Badge, Button, Col, Collapse, CollapseProps, Descriptions, Form, message, Modal, Tooltip} from 'antd';
 import Editor, {Monaco} from '@monaco-editor/react';
-import {compileGroovyScript, debugGroovyScript} from "@/network/api.ts";
+import {compileGroovyScript, debugWorkflow} from "@/network/api.ts";
 // import * as monaco from 'monaco-editor';
 //这样导入少包体积少2M
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -21,7 +21,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
 
 import style from "@/view/engine/styles/DebugForm.module.scss";
-import {DebugScriptRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
+import {DebugRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -164,15 +164,19 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh'; // 举例调整，需要根据实际情况微调
     const onFinish = () => {
 
-        let debugScriptRequest: DebugScriptRequest = {
-            code: clickNode!.data.scriptText,
+        let debugRequest: DebugRequest = {
+            scriptMetadata: {
+                ...clickNode!.data,
+                children:null
+            },
             inputValues: debugValue ? JSON.parse(debugValue) : {}
         }
-        debugGroovyScript(debugScriptRequest).then(
+        debugWorkflow(debugRequest).then(
             (r) => {
-                r.scriptId = clickNode!.data.scriptId;
-                r.scriptName = clickNode!.data.scriptName;
-                setDebugOutput(r);
+                const log = r["1"][0];
+                log.scriptId = clickNode!.data.scriptId;
+                log.scriptName = clickNode!.data.scriptName;
+                setDebugOutput(log);
                 setActiveKey(clickNode?.data.scriptId || '1');
             }
         )
