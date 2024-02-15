@@ -7,6 +7,7 @@ import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 import {CheckOutlined, EditOutlined} from "@ant-design/icons";
 import {ItemType} from "rc-collapse/es/interface";
+const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
 
 interface DebugFormProps {
@@ -42,11 +43,30 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         label: log.scriptName,
                         style: {backgroundColor:  log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
                         children: (
-                            <div>
-                                <p>Status: {log.scriptRunStatus}</p>
-                                <p >Result: {JSON.stringify(log.scriptRunResult)}</p>
-                                {/* 其他需要显示的信息 */}
-                            </div>
+
+
+                            <MonacoEditor
+                                key={Math.random()}
+                                height={"30vh"}
+                                defaultLanguage="json"
+                                options={{
+                                    contextmenu: true,
+                                    wordWrap: 'off',
+                                    scrollBeyondLastLine: false,
+                                    automaticLayout: true,
+                                    fontSize: 16,
+                                    readOnly: true,
+
+                                }}
+                                defaultValue={JSON.stringify(log, null, 2)}
+                            />
+
+
+                            // <div>
+                            //     <p>Status: {log.scriptRunStatus}</p>
+                            //     <p >Result: {JSON.stringify(log.scriptRunResult)}</p>
+                            //     {/* 其他需要显示的信息 */}
+                            // </div>
                         ),
                     } as ItemType;
                 });
@@ -67,16 +87,31 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                 const log = logs[0];
                 // 注意这里的逻辑，确保它符合您的要求
                 const label = log.scriptRunStatus === 'End' ? 'End' : log.scriptName;
+
+                const content = log.scriptRunStatus === 'End' ? (
+                    <div>
+                        <p>Status: {log.scriptRunStatus}</p>
+                    </div>
+                ) : (
+                    <MonacoEditor
+                        key={Math.random()}
+                        height={"30vh"}
+                        defaultLanguage="json"
+                        options={{
+                            contextmenu: true,
+                            wordWrap: 'off',
+                            scrollBeyondLastLine: false,
+                            automaticLayout: true,
+                            fontSize: 16,
+                            readOnly: true,
+                        }}
+                        defaultValue={JSON.stringify(log, null, 2)}
+                    />
+                );
                 return [{
                     key: step,
                     label: label,
-                    children: (
-                        <div>
-                            <p>Status: {log.scriptRunStatus}</p>
-                            <p>Result: {JSON.stringify(log.scriptRunResult)}</p>
-                            {/* 其他需要显示的信息 */}
-                        </div>
-                    ),
+                    children: content,
                 }as ItemType];
             }
             return [];
@@ -84,7 +119,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     };
 
     const onFinish = (values: any) => {
-        const {jsonInput, ...inputValuesWithoutJsonInput} = values;
+        const {...inputValuesWithoutJsonInput} = values;
 
         const nodeData = findNodeDataById(treeChartState.currentData.scriptMetadata, scriptId);
         if (!nodeData) {
