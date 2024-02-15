@@ -146,6 +146,82 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
     }
 
 
+    function handleConditionNode(clickedNode: D3Node) {
+
+        const newNodeData:NodeData  = {
+            scriptId: GenerateUUID(),
+            scriptName: "New Condition Node" + (Math.floor(Math.random() * 90) + 10),
+            scriptText: '',
+            scriptType: "Condition",
+            scriptDesc: "",
+            children: null
+        };
+
+        // 创建新节点并设置基本属性
+        const newNode = d3.hierarchy(newNodeData, (d) => d.children) as D3Node;
+        newNode.depth = clickedNode.depth + 1;
+        newNode.parent = clickedNode;
+
+        // 确保clickedNode有children属性
+        if (!clickedNode.children) {
+            clickedNode.children = [];
+        }
+
+        if (!clickedNode.data.children) {
+            clickedNode.data.children = [];
+        } else {
+            // 这里我们需要处理的是，确保children的数据部分也同步更新
+            clickedNode.data.children = clickedNode.data.children.filter(childData => childData.scriptType === "Condition");
+        }
+
+        // 准备一个数组来收集非Condition类型的子节点数据
+        const nonConditionChildrenData:NodeData[] = [];
+
+        // 逆序遍历以避免在遍历过程中修改数组长度带来的问题
+        for (let i = clickedNode.children.length - 1; i >= 0; i--) {
+            let child = clickedNode.children[i];
+            if (child.data.scriptType !== "Condition") {
+
+                if (!newNode.children){
+                    newNode.children=[]
+                }
+                newNode.children.push(child);
+                clickedNode.children.splice(i, 1); // 从clickedNode的children中移除该子节点
+                child.parent = newNode; // 更新父节点引用
+
+                nonConditionChildrenData.push(child.data);
+                updateNodeDepth(child, newNode.depth + 1);
+            }
+        }
+
+        // 更新新节点的数据部分以反映非Condition类型的子节点
+        newNodeData.children = nonConditionChildrenData;
+
+        // 将新节点添加为clickedNode的子节点（视图层和数据层）
+        clickedNode.children.push(newNode);
+        clickedNode.data.children.push(newNodeData);
+        refresh(treeChartState);
+
+        const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
+        nodesEnter.transition()
+            .duration(750)
+            .style('opacity', 1)
+            .attrTween("transform", function (d): (t: number) => string {
+
+                const parentX = d.parent.previousX;
+                const parentY = d.parent.previousY;
+
+                const interpolateSourceX = d3.interpolate(parentX, d.x);
+
+                let interpolateSourceY = d3.interpolate(parentY, d.y);
+                return function (t: number): string {
+                    return `translate(${interpolateSourceY(t)},${interpolateSourceX(t)})`;
+                };
+            })
+
+    }
+
+
     function removeLink(transition: Transition<SVGCircleElement, D3Link, any, any>, nodeToRemove: D3Node) {
         transition.style('opacity', 0)
             .attrTween("d", function (d): (t: number) => string {
@@ -367,10 +443,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
                 updateNodeDepth(child, newNode.depth + 1); // 更新深度的函数
             });
         }
-
-
         clickedNode.children = [newNode];
-
 
         if (!clickedNode.data.children) {
             clickedNode.data.children = [];
@@ -379,8 +452,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
 
         // 5. 如果有必要，更新新节点B的数据结构以反映其子节点
         newNodeData.children = newNode.children ? newNode.children.map(child => child.data) : [];
-
-
         newNodeData.children.forEach(child => {
             let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(clickedNode.data.scriptId, child.scriptId)}`);
             selection.attr("id", `${generateLinkId(newNode.data.scriptId, child.scriptId)}`)
@@ -456,7 +527,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             label: '条件节点',
             nodeType: "Condition",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
-            action: () => handleAddNode(treeStore.menuNode!, "Condition")
+            action: () => handleConditionNode(treeStore.menuNode!)
         },
         {
             icon: <ShrinkOutlined className={NodeMenuStyles.icon}/>,
