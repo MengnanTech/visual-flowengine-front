@@ -1,14 +1,4 @@
-// NodeMenu.tsx
 import React from 'react';
-import {
-    CheckCircleOutlined,
-    CloseCircleOutlined,
-    DeleteOutlined,
-    DragOutlined,
-    FileOutlined,
-    PlusCircleOutlined,
-    ShrinkOutlined
-} from "@ant-design/icons";
 import {message, Popover} from "antd";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import * as d3 from "d3";
@@ -17,9 +7,17 @@ import {D3Link, D3Node, NodeData, TreeChartState} from "@/components/D3Node/Node
 import {generateLinkId, refresh} from "@/components/D3Node/TreeChartDrawing.ts";
 import {observer} from "mobx-react";
 import {END_NODE_LENGTH, GenerateUUID} from "@/components/d3Helpers/treeHelpers.ts";
+import scriptIcon from '@/assets/logo/ScriptNode.svg';
+import ruleIcon from '@/assets/logo/RuleNode.svg';
+import conditionIcon from '@/assets/logo/ConditionNode.svg';
+import deleteIcon from '@/assets/logo/Delete.svg';
+import deleteTreeIcon from '@/assets/logo/DeleteTree.svg';
+import endIcon from '@/assets/logo/end.svg';
+import dragIcon from '@/assets/logo/drag.svg';
+import batchAdd from '@/assets/logo/batchAdd.svg';
 
 interface NodeAction {
-    icon: React.JSX.Element;
+    icon: string ;
     label: string;
     nodeType?: string;
     disabled?: boolean;
@@ -256,34 +254,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
             });
     }
 
-    // @ts-ignore
-    function removeNodeAndLinks(nodeToRemove: D3Node) {
-        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
-        // 视图上移除和这个节点相关的node 和link
-        nodesEnter.transition().duration(500)
-            .style('opacity', 0)
-            .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
-            .on('end', function () {
-                d3.select(this).remove(); // 在动画结束后移除节点
-            });
-
-
-        const linksToRemove = gRef.selectAll<SVGCircleElement, D3Link>('.link')
-            .filter((d: D3Link) => {
-                return d.source.data.scriptId === nodeToRemove.data.scriptId || d.source.data.scriptId === nodeToRemove.data.scriptId;
-            });//这里还可以改名link
-
-        const transition = linksToRemove.transition().duration(500);
-        removeLink(transition, nodeToRemove);
-
-    }
 
     function handleDeleteNode(nodeToRemove: D3Node) {
         if (!nodeToRemove.parent) {
             message.error('根节点无法删除').then(r => r);
             return;
         }
-        // removeNodeAndLinks(nodeToRemove);
 
         const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
         // 视图上移除和这个节点相关的node 和link
@@ -458,37 +434,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
         })
 
         refresh(treeChartState);
-        //
-        // if (!newNodeData.children || newNodeData.children.length === 0) {
-        //     let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(clickedNode.data.scriptId, newNodeData.scriptId)}`);
-        //     selection.transition().duration(750).style('opacity', 1)
-        //         .attrTween("d", function (d): (t: number) => string {
-        //
-        //             const interpolateSourceX = d3.interpolate(d.source.previousX!, d.source.x);
-        //             const interpolateSourceY = d3.interpolate(d.source.y, d.source.y);
-        //             const interpolateTargetX = d3.interpolate(d.source.x,  d.source.x);
-        //             // const interpolateTargetY = d3.interpolate(d.target.data.scriptType === 'End' ? d.target.y - END_NODE_LENGTH : d.target.y, o.y);
-        //             const interpolateTargetY = d3.interpolate( d.source.y, d.target.y);
-        //
-        //
-        //             return function (t: number): string {
-        //                 // 计算当前插值状态
-        //                 const sourceX = interpolateSourceX(t);
-        //                 const sourceY = interpolateSourceY(t);
-        //                 const targetX = interpolateTargetX(t);
-        //                 const targetY = interpolateTargetY(t);
-        //
-        //                 // 返回当前的路径
-        //                 const spreadElements: D3Link = {
-        //                     source: {x: sourceX, y: sourceY} as D3Node,
-        //                     target: {x: targetX, y: targetY} as D3Node
-        //                 };
-        //                 return d3.linkHorizontal<D3Link, D3Node>().x(function (d) {
-        //                     return d.y;
-        //                 }).y(d => d.x)(spreadElements)!;
-        //             };
-        //         })
-        // }
 
 
         const nodesEnter = gRef.select<SVGGElement>(`#node-${newNodeData.scriptId}`);
@@ -515,7 +460,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
     const nodeActions: NodeAction[] = [
 
         {
-            icon: <PlusCircleOutlined className={NodeMenuStyles.icon}/>,
+            icon: scriptIcon,
             label: '添加代码节点',
             nodeType: "Script",
             disabled: isEndNodeType,
@@ -523,49 +468,49 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
         },
 
         {
-            icon: <CheckCircleOutlined className={NodeMenuStyles.icon}/>,
+            icon: conditionIcon,
             label: '条件节点',
             nodeType: "Condition",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleConditionNode(treeStore.menuNode!)
         },
         {
-            icon: <ShrinkOutlined className={NodeMenuStyles.icon}/>,
+            icon: ruleIcon,
             label: '规则节点todo',
             nodeType: "Rule",
             disabled: isEndNodeType || (hasChildren && nextNodeIsEnd),
             action: () => handleScriptNode(treeStore.menuNode!, "Rule")
         },
         {
-            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
+            icon: deleteTreeIcon,
             label: '删除节点树',
             nodeType: "DeleteTree",
             disabled: isEndNodeType || isStartNodeType,
             action: () => handleDeleteCurrentTree(treeStore.menuNode!)
         },
         {
-            icon: <DeleteOutlined className={NodeMenuStyles.icon}/>,
+            icon: deleteIcon,
             label: '删除当前节点',
             nodeType: "Delete",
             disabled: hasEndChildNode || isStartNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
         {
-            icon: <CloseCircleOutlined className={NodeMenuStyles.icon}/>,
+            icon: endIcon,
             label: '结束节点',
             nodeType: "End",
             disabled: hasChildren || isEndNodeType,
             action: () => handleAddNode(treeStore.menuNode!, 'End')
         },
         {
-            icon: <DragOutlined className={NodeMenuStyles.icon}/>,
+            icon: dragIcon,
             label: '拖拽节点',
             nodeType: "drag",
             disabled: isEndNodeType || isStartNodeType,
             action: () => handDragNode()
         },
         {
-            icon: <FileOutlined className={NodeMenuStyles.icon}/>,
+            icon: batchAdd,
             label: 'json批量创建节点',
             disabled: isEndNodeType || nextNodeIsEnd,
             action: () => handDragNode()
@@ -782,7 +727,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
                         <div key={index}
                              className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
                              onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
-                            {nodeAction.icon}
+                            <img style={{ width: '24px', height: '24px' }}  src={nodeAction.icon} alt={nodeAction.label}/>
                             <span className={NodeMenuStyles.nodeLabel}>{nodeAction.label}</span>
                         </div>
                     ))}
