@@ -29,6 +29,7 @@ export class TreeStore {
 
     @action
     setCurrentMenu(menuPosition: { x: number; y: number } | null) {
+
         this.menuPosition = menuPosition;
     }
 

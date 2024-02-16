@@ -14,20 +14,22 @@ export function endNodeEvent(selection: d3.Selection<SVGRectElement, D3Node, nul
 
         // 计算变换后的位置
         const transformedX = transform.applyX(d.y);
+        const scaledEndNodeLength = END_NODE_LENGTH * transform.k;
+        // transform.k 是当前的缩放比例
+
         const transformedY = transform.applyY(d.x);
 
         const boundingClientRect = svgRef.getBoundingClientRect();
 
         // 计算 Popover 在文档中的位置
-        const x = boundingClientRect.left + window.scrollX + transformedX; // 调整 X 坐标
-        // const x = boundingClientRect.left + window.scrollX + transformedX - popoverWidth / 2; // 调整 X 坐标
+        const x = boundingClientRect.left + window.scrollX + transformedX-scaledEndNodeLength; // 调整 X 坐标
         const y = boundingClientRect.top + window.scrollY + transformedY;
         treeStore.setCurrentMenu(null)
-
+        console.log('setCurrentMenu', x, y);
         setTimeout(() => {
-            treeStore.setCurrentMenu({x: x - END_NODE_LENGTH, y: y});
+            treeStore.setCurrentMenu({x: x, y: y});
             treeStore.setMenuNode(d);
-        }, 1);
+        }, 10);
     })
 }
 
