@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {Form, Input, Button, Tabs, Row, Col, message, CollapseProps, Collapse} from 'antd';
 import Editor from "@monaco-editor/react";
-import style from './styles/DebugForm.module.scss';
 import {debugWorkflow} from "@/network/api.ts";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
@@ -20,8 +19,9 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     const [editorValue, setEditorValue] = useState('');
     const [scriptId, setScriptId] = useState("1");
     const [isScriptIdEditable, setIsScriptIdEditable] = useState(false);
-    const [debugResults, setDebugResults] = useState<Record<string, WorkflowTaskLog[]>>({});
-
+    // const [debugResults, setDebugResults] = useState<Record<string, WorkflowTaskLog[]>>({});
+    const [expandedKeys, setExpandedKeys] = useState<string>('1');
+    const [generatedItems, setGeneratedItems] = useState<ItemType[]>([]);
     const toggleScriptIdEditability = () => {
         setIsScriptIdEditable((prevEditable) => !prevEditable);
     };
@@ -30,14 +30,13 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         setEditorValue(value || '');
     };
 
-    const generateItemsNest = () => {
+    const generateItemsNest = (debugResults:Record<string, WorkflowTaskLog[]>) => {
         return Object.entries(debugResults).flatMap(([step, logs]) => {
             // 当一个步骤中有多个WorkflowTaskLog对象
             if (logs.length > 1) {
                 const scriptNames = logs.map(log => log.scriptName).join(", ");
                 const children = logs.map((log, index) => {
-                    // 根据log.scriptRunResult的值动态设置文本颜色
-                    // const resultColor = log.scriptRunResult === true ? 'green' : 'inherit'; // 假设true时为绿色
+
                     return {
                         key: `${step}-${index}`,
                         label: log.scriptName,
@@ -119,7 +118,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     };
 
     const onFinish = (values: any) => {
-        const {...inputValuesWithoutJsonInput} = values;
+        const {jsonInput,...inputValuesWithoutJsonInput} = values;
 
         const nodeData = findNodeDataById(treeChartState.currentData.scriptMetadata, scriptId);
         if (!nodeData) {
@@ -143,7 +142,11 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
         debugWorkflow(debugRequest).then(
             r => {
-                setDebugResults(r);
+
+                const itemsNest = generateItemsNest(r); // 确保generateItemsNest能够接收debugResults作为参数
+                setGeneratedItems(itemsNest);
+                setExpandedKeys('1');
+
             }
         )
     };
@@ -152,10 +155,24 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         {
             key: '1',
             label: 'Debug Output',
-            children: <Collapse size="small" defaultActiveKey="1" items={generateItemsNest()} />,
+            children: <Collapse size="small" defaultActiveKey="1" items={generatedItems} />,
         }
     ];
 
+
+    const handleCollapseChange = (keys: string | string[]) => {
+        let newActiveKey = '';
+
+        if (Array.isArray(keys)) {
+            // 如果 keys 是数组，检查 activeKey 是否在其中，逻辑假定只处理单个面板逻辑
+            newActiveKey = keys.includes(expandedKeys) ? '' : keys[0];
+        } else {
+            // 如果 keys 不是数组，直接比较
+            newActiveKey = expandedKeys === keys ? '1' : keys;
+        }
+
+        setExpandedKeys(newActiveKey);
+    };
     const tabItems = [
         {
             label: 'Form Fields',
@@ -163,7 +180,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             children: (
                 <Row gutter={16}>
                     {treeChartState.currentData.workflowParameters&&treeChartState.currentData.workflowParameters.map((field) => (
-                        <Col span={24} key={field.parameterName} className={style.formFieldColumn}>
+                        <Col span={24} key={field.parameterName} >
                             <Form.Item
                                 label={
                                     <div>
@@ -216,7 +233,6 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             autoComplete="off"
             layout="vertical"
             onFinish={onFinish}
-            className={style.debugForm}
         >
             <Form.Item label="Script ID">
                 <Input
@@ -236,10 +252,11 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             <Tabs items={tabItems} defaultActiveKey="1" type="card" onChange={setActiveTabKey}/>
             <Form.Item>
                 <Button type="primary" htmlType="submit" style={{width: '100%'}}>
-                    Submit
+                    调试
                 </Button>
             </Form.Item>
-            <Collapse size="small" items={items} />
+            <Collapse key={"1"} onChange={handleCollapseChange} size="small" activeKey={expandedKeys}  items={items} />
+
         </Form>
     );
 };

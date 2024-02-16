@@ -1,18 +1,18 @@
-// DebugForm.module.scss
-.editorWrapper {
-  border: 1px solid #d9d9d9; // 使用Ant Design的边框颜色
-  border-radius: 4px; // 可选，如果你想要圆角边框
-  overflow: hidden; // 防止内容溢出边框
-}
-
-// DebugForm.module.scss
-.inputButtonWrapper .ant-input-group-addon {
-  padding: 0; // 移除默认的内边距
-  background: none; // 如果需要，移除默认的背景色
-}
-
-.inputButtonWrapper .ant-btn {
-  border: none; // 移除边框，使按钮与输入框的边框融为一体
-  border-radius: 0 4px 4px 0; // 只为按钮的右侧设置圆角以匹配Input
-  height: 100%; // 使按钮的高度与输入框相匹配
-}
+//// DebugForm.module.scss
+//.editorWrapper {
+//  border: 1px solid #d9d9d9; // 使用Ant Design的边框颜色
+//  border-radius: 4px; // 可选，如果你想要圆角边框
+//  overflow: hidden; // 防止内容溢出边框
+//}
+//
+//// DebugForm.module.scss
+//.inputButtonWrapper .ant-input-group-addon {
+//  padding: 0; // 移除默认的内边距
+//  background: none; // 如果需要，移除默认的背景色
+//}
+//
+//.inputButtonWrapper .ant-btn {
+//  border: none; // 移除边框，使按钮与输入框的边框融为一体
+//  border-radius: 0 4px 4px 0; // 只为按钮的右侧设置圆角以匹配Input
+//  height: 100%; // 使按钮的高度与输入框相匹配
+//}

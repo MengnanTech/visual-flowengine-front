@@ -20,7 +20,6 @@ import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
 
-import style from "@/view/engine/styles/DebugForm.module.scss";
 import {DebugRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
@@ -308,25 +307,33 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     height: editorHeight, // 使用动态计算的高度
                 }}>
                     <Suspense fallback={<div>Loading Editor...</div>}>
-                        <MonacoEditor
-                            key={clickNode ? clickNode.data.scriptId : 'editor'}
-                            height={editorHeight}
-                            onChange={handleEditorChange}
-                            onMount={handleEditorDidMount}
-                            beforeMount={handleEditorWillMount}
-                            onValidate={handleEditorValidation}
-                            defaultLanguage="groovy"
-                            options={{
-                                contextmenu: true,
-                                wordWrap: 'off',
-                                scrollBeyondLastLine: false,
-                                automaticLayout: true,
-                                fontSize: 16,
-                                readOnly: readonly,
 
-                            }}
-                            defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
-                        />
+                        {
+                            clickNode && clickNode.data.scriptType == "rule" ? (
+                                    <div>非rule类型或clickNode不存在时显示的内容{clickNode.data.scriptText}</div>
+
+                            ) : (
+                                <MonacoEditor
+                                    key={clickNode ? clickNode.data.scriptId : 'editor'}
+                                    height={editorHeight}
+                                    onChange={handleEditorChange}
+                                    onMount={handleEditorDidMount}
+                                    beforeMount={handleEditorWillMount}
+                                    onValidate={handleEditorValidation}
+                                    defaultLanguage="groovy"
+                                    options={{
+                                        contextmenu: true,
+                                        wordWrap: 'off',
+                                        scrollBeyondLastLine: false,
+                                        automaticLayout: true,
+                                        fontSize: 16,
+                                        readOnly: readonly,
+                                    }}
+                                    defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
+                                />
+                            )
+                        }
+
                     </Suspense>
                 </div>)}
             </Modal>
@@ -350,7 +357,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     autoComplete="off"
                     layout="vertical"
                     onFinish={onFinish}
-                    className={style.debugForm}
                 >
                     <Form.Item
                         name="jsonInput"
