@@ -1,6 +1,9 @@
 import {D3Link, D3Node, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import * as d3 from "d3";
-import circleIcon from '@/assets/logo/ScriptNode.svg';
+import scriptNode from '@/assets/logo/ScriptNode.svg';
+import ruleNode from '@/assets/logo/RuleNode.svg';
+import conditionNode from '@/assets/logo/ConditionNode.svg';
+import startNode from '@/assets/logo/StartNode.svg';
 import {END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 
@@ -165,14 +168,45 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                 });
 
 
-            if (d.data.scriptType !== 'End') {
+            if (d.data.scriptType == 'Script') {
                 // 仅对非 'End' 类型的节点添加图标
                 nodeGroup.append('image')
-                    .attr('xlink:href', circleIcon) // 替换为你的图标路径
+                    .attr('xlink:href', scriptNode) // 替换为你的图标路径
                     .attr('width', 16)  // 图标宽度
                     .attr('height', 16) // 图标高度
                     .attr('x', -8)  // 图标相对于节点中心的 x 偏移
                     .attr('y', -8) // 图标相对于节点中心的 y 偏移
+                    .style("pointer-events", "none");
+            }
+            if (d.data.scriptType == 'Rule') {
+                // 仅对非 'End' 类型的节点添加图标
+                nodeGroup.append('image')
+                    .attr('xlink:href', ruleNode) // 替换为你的图标路径
+                    .attr('width', 20)  // 图标宽度
+                    .attr('height', 20) // 图标高度
+                    .attr('x', -10)  // 图标相对于节点中心的 x 偏移
+                    .attr('y', -10) // 图标相对于节点中心的 y 偏移
+                    .style("pointer-events", "none");
+            }
+
+            if (d.data.scriptType == 'Condition') {
+                // 仅对非 'End' 类型的节点添加图标
+                nodeGroup.append('image')
+                    .attr('xlink:href', conditionNode) // 替换为你的图标路径
+                    .attr('width', 20)  // 图标宽度
+                    .attr('height', 20) // 图标高度
+                    .attr('x', -10)  // 图标相对于节点中心的 x 偏移
+                    .attr('y', -10) // 图标相对于节点中心的 y 偏移
+                    .style("pointer-events", "none");
+            }
+            if (d.data.scriptType == 'Start') {
+                // 仅对非 'End' 类型的节点添加图标
+                nodeGroup.append('image')
+                    .attr('xlink:href', startNode) // 替换为你的图标路径
+                    .attr('width', 20)  // 图标宽度
+                    .attr('height', 20) // 图标高度
+                    .attr('x', -10)  // 图标 相对于节点中心的 x 偏移
+                    .attr('y', -10) // 图标相对于节点中心的 y 偏移
                     .style("pointer-events", "none");
             }
 

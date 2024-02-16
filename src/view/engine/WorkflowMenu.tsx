@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
-import Icon2 from '@/assets/logo/ScriptNode.svg';
+import scriptNodeIcon from '@/assets/logo/ScriptNode.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
@@ -296,7 +296,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                             调试
                         </div>
                         <div onClick={toggleExpand} className={styles.icon}>
-                            <img src={Icon2} alt="icon" style={{width: '42px', height: '42px'}}/>
+                            <img src={scriptNodeIcon} alt="icon" style={{width: '42px', height: '42px'}}/>
                         </div>
                         <div onClick={handleWorkflowUpdate} className={styles.icon}>
                             更新
