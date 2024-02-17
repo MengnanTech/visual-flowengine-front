@@ -47,29 +47,35 @@ export const findNodeDataById = (nodes: NodeData[], scriptId: string): NodeData 
     return undefined;
 };
 
-export const javaTypes = [
-    'Object', // 可以让用户输入自定义的类名
-    'String',
-    'Integer',
-    'Long',
-    'Short',
-    'Double',
-    'Float',
-    'Boolean',
-    'Byte',
-    'Character',
-    'BigDecimal',
-    'BigInteger',
-    'Date', // 用于日期
-    'LocalDate', // Java 8 新增的用于日期的类
-    'LocalDateTime', // Java 8 新增的用于日期和时间的类
-    'ZonedDateTime', // Java 8 新增的用于带时区的日期和时间的类
-    'Instant', // Java 8 新增的用于时间戳
-    'List', // 如 List<String>
-    'Set', // 如 Set<Integer>
-    'Map', // 如 Map<String, Object>
-    'Queue', // 如 Queue<Double>
-    'Deque', // 如 ArrayDeque, LinkedList
-    'Array', // 如 String[], int[]
+export interface DataType {
+    type: string;
+    color: string;
+}
 
+export const DataTypes: DataType[] = [
+    { type: 'Object', color: '#69c0ff' }, // 浅蓝
+    { type: 'String', color: '#95de64' }, // 清新绿
+    { type: 'Integer', color: '#bc91f1' }, // 柔和橙
+    { type: 'Long', color: '#b7eb8f' }, // 草绿
+    { type: 'Short', color: '#ffd666' }, // 暖黄
+    { type: 'Double', color: '#ffc069' }, // 橙黄
+    { type: 'Float', color: '#ff7875' }, // 柔红
+    { type: 'Boolean', color: '#5cdbd3' }, // 天蓝
+    { type: 'Byte', color: '#ff9c6e' }, // 浅蓝
+    { type: 'Character', color: '#ff85c0' }, // 粉红
+    { type: 'BigDecimal', color: '#597ef7' }, // 中蓝
+    { type: 'BigInteger', color: '#7318e3' }, // 紫色
+    { type: 'Date', color: '#ffadd2' }, // 浅粉
+    { type: 'LocalDate', color: '#d3adf7' }, // 浅紫
+    { type: 'LocalDateTime', color: '#d9d9d9' }, // 灰色
+    { type: 'ZonedDateTime', color: '#ffc53d' }, // 亮黄
+    { type: 'Instant', color: '#73d13d' }, // 绿色
+    { type: 'List', color: '#36cfc9' }, // 青色
+    { type: 'Set', color: '#40a9ff' }, // 蔚蓝
+    { type: 'Map', color: '#ffec3d' }, // 亮黄
+    { type: 'Queue', color: '#ff7a45' }, // 橘色
+    { type: 'Deque', color: '#ffa940' }, // 橙色
+    { type: 'Array', color: '#bae637' }, // 柠檬绿
 ];
+
+

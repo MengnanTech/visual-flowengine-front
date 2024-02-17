@@ -119,3 +119,33 @@
   visibility: visible !important; // 确保图标不会因为默认的隐藏而消失
 }
 
+
+// ArrangeIndex.module.scss
+
+.workflowId {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+.workflowName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 500px; // Set a maximum width that suits your layout
+}
+
+.parametersContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; // 标签之间的间距
+  max-width: 100%; // 允许标签填充至父容器的宽度
+}
+
+
+.remarkContent {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 1000px; // Adjust to your preference
+}
+

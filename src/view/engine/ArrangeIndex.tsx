@@ -5,7 +5,7 @@ import {
     Col,
     Collapse,
     CollapseProps,
-    Descriptions, Dropdown,
+    Descriptions, DescriptionsProps, Dropdown,
     Form,
     Input, MenuProps,
     message,
@@ -14,7 +14,7 @@ import {
     Row,
     Select,
     Slider,
-    Space,
+    Space, Tag,
 } from 'antd';
 import {
     EnvironmentOutlined,
@@ -27,10 +27,8 @@ import {
 import {TreeStore} from '@/store/TreeStore';
 
 import styles from './styles/ArrangeIndex.module.scss';
-import {items as itemsDes,} from '@/components/d3Helpers/D3mock.tsx';
-
 import logo from '@/assets/logo/logo.jpeg';
-import {javaTypes} from "@/components/d3Helpers/treeHelpers.ts";
+import {DataTypes} from "@/components/d3Helpers/treeHelpers.ts";
 import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow, updateWorkflowName} from "@/network/api.ts";
 import {
     MenuItemsIdAndName,
@@ -58,7 +56,7 @@ const ArrangeIndex: React.FC = () => {
     const [isMenuDropdownVisible, setIsMenuDropdownVisible] = useState<MenuDataItem>();
     const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
     const [editingKey, setEditingKey] = useState<number | null>(null);
-    const [updateCounter,setUpdateCounter] = useState(0);
+    const [updateCounter, setUpdateCounter] = useState(0);
     const forceUpdateTreeChart = () => {
         setUpdateCounter(prevCounter => prevCounter + 1);
     };
@@ -98,13 +96,100 @@ const ArrangeIndex: React.FC = () => {
         path: `/${item.workflowId}`,
     } as unknown as MenuDataItem));
 
-    const collapseItems: CollapseProps['items'] = [
-        {
-            key: treeData === null ? '' : treeData!.workflowId,
-            label: treeData === null ? '' : treeData!.workflowName,
-            children: <Descriptions layout="vertical" items={itemsDes}/>,
-        },
-    ];
+    const descriptionsItems: DescriptionsProps['items'] = useMemo(() => {
+        if (!treeData) return [];
+
+
+        // 构造包含所有必要信息的描述项数组
+        return [
+            {
+                key: 'workflowId',
+                label: 'Workflow ID',
+                contentStyle: {width: '280px'},
+
+                children: <div className={styles.workflowId}>{treeData.workflowId}</div>,
+            },
+            {
+                key: 'workflowName',
+                label: 'Workflow Name',
+                contentStyle: {width: '580px'},
+                children: <div className={styles.workflowName}>{treeData.workflowName}</div>,
+            },
+            {
+                key: 'purpose',
+                label: 'purpose',
+                children: (
+                    <div className={styles.descriptionContent}>
+                        {treeData.workflowPurpose}
+                    </div>
+                ),
+            },
+            {
+                key: 'workflowParameters',
+                label: 'Parameters',
+                contentStyle: {width: '380px'},
+                children: treeData.workflowParameters?.length > 0 ? (
+                    treeData.workflowParameters.map((param, index) => {
+                        // 查找当前参数类型对应的颜色
+                        const color = DataTypes.find(type => type.type === param.parameterType)?.color || 'default';
+                        return (
+                            <Tag key={index} color={color}>
+                                {param.parameterName}: {param.parameterType}
+                            </Tag>
+                        );
+                    })
+                ) : (
+                    <span>No parameters</span>
+                ),
+            },
+
+            {
+                key: 'remark',
+                label: 'Remark',
+                span: 2,
+                children: <div className={styles.remarkContent}>{treeData.remark}</div>,
+            },
+
+
+        ];
+    }, [treeData]);
+
+
+    const collapseItems: CollapseProps['items'] = useMemo(() => {
+        if (!treeData) return [];
+
+        // 使用 useMemo 钩子来优化性能，仅在 treeData 发生变化时重新计算 collapseItems
+        return [
+            {
+                key: treeData.workflowId, // 确保 key 是字符串
+                label: (
+                    <div style={{fontSize:'18px',paddingLeft:'20px'}}>
+                        <span style={{marginRight: '10px', fontWeight: 'bold'}}>
+                          {treeData.workflowName}
+                        </span>
+                        <span style={{color: 'red'}}>
+                          (ID: {treeData.workflowId})
+                        </span>
+                    </div>
+                ), // 折叠面板的标题
+                children: (
+                    <Descriptions
+                        title="Workflow Details"
+                        bordered // 启用边框模式
+                        size="small" // 设定尺寸为小
+                        style={{userSelect: 'text'}} // 禁止用户选择文本
+                        items={descriptionsItems} // 使用动态生成的描述项
+                        // contentStyle={{width:'80vh'}} // 限制内容的最大宽度
+                        //
+                        labelStyle={{width: '150px'}} // 限制标签的最大宽度
+
+
+                        extra={<Button type="primary">Edit</Button>} // 可以根据需求调整，例如添加编辑按钮
+                    />
+                ),
+            },
+        ];
+    }, [treeData, descriptionsItems]); // 依赖于 treeData 和 descriptionsItems，确保在这些依赖更新时重新计算
 
     const handleAddWorkflowClick = () => {
         setIsModalVisible(true);
@@ -239,19 +324,19 @@ const ArrangeIndex: React.FC = () => {
                     ) : (
                         <div>
                             {dom}
-                                <Dropdown
-                                    onOpenChange={flag => handleVisibleChange(item, flag)}
-                                    menu={{items}}
-                                    trigger={['click']}
+                            <Dropdown
+                                onOpenChange={flag => handleVisibleChange(item, flag)}
+                                menu={{items}}
+                                trigger={['click']}
+                            >
+                                <div
+                                    className={`${styles.menuIcons} ${isMenuDropdownVisible && singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
+                                    onClick={(e) => handleSettingClick(e)}
                                 >
-                                    <div
-                                        className={`${styles.menuIcons} ${isMenuDropdownVisible&&singleDropdownVisible[Number(item.key)]?.visible ? styles.iconVisible : ''}`}
-                                        onClick={(e) => handleSettingClick(e)}
-                                    >
-                                        <SettingOutlined/>
-                                    </div>
-                                </Dropdown>
-                            </div>
+                                    <SettingOutlined/>
+                                </div>
+                            </Dropdown>
+                        </div>
                     )}
                 </div>
             )}
@@ -322,7 +407,7 @@ const ArrangeIndex: React.FC = () => {
                         <Input placeholder="Enter workflow name"/>
                     </Form.Item>
                     <Form.Item
-                        name="workflowDescription"
+                        name="workflowPurpose"
                         label=" workflow 用途"
                         tooltip="简明扼要描述使用场景和作用"
                         rules={[{required: true, message: 'Please input the purpose of the workflow!'}]}
@@ -365,7 +450,9 @@ const ArrangeIndex: React.FC = () => {
                                                     placeholder="Select or type a type"
                                                     optionFilterProp="children"
                                                     style={{width: 160}}
-                                                    options={javaTypes.map(type => ({value: type, label: type}))}
+                                                    options={DataTypes.map(({ type}) => (
+                                                        {value: type, label: type}
+                                                    ))}
                                                     filterOption={(input: string, option?: {
                                                         label: string;
                                                         value: string
@@ -424,7 +511,7 @@ const ArrangeIndex: React.FC = () => {
                 }}
                 content={
 
-                    treeData && <Collapse bordered={false} items={collapseItems}/>
+                    treeData && <Collapse  bordered={false} size={"small"} style={{userSelect:'text'}} expandIconPosition='end' items={collapseItems}/>
                 }
             >
                 <Suspense fallback={<div>Loading...</div>}>

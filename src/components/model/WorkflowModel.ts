@@ -31,7 +31,7 @@ export interface WorkflowMetadata {
     workflowId: number;
     workflowName: string;
     workflowParameters: Parameter[];
-    workflowDescription: string;
+    workflowPurpose: string;
     remark: string;
     scriptMetadata: NodeData;
 }
