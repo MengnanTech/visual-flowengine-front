@@ -122,9 +122,10 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                 .attr("height", 20)
                 .attr("x", -10)
                 .attr("y", -10)
-                .style("fill", "red")
+                .attr("rx", 5)
+                .style("fill", "black")
                 .style("stroke", "#999")
-                .style("stroke-width", 1.5)
+                .style("stroke-width", 1.2)
                 .style("opacity", 1)
                 .raise();
             if (needEvent) {
