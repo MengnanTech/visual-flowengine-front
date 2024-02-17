@@ -253,25 +253,25 @@ export function generateLinkId(sourceId: string, targetId: string): string {
 }
 
 
-function updateLinkPath(ele: SVGPathElement, d3Link: D3Link, rootNode: D3Node) {
-    const node = rootNode.descendants().find(n => n.data.scriptId === d3Link.source.data.scriptId);
+function updateLinkPath(ele: SVGPathElement, _d3Link: D3Link, rootNode: D3Node) {
+    // const node = rootNode.descendants().find(n => n.data.scriptId === d3Link.source.data.scriptId);
 
-    const no_animation_required = node && node.data.scriptType !== "Start"
-        && (node.previousX === node.x && node.previousY === node.y)
-        && (d3Link.target.children && d3Link.target.children.length == 1 && d3Link.target.children[0].data.scriptType !== 'End');
-
-    if (no_animation_required) {
-
-        let targetY = d3Link.target.y;
-        if (d3Link.target.data.scriptType === 'End') {
-            targetY -= END_NODE_LENGTH;
-        }
-        const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
-            source: d3Link.source,
-            target: {...d3Link.target, y: targetY} as D3Node,
-        });
-        d3.select(ele).attr("d", path);
-    } else {
+    // const no_animation_required = node && node.data.scriptType !== "Start"
+    //     && (node.previousX === node.x && node.previousY === node.y)
+    //     && (d3Link.target.children && d3Link.target.children.length == 1 && d3Link.target.children[0].data.scriptType !== 'End');
+    //
+    // if (false) {
+    //
+    //     let targetY = d3Link.target.y;
+    //     if (d3Link.target.data.scriptType === 'End') {
+    //         targetY -= END_NODE_LENGTH;
+    //     }
+    //     const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
+    //         source: d3Link.source,
+    //         target: {...d3Link.target, y: targetY} as D3Node,
+    //     });
+    //     d3.select(ele).attr("d", path);
+    // } else {
         // 应用动画
         d3.select<SVGPathElement, D3Link>(ele)
             .transition()
@@ -336,7 +336,7 @@ function updateLinkPath(ele: SVGPathElement, d3Link: D3Link, rootNode: D3Node) {
                 }
 
             })
-    }
+    // }
 }
 
 export function DrawLinks(treeChartState: TreeChartState) {
