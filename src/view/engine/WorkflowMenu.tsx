@@ -334,8 +334,8 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 display: isExpanded ? 'block' : 'none',
                 position: 'absolute',
                 cursor: 'grab',
-                left: `${bubblePosition.x + 775}px`,
-                top: `${bubblePosition.y - 10}px`,
+                left: `${bubblePosition.x + 778}px`,
+                top: `${bubblePosition.y - 5}px`,
                 transform: rotated ? 'rotate(-45deg)' : 'none', // 根据状态旋转图标
                 transition: 'transform 0.3s' // 平滑过渡效果
             }}/>
@@ -345,7 +345,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                                            transition: isDragging ? 'none' : 'all 0.3s ease',
                                            position: 'absolute',
                                            cursor: 'grab',
-                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 20}px`,
+                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 22}px`,
                                            top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
                                        }}/>
             }
