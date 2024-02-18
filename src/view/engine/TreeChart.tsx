@@ -270,7 +270,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
 
     return (
         <div>
-            <div style={{position: 'relative'}}>
+            <div style={{position: 'relative', overflowX: 'hidden'}}>
                 <svg
                     style={{position: 'absolute', left: '10px', borderRadius: '50%', padding: '8px 10px'}}
                     className={styles.iconWrapper}
@@ -310,9 +310,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                 </svg>
 
                 <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
-                <svg>
-                    <MovingArrowPattern/>
-                </svg>
+                <div style={{position: 'absolute', top: 0, left: 0}}>
+                    <svg>
+                        <MovingArrowPattern/>
+                    </svg>
+                </div>
+
             </div>
 
 
