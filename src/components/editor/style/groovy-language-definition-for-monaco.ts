@@ -1,6 +1,6 @@
-
 import {Monaco} from "@monaco-editor/react";
 import {languages} from 'monaco-editor/esm/vs/editor/editor.api'
+
 function getTokens(tokens: string, divider = "|"): string[] {
     return tokens.split(divider);
 }
@@ -32,12 +32,12 @@ const bracketTokens = [
 ];
 
 const autoClosingPairs = [
-    { open: "{", close: "}" },
-    { open: "[", close: "]" },
-    { open: "(", close: ")" },
-    { open: '"', close: '"' },
-    { open: "'", close: "'" },
-    { open: "`", close: "`" },
+    {open: "{", close: "}"},
+    {open: "[", close: "]"},
+    {open: "(", close: ")"},
+    {open: '"', close: '"'},
+    {open: "'", close: "'"},
+    {open: "`", close: "`"},
 ];
 
 const surroundingPairs = autoClosingPairs;
@@ -46,7 +46,7 @@ const id = "groovy";
 const label = "Groovy";
 
 export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
-    monaco.languages.register({ id, aliases: [label] });
+    monaco.languages.register({id, aliases: [label]});
 
     monaco.languages.setMonarchTokensProvider(id, {
         brackets: bracketTokens,
@@ -125,14 +125,14 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
 
         tokenizer: {
             root: [
-                { include: "@whitespace" },
+                {include: "@whitespace"},
                 [
                     /\/(?=([^\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
-                    { token: "regexp", bracket: "@open", next: "@regexp" },
+                    {token: "regexp", bracket: "@open", next: "@regexp"},
                 ],
-                { include: "@comments" },
-                { include: "@numbers" },
-                { include: "common" },
+                {include: "@comments"},
+                {include: "@numbers"},
+                {include: "common"},
                 [/[;,.]/, "delimiter"],
                 [/[(){}[\]]/, "@brackets"],
                 [
@@ -173,7 +173,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
 
                 [
                     /\/(?=([^\\/]|\\.)+\/([gimsuy]*)(\s*)(\.|;|\/|,|\)|\]|\}|$))/,
-                    { token: "regexp", bracket: "@open", next: "@regexp" },
+                    {token: "regexp", bracket: "@open", next: "@regexp"},
                 ],
 
                 // delimiter: after number because of .\d floats
@@ -234,7 +234,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [
                     /(\[)(\^?)(?=(?:[^\]\\/]|\\.)+)/,
                     // @ts-ignore
-                    ["regexp.escape.control", { token: "regexp.escape.control", next: "@regexrange" }],
+                    ["regexp.escape.control", {token: "regexp.escape.control", next: "@regexrange"}],
                 ],
                 [/(\()(\?:|\?=|\?!)/, ["regexp.escape.control", "regexp.escape.control"]],
                 [/[()]/, "regexp.escape.control"],
@@ -243,7 +243,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [/@regexpesc/, "regexp.escape"],
                 [/\\\./, "regexp.invalid"],
                 // @ts-ignore
-                [/(\/)([gimsuy]*)/, [{ token: "regexp", bracket: "@close", next: "@pop" }, "keyword.other"]],
+                [/(\/)([gimsuy]*)/, [{token: "regexp", bracket: "@close", next: "@pop"}, "keyword.other"]],
             ],
 
             regexrange: [
@@ -251,7 +251,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [/\^/, "regexp.invalid"],
                 [/@regexpesc/, "regexp.escape"],
                 [/[^\]]/, "regexp"],
-                [/\]/, { token: "regexp.escape.control", next: "@pop", bracket: "@close" }],
+                [/\]/, {token: "regexp.escape.control", next: "@pop", bracket: "@close"}],
             ],
             embedded: [
                 [
@@ -264,7 +264,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 ],
             ],
             string_double: [
-                [/\$\{/, { token: "delimiter.bracket", next: "@bracketCounting" }],
+                [/\$\{/, {token: "delimiter.bracket", next: "@bracketCounting"}],
                 [/[^\\"$]+/, "string"],
                 [/[^\\"]+/, "string"],
                 [/@escapes/, "string.escape"],
@@ -278,7 +278,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [/'/, "string", "@pop"],
             ],
             string_backtick: [
-                [/\$\{/, { token: "delimiter.bracket", next: "@bracketCounting" }],
+                [/\$\{/, {token: "delimiter.bracket", next: "@bracketCounting"}],
                 [/[^\\"$]+/, "string"],
                 [/@escapes/, "string.escape"],
                 [/\\./, "string.escape.invalid"],
@@ -287,7 +287,7 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
             bracketCounting: [
                 [/\{/, "delimiter.bracket", "@bracketCounting"],
                 [/\}/, "delimiter.bracket", "@pop"],
-                { include: "common" },
+                {include: "common"},
             ],
         },
     });

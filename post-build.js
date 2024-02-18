@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import { resolve } from 'path';
+import {promises as fs} from 'fs';
+import {resolve} from 'path';
 
 // 异步函数来处理文件
 async function updateIndexHtml() {
@@ -40,7 +40,6 @@ async function updateIndexHtml() {
             /<link rel="stylesheet" crossorigin href="\/assets\/(.*?)\.css">/g,
             `<link rel="stylesheet" crossorigin th:href="\${visualFlowProperties.getResourcePath('/assets/$1.css')}">`
         );
-
 
 
         // 写回修改后的内容

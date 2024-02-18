@@ -5,9 +5,12 @@ import {
     Col,
     Collapse,
     CollapseProps,
-    Descriptions, DescriptionsProps, Dropdown,
+    Descriptions,
+    DescriptionsProps,
+    Dropdown,
     Form,
-    Input, MenuProps,
+    Input,
+    MenuProps,
     message,
     Modal,
     Popover,
@@ -31,7 +34,8 @@ import logo from '@/assets/logo/logo.jpeg';
 import {DataTypes} from "@/components/d3Helpers/treeHelpers.ts";
 import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow, updateWorkflow} from "@/network/api.ts";
 import {
-    MenuItemsIdAndName, Parameter,
+    MenuItemsIdAndName,
+    Parameter,
     WorkflowCreateRequest,
     WorkflowMetadata
 } from "@/components/model/WorkflowModel.ts";
@@ -62,7 +66,7 @@ const ArrangeIndex: React.FC = () => {
 
     // 添加状态以跟踪可编辑字段的值
     const [editedPurpose, setEditedPurpose] = useState('');
-    const [editedParameters, setEditedParameters] = useState< Parameter[]>([]);
+    const [editedParameters, setEditedParameters] = useState<Parameter[]>([]);
     const [editedRemark, setEditedRemark] = useState('');
 
     useEffect(() => {
@@ -79,7 +83,7 @@ const ArrangeIndex: React.FC = () => {
         if (isEditMode) {
             // 如果当前是编辑模式，点击则保存数据
             try {
-                let updatedData:WorkflowMetadata = {
+                let updatedData: WorkflowMetadata = {
                     workflowId: treeData!.workflowId,
                     workflowPurpose: editedPurpose,
                     workflowParameters: editedParameters,
@@ -174,7 +178,7 @@ const ArrangeIndex: React.FC = () => {
                 children: isEditMode ? (
                     <>
                         {editedParameters.map((param, index) => (
-                            <Space key={index} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                            <Space key={index} style={{display: 'flex', marginBottom: 8}} align="start">
                                 <Input
                                     value={param.parameterName}
                                     onChange={(e) => {
@@ -182,7 +186,7 @@ const ArrangeIndex: React.FC = () => {
                                         newParams[index].parameterName = e.target.value;
                                         setEditedParameters(newParams);
                                     }}
-                                    style={{ width: '200px' }}
+                                    style={{width: '200px'}}
                                 />
                                 <Select
                                     value={param.parameterType}
@@ -191,10 +195,10 @@ const ArrangeIndex: React.FC = () => {
                                         newParams[index].parameterType = value;
                                         setEditedParameters(newParams);
                                     }}
-                                    options={DataTypes.map(({ type }) => ({
+                                    options={DataTypes.map(({type}) => ({
                                         value: type, label: type
                                     }))}
-                                    style={{ width: '200px' }}
+                                    style={{width: '200px'}}
                                 />
                                 <MinusCircleOutlined
                                     onClick={() => {
@@ -208,10 +212,10 @@ const ArrangeIndex: React.FC = () => {
                         <Button
                             type="dashed"
                             onClick={() => {
-                                setEditedParameters([...editedParameters, { parameterName: '', parameterType: '' }]);
+                                setEditedParameters([...editedParameters, {parameterName: '', parameterType: ''}]);
                             }}
                             block
-                            icon={<PlusOutlined />}
+                            icon={<PlusOutlined/>}
                         >
                             Add Parameter
                         </Button>
@@ -298,7 +302,7 @@ const ArrangeIndex: React.FC = () => {
                 ),
             },
         ];
-    }, [treeData, descriptionsItems,isEditMode]); // 依赖于 treeData 和 descriptionsItems，确保在这些依赖更新时重新计算
+    }, [treeData, descriptionsItems, isEditMode]); // 依赖于 treeData 和 descriptionsItems，确保在这些依赖更新时重新计算
 
     const handleAddWorkflowClick = () => {
         setIsModalVisible(true);

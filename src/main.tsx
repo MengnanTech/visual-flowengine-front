@@ -7,10 +7,8 @@ import Arrange from "@/view/engine/ArrangeIndex.tsx";
 import {loader} from "@monaco-editor/react";
 import * as monaco from 'monaco-editor';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-
 //json语法的按需导入
 // import 'monaco-editor/esm/vs/language/json/monaco.contribution'
-
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
@@ -35,7 +33,7 @@ self.MonacoEnvironment = {
 }
 
 
-loader.config({ monaco });
+loader.config({monaco});
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <Arrange/>
 )

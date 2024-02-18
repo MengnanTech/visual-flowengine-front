@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 class HTTP {
-    static async request(url:string, options = {}) {
+    static async request(url: string, options = {}) {
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
@@ -24,7 +24,7 @@ class HTTP {
     }
 
 
-    static get(url:string) {
+    static get(url: string) {
         return this.request(`${API_BASE_URL}${url}`, {
             method: 'GET',
             headers: {
@@ -33,7 +33,7 @@ class HTTP {
         });
     }
 
-    static post(url:string, body:any) {
+    static post(url: string, body: any) {
         return this.request(`${API_BASE_URL}${url}`, {
             method: 'POST',
             headers: {
@@ -43,7 +43,7 @@ class HTTP {
         });
     }
 
-    static put(url:string, body:any) {
+    static put(url: string, body: any) {
         return this.request(`${API_BASE_URL}${url}`, {
             method: 'PUT',
             headers: {
@@ -53,7 +53,7 @@ class HTTP {
         });
     }
 
-    static delete(url:string) {
+    static delete(url: string) {
         return this.request(`${API_BASE_URL}${url}`, {
             method: 'DELETE',
             headers: {

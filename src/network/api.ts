@@ -4,7 +4,8 @@ import {
     Diagnostic,
     MenuItemsIdAndName,
     WorkflowCreateRequest,
-    WorkflowMetadata, WorkflowTaskLog
+    WorkflowMetadata,
+    WorkflowTaskLog
 } from "@/components/model/WorkflowModel.ts";
 
 

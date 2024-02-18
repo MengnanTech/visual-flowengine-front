@@ -22,7 +22,7 @@ export function endNodeEvent(selection: d3.Selection<SVGRectElement, D3Node, nul
         const boundingClientRect = svgRef.getBoundingClientRect();
 
         // 计算 Popover 在文档中的位置
-        const x = boundingClientRect.left + window.scrollX + transformedX-scaledEndNodeLength; // 调整 X 坐标
+        const x = boundingClientRect.left + window.scrollX + transformedX - scaledEndNodeLength; // 调整 X 坐标
         const y = boundingClientRect.top + window.scrollY + transformedY;
         treeStore.setCurrentMenu(null)
         console.log('setCurrentMenu', x, y);
@@ -272,70 +272,70 @@ function updateLinkPath(ele: SVGPathElement, _d3Link: D3Link, rootNode: D3Node) 
     //     });
     //     d3.select(ele).attr("d", path);
     // } else {
-        // 应用动画
-        d3.select<SVGPathElement, D3Link>(ele)
-            .transition()
-            .duration(750)
-            .attrTween("d", function (d): (t: number) => string {
+    // 应用动画
+    d3.select<SVGPathElement, D3Link>(ele)
+        .transition()
+        .duration(750)
+        .attrTween("d", function (d): (t: number) => string {
 
 
-                let nodePreviousPosition: number[] | null = null;
-                const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
+            let nodePreviousPosition: number[] | null = null;
+            const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
 
-                // if (node?.previousX && node?.previousY) 这里巨坑。如果是0的话。也会被判断为false 其实想想也对。弱类型的判断0都是false
-                if (node?.previousX !== undefined && node?.previousX !== null && node?.previousY !== undefined && node?.previousY !== null) {
-                    nodePreviousPosition = [node.previousX, node.previousY];
-                }
+            // if (node?.previousX && node?.previousY) 这里巨坑。如果是0的话。也会被判断为false 其实想想也对。弱类型的判断0都是false
+            if (node?.previousX !== undefined && node?.previousX !== null && node?.previousY !== undefined && node?.previousY !== null) {
+                nodePreviousPosition = [node.previousX, node.previousY];
+            }
 
 
-                if (nodePreviousPosition == null) {
-                    return function (t: number): string {
-                        let interpolateY = d3.interpolate(d.source.y, d.target.y);
-
-                        if (d.target.data.scriptType === 'End') {
-                            interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-                        }
-                        const interpolateX = d3.interpolate(d.source.x, d.target.x);
-
-                        const tempD: D3Link = {
-                            source: {x: d.source.x, y: d.source.y} as D3Node,
-                            target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
-                        };
-
-                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-                    };
-
-                } else {
-                    const previousY = nodePreviousPosition[1];
-                    const previousX = nodePreviousPosition[0];
-                    let interpolateY = d3.interpolate(previousY, d.target.y);
+            if (nodePreviousPosition == null) {
+                return function (t: number): string {
+                    let interpolateY = d3.interpolate(d.source.y, d.target.y);
 
                     if (d.target.data.scriptType === 'End') {
                         interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                     }
-                    const interpolateX = d3.interpolate(previousX, d.target.x);
+                    const interpolateX = d3.interpolate(d.source.x, d.target.x);
 
-                    const sourceY = d3.interpolate(previousY, d.source.y);
-                    const sourceX = d3.interpolate(previousX, d.source.x);
-
-
-                    return function (t: number): string {
-                        // t 是从 0 到 1 的过渡状态
-                        // 计算新的目标位置
-                        const newY = interpolateY(t);
-                        const newX = interpolateX(t);
-
-                        // 临时更新 d.target 的位置
-                        const tempD: D3Link = {
-                            source: {x: sourceX(t), y: sourceY(t)} as D3Node,
-                            target: {x: newX, y: newY} as D3Node,
-                        };
-
-                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                    const tempD: D3Link = {
+                        source: {x: d.source.x, y: d.source.y} as D3Node,
+                        target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
                     };
-                }
 
-            })
+                    return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                };
+
+            } else {
+                const previousY = nodePreviousPosition[1];
+                const previousX = nodePreviousPosition[0];
+                let interpolateY = d3.interpolate(previousY, d.target.y);
+
+                if (d.target.data.scriptType === 'End') {
+                    interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
+                }
+                const interpolateX = d3.interpolate(previousX, d.target.x);
+
+                const sourceY = d3.interpolate(previousY, d.source.y);
+                const sourceX = d3.interpolate(previousX, d.source.x);
+
+
+                return function (t: number): string {
+                    // t 是从 0 到 1 的过渡状态
+                    // 计算新的目标位置
+                    const newY = interpolateY(t);
+                    const newX = interpolateX(t);
+
+                    // 临时更新 d.target 的位置
+                    const tempD: D3Link = {
+                        source: {x: sourceX(t), y: sourceY(t)} as D3Node,
+                        target: {x: newX, y: newY} as D3Node,
+                    };
+
+                    return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                };
+            }
+
+        })
     // }
 }
 

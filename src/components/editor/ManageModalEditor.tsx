@@ -7,14 +7,7 @@ import {compileGroovyScript, debugWorkflow} from "@/network/api.ts";
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {TreeStore} from "@/store/TreeStore.ts";
 import {observer} from "mobx-react";
-import {
-    CheckCircleFilled,
-
-    CopyFilled,
-    EditFilled,
-    FullscreenExitOutlined,
-    FullscreenOutlined
-} from "@ant-design/icons";
+import {CheckCircleFilled, CopyFilled, EditFilled, FullscreenExitOutlined, FullscreenOutlined} from "@ant-design/icons";
 import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -111,7 +104,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setEditorCode('');
     }
 
-    function  handleEditModalClose (){
+    function handleEditModalClose() {
         treeStore.setClickNode(null);
         setClinkNodeChangeCount(prevCounter => prevCounter + 1);
     }
@@ -166,7 +159,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         let debugRequest: DebugRequest = {
             scriptMetadata: {
                 ...clickNode!.data,
-                children:null
+                children: null
             },
             inputValues: debugValue ? JSON.parse(debugValue) : {}
         }
@@ -198,7 +191,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     readOnly: readonly,
 
                 }}
-                defaultValue={debugOutput==''?'':JSON.stringify(debugOutput, null, 2)}
+                defaultValue={debugOutput == '' ? '' : JSON.stringify(debugOutput, null, 2)}
             />,
         },
     ];
@@ -310,7 +303,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
                         {
                             clickNode && clickNode.data.scriptType == "rule" ? (
-                                    <div>非rule类型或clickNode不存在时显示的内容{clickNode.data.scriptText}</div>
+                                <div>非rule类型或clickNode不存在时显示的内容{clickNode.data.scriptText}</div>
 
                             ) : (
                                 <MonacoEditor
@@ -372,7 +365,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                                 height="500px"
                                 defaultLanguage="json"
                                 onChange={handleDebugJsonChange}
-                                key={clickNode ? clickNode.data.scriptId +clinkNodeChangeCount: 'jsonInput'}
+                                key={clickNode ? clickNode.data.scriptId + clinkNodeChangeCount : 'jsonInput'}
                                 defaultValue={debugValue}
                                 options={{
                                     scrollBeyondLastLine: false,
