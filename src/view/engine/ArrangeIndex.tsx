@@ -195,7 +195,7 @@ const ArrangeIndex: React.FC = () => {
                                         newParams[index].parameterType = value;
                                         setEditedParameters(newParams);
                                     }}
-                                    options={DataTypes.map(({type}) => ({
+                                    options={DataTypes.map((type) => ({
                                         value: type, label: type
                                     }))}
                                     style={{width: '200px'}}
@@ -234,7 +234,7 @@ const ArrangeIndex: React.FC = () => {
                                 disabled={!isEditMode}
 
                                 className={styles.parameterTypeSelect}
-                                options={DataTypes.map(({type}) => (
+                                options={DataTypes.map((type) => (
                                     {value: type, label: type}
                                 ))}
                             >
@@ -569,7 +569,7 @@ const ArrangeIndex: React.FC = () => {
                                                     placeholder="Select or type a type"
                                                     optionFilterProp="children"
                                                     style={{width: 160}}
-                                                    options={DataTypes.map(({type}) => (
+                                                    options={DataTypes.map((type) => (
                                                         {value: type, label: type}
                                                     ))}
                                                     filterOption={(input: string, option?: {
