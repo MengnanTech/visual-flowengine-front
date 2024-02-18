@@ -120,7 +120,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     const onFinish = (values: any) => {
         const {jsonInput,...inputValuesWithoutJsonInput} = values;
 
-        const nodeData = findNodeDataById(treeChartState.currentData.scriptMetadata, scriptId);
+        const nodeData = findNodeDataById(treeChartState.currentData!.scriptMetadata!, scriptId);
         if (!nodeData) {
             message.error('Script ID not found').then(r => r);
             return;

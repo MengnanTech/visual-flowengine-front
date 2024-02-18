@@ -149,3 +149,20 @@
   max-width: 1000px; // Adjust to your preference
 }
 
+.parameterItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px; // 可以调整这个值来改变条目之间的间距
+
+  .parameterNameInput {
+    flex-grow: 1; // 让输入框占用可用空间
+    margin-right: 8px; // 保持与选择框的间距
+    width: 30px;
+    // 您可能需要添加一些样式来匹配设计
+  }
+  .parameterTypeSelect {
+    width: 120px; // 或根据您的布局需要进行调整
+  }
+}
+

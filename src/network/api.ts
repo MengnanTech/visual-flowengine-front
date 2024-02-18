@@ -39,9 +39,9 @@ export async function updateWorkflow(workflowMetadata: WorkflowMetadata): Promis
     return await HTTP.put(window.updateWorkflowApiPath, JSON.stringify(workflowMetadata));
 }
 
-export async function updateWorkflowName(workflowId: number, workflowName: string): Promise<WorkflowMetadata> {
-    return await HTTP.put(`${window.updateWorkflowNameApiPath}?workflowId=${workflowId}&workflowName=${workflowName}`, null);
-}
+// export async function updateWorkflowName(workflowId: number, workflowName: string): Promise<WorkflowMetadata> {
+//     return await HTTP.put(`${window.updateWorkflowNameApiPath}?workflowId=${workflowId}&workflowName=${workflowName}`, null);
+// }
 
 
 export async function getWorkflowMetadata(workflowId: number): Promise<WorkflowMetadata> {

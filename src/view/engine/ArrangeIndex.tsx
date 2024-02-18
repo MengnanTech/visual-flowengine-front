@@ -14,7 +14,7 @@ import {
     Row,
     Select,
     Slider,
-    Space, Tag,
+    Space,
 } from 'antd';
 import {
     EnvironmentOutlined,
@@ -29,9 +29,9 @@ import {TreeStore} from '@/store/TreeStore';
 import styles from './styles/ArrangeIndex.module.scss';
 import logo from '@/assets/logo/logo.jpeg';
 import {DataTypes} from "@/components/d3Helpers/treeHelpers.ts";
-import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow, updateWorkflowName} from "@/network/api.ts";
+import {createWorkflow, deleteWorkflow, getWorkflowMetadata, ListWorkflow, updateWorkflow} from "@/network/api.ts";
 import {
-    MenuItemsIdAndName,
+    MenuItemsIdAndName, Parameter,
     WorkflowCreateRequest,
     WorkflowMetadata
 } from "@/components/model/WorkflowModel.ts";
@@ -57,6 +57,45 @@ const ArrangeIndex: React.FC = () => {
     const [singleDropdownVisible, setSingleDropdownVisible] = useState<DropdownVisibleState>({});
     const [editingKey, setEditingKey] = useState<number | null>(null);
     const [updateCounter, setUpdateCounter] = useState(0);
+    const [isEditMode, setIsEditMode] = useState(false);
+
+
+    // 添加状态以跟踪可编辑字段的值
+    const [editedPurpose, setEditedPurpose] = useState('');
+    const [editedParameters, setEditedParameters] = useState< Parameter[]>([]);
+    const [editedRemark, setEditedRemark] = useState('');
+
+    useEffect(() => {
+        if (treeData) {
+            console.log('workflowPurpose:', treeData.workflowPurpose);
+            setEditedPurpose(treeData.workflowPurpose || '');
+            setEditedParameters(treeData.workflowParameters || []);
+            setEditedRemark(treeData.remark || '');
+        }
+    }, [treeData]);
+
+
+    const toggleEditMode = async () => {
+        if (isEditMode) {
+            // 如果当前是编辑模式，点击则保存数据
+            try {
+                let updatedData:WorkflowMetadata = {
+                    workflowId: treeData!.workflowId,
+                    workflowPurpose: editedPurpose,
+                    workflowParameters: editedParameters,
+                    remark: editedRemark,
+                };
+                await updateWorkflow(updatedData); // 假设这是更新 API
+                // 更新成功后，可以重新获取数据或直接更新本地状态
+                message.success('更新成功');
+            } catch (error) {
+                message.error('更新失败');
+            }
+        }
+        setIsEditMode(!isEditMode);
+    };
+
+
     const forceUpdateTreeChart = () => {
         setUpdateCounter(prevCounter => prevCounter + 1);
     };
@@ -105,7 +144,7 @@ const ArrangeIndex: React.FC = () => {
             {
                 key: 'workflowId',
                 label: 'Workflow ID',
-                contentStyle: {width: '280px'},
+                contentStyle: {width: '320px'},
 
                 children: <div className={styles.workflowId}>{treeData.workflowId}</div>,
             },
@@ -117,42 +156,108 @@ const ArrangeIndex: React.FC = () => {
             },
             {
                 key: 'purpose',
-                label: 'purpose',
-                children: (
-                    <div className={styles.descriptionContent}>
-                        {treeData.workflowPurpose}
-                    </div>
+                label: 'Purpose',
+                children: isEditMode ? (
+                    <Input
+                        defaultValue={editedPurpose}
+                        onChange={(e) => setEditedPurpose(e.target.value)}
+                    />
+                ) : (
+                    editedPurpose
                 ),
+                // 类似地更新其他字段的配置
             },
+
             {
                 key: 'workflowParameters',
                 label: 'Parameters',
-                contentStyle: {width: '380px'},
-                children: treeData.workflowParameters?.length > 0 ? (
-                    treeData.workflowParameters.map((param, index) => {
-                        // 查找当前参数类型对应的颜色
-                        const color = DataTypes.find(type => type.type === param.parameterType)?.color || 'default';
-                        return (
-                            <Tag key={index} color={color}>
-                                {param.parameterName}: {param.parameterType}
-                            </Tag>
-                        );
-                    })
+                children: isEditMode ? (
+                    <>
+                        {editedParameters.map((param, index) => (
+                            <Space key={index} style={{ display: 'flex', marginBottom: 8 }} align="start">
+                                <Input
+                                    value={param.parameterName}
+                                    onChange={(e) => {
+                                        const newParams = [...editedParameters];
+                                        newParams[index].parameterName = e.target.value;
+                                        setEditedParameters(newParams);
+                                    }}
+                                    style={{ width: '200px' }}
+                                />
+                                <Select
+                                    value={param.parameterType}
+                                    onChange={(value) => {
+                                        const newParams = [...editedParameters];
+                                        newParams[index].parameterType = value;
+                                        setEditedParameters(newParams);
+                                    }}
+                                    options={DataTypes.map(({ type }) => ({
+                                        value: type, label: type
+                                    }))}
+                                    style={{ width: '200px' }}
+                                />
+                                <MinusCircleOutlined
+                                    onClick={() => {
+                                        const newParams = [...editedParameters];
+                                        newParams.splice(index, 1);
+                                        setEditedParameters(newParams);
+                                    }}
+                                />
+                            </Space>
+                        ))}
+                        <Button
+                            type="dashed"
+                            onClick={() => {
+                                setEditedParameters([...editedParameters, { parameterName: '', parameterType: '' }]);
+                            }}
+                            block
+                            icon={<PlusOutlined />}
+                        >
+                            Add Parameter
+                        </Button>
+                    </>
                 ) : (
-                    <span>No parameters</span>
+                    editedParameters.map((param, index) => (
+                        <div key={index} className={styles.parameterItem}>
+                            <Input
+                                defaultValue={param.parameterName}
+                                className={styles.parameterNameInput}
+                                disabled={!isEditMode}
+                                // 可以添加 onChange 事件来处理输入变化
+                            />
+                            <Select
+                                defaultValue={param.parameterType}
+                                disabled={!isEditMode}
+
+                                className={styles.parameterTypeSelect}
+                                options={DataTypes.map(({type}) => (
+                                    {value: type, label: type}
+                                ))}
+                            >
+                            </Select>
+                        </div>
+                    ))
                 ),
-            },
+            }
+            ,
 
             {
                 key: 'remark',
                 label: 'Remark',
                 span: 2,
-                children: <div className={styles.remarkContent}>{treeData.remark}</div>,
+                children: isEditMode ? (
+                    <Input.TextArea
+                        defaultValue={editedRemark}
+                        onChange={(e) => setEditedRemark(e.target.value)}
+                    />
+                ) : (
+                    <div className={styles.remarkContent}>{editedRemark}</div>
+                ),
             },
 
 
         ];
-    }, [treeData]);
+    }, [treeData, isEditMode, editedPurpose, editedRemark, editedParameters]);
 
 
     const collapseItems: CollapseProps['items'] = useMemo(() => {
@@ -163,7 +268,7 @@ const ArrangeIndex: React.FC = () => {
             {
                 key: treeData.workflowId, // 确保 key 是字符串
                 label: (
-                    <div style={{fontSize:'18px',paddingLeft:'20px'}}>
+                    <div style={{fontSize: '18px', paddingLeft: '20px'}}>
                         <span style={{marginRight: '10px', fontWeight: 'bold'}}>
                           {treeData.workflowName}
                         </span>
@@ -171,25 +276,29 @@ const ArrangeIndex: React.FC = () => {
                           (ID: {treeData.workflowId})
                         </span>
                     </div>
-                ), // 折叠面板的标题
+                ),
                 children: (
                     <Descriptions
                         title="Workflow Details"
                         bordered // 启用边框模式
                         size="small" // 设定尺寸为小
-                        style={{userSelect: 'text'}} // 禁止用户选择文本
+                        style={{userSelect: 'text'}}
                         items={descriptionsItems} // 使用动态生成的描述项
                         // contentStyle={{width:'80vh'}} // 限制内容的最大宽度
                         //
                         labelStyle={{width: '150px'}} // 限制标签的最大宽度
 
+                        extra={
+                            <Button type="primary" onClick={toggleEditMode}>
+                                {isEditMode ? 'Save' : 'Edit'}
+                            </Button>
+                        }
 
-                        extra={<Button type="primary">Edit</Button>} // 可以根据需求调整，例如添加编辑按钮
                     />
                 ),
             },
         ];
-    }, [treeData, descriptionsItems]); // 依赖于 treeData 和 descriptionsItems，确保在这些依赖更新时重新计算
+    }, [treeData, descriptionsItems,isEditMode]); // 依赖于 treeData 和 descriptionsItems，确保在这些依赖更新时重新计算
 
     const handleAddWorkflowClick = () => {
         setIsModalVisible(true);
@@ -233,7 +342,13 @@ const ArrangeIndex: React.FC = () => {
     };
     const handlePressEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const value = e.currentTarget.value
-        updateWorkflowName(Number(isMenuDropdownVisible?.key), value)
+
+        let request: WorkflowMetadata = {
+            workflowId: Number(isMenuDropdownVisible?.key),
+            workflowName: value
+        }
+
+        updateWorkflow(request)
             .then(
                 () => {
                     setKeyValue('');
@@ -450,7 +565,7 @@ const ArrangeIndex: React.FC = () => {
                                                     placeholder="Select or type a type"
                                                     optionFilterProp="children"
                                                     style={{width: 160}}
-                                                    options={DataTypes.map(({ type}) => (
+                                                    options={DataTypes.map(({type}) => (
                                                         {value: type, label: type}
                                                     ))}
                                                     filterOption={(input: string, option?: {
@@ -511,7 +626,9 @@ const ArrangeIndex: React.FC = () => {
                 }}
                 content={
 
-                    treeData && <Collapse  bordered={false} size={"small"} style={{userSelect:'text'}} expandIconPosition='end' items={collapseItems}/>
+                    treeData &&
+                    <Collapse bordered={false} size={"small"} style={{userSelect: 'text'}} expandIconPosition='end'
+                              items={collapseItems}/>
                 }
             >
                 <Suspense fallback={<div>Loading...</div>}>

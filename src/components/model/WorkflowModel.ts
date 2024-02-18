@@ -29,11 +29,11 @@ export interface MenuItemsIdAndName {
 
 export interface WorkflowMetadata {
     workflowId: number;
-    workflowName: string;
-    workflowParameters: Parameter[];
-    workflowPurpose: string;
-    remark: string;
-    scriptMetadata: NodeData;
+    workflowName?: string;
+    workflowParameters?: Parameter[];
+    workflowPurpose?: string | null;
+    remark?: string | null;
+    scriptMetadata?: NodeData | null;
 }
 
 export const findNodeDataById = (node: NodeData, scriptId: string): NodeData | undefined => {
