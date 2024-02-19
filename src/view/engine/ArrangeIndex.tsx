@@ -89,8 +89,7 @@ const ArrangeIndex: React.FC = () => {
                     workflowParameters: editedParameters,
                     remark: editedRemark,
                 };
-                await updateWorkflow(updatedData); // 假设这是更新 API
-                // 更新成功后，可以重新获取数据或直接更新本地状态
+                setTreeData(await updateWorkflow(updatedData));
                 message.success('更新成功');
             } catch (error) {
                 message.error('更新失败');
@@ -528,7 +527,8 @@ const ArrangeIndex: React.FC = () => {
             }}
             menuDataRender={() => menuData}
             onMenuHeaderClick={() => {
-                message.info('菜单头部被点击').then((r) => r);
+                setTreeData(null);
+                setKeyValue('');
             }}
         >
             <Modal
