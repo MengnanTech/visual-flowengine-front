@@ -47,6 +47,13 @@ export const findNodeDataById = (nodes: NodeData[], scriptId: string): NodeData 
     return undefined;
 };
 
+export const config = {
+    "link1": '#8adaf6',
+    "link2": '#b1e1f3',
+    "circle": '#b3f89c',
+    "pageContainerLockBackgroundColor":"#F5F5F5",
+    "pageContainerUnLockBackgroundColor":"#c6c6e1"
+}
 export const DataTypes = [
     'Object',
     'String',

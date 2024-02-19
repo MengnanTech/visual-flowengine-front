@@ -4,7 +4,7 @@ import scriptNode from '@/assets/logo/ScriptNode.svg';
 import ruleNode from '@/assets/logo/RuleNode.svg';
 import conditionNode from '@/assets/logo/ConditionNode.svg';
 import startNode from '@/assets/logo/StartNode.svg';
-import {END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
+import {config, END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 
 
@@ -137,7 +137,7 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
             // 否则，绘制圆形
             const circle: d3.Selection<SVGCircleElement, D3Node, null, undefined> = nodeGroup.append<SVGCircleElement>("circle")
                 .attr("r", 20)
-                .style("fill", "#c0f1b0")
+                .style("fill", config.circle)
                 .style("stroke", "#999")
                 .style("stroke-width", 1.5)
                 .style("opacity", 1)

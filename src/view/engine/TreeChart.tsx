@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as d3 from 'd3';
 import MovingArrowPattern from "@/components/d3Helpers/MovingArrowPattern.tsx";
 import {observer} from 'mobx-react';
-import {centerTree} from "@/components/d3Helpers/treeHelpers.ts";
+import {centerTree, config} from "@/components/d3Helpers/treeHelpers.ts";
 
 import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
@@ -26,7 +26,6 @@ interface TreeChartProps {
 
 const ManageModalEditor = React.lazy(() => import('@/components/editor/ManageModalEditor.tsx'));
 
-const pageContainerLockBackgroundColor = '#e6e6ea';
 /**
  * initialData 是引用传递，在后面的操作中，initialData 的值会发生变化 他不是一个不变的值。
  * 如果放在mobx里面的值发生变化，那么就会导致组件重新渲染 会创建一个全新的initialData。会导致你在操作D3的时候 例如CRUD。操作一次 刷新内存地址一次
@@ -87,7 +86,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
 
         if (isUnlocked) {
             setReadonly(true);
-            svgRef.current!.style.backgroundColor = pageContainerLockBackgroundColor;
+            svgRef.current!.style.backgroundColor = config.pageContainerLockBackgroundColor;
             lockedTongueElement
                 .transition()
                 .duration(500)
@@ -107,7 +106,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
             });
         } else {
             setReadonly(false);
-            svgRef.current!.style.backgroundColor = '#c6c6e1';
+            svgRef.current!.style.backgroundColor = config.pageContainerUnLockBackgroundColor;
             // 锁定状态，应用翻转
             lockedTongueElement
                 .transition()

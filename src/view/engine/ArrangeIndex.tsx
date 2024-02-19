@@ -450,9 +450,9 @@ const ArrangeIndex: React.FC = () => {
             title="可视化流程引擎"
             token={{
 
-                // sider:{
-                //     colorTextMenuSelected: '#da1678',
-                // }
+                sider:{
+                    // colorMenuBackground: '#F9F9F9',
+                }
             }}
 
             menuItemRender={(item, dom) => (
