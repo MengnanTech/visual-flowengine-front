@@ -155,12 +155,13 @@ const ArrangeIndex: React.FC = () => {
             {
                 key: 'workflowName',
                 label: 'Workflow Name',
-                contentStyle: {width: '580px'},
+                contentStyle: {width: '380px'},
                 children: <div className={styles.workflowName}>{treeData.workflowName}</div>,
             },
             {
                 key: 'purpose',
                 label: 'Purpose',
+                labelStyle: {width: '50px'},
                 children: isEditMode ? (
                     <Input
                         defaultValue={editedPurpose}
@@ -176,9 +177,18 @@ const ArrangeIndex: React.FC = () => {
                 key: 'workflowParameters',
                 label: 'Parameters',
                 children: isEditMode ? (
-                    <>
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        {/*justify-content: space-between;*/}
+                        {/*align-items: center;*/}
+                        {/*margin-bottom: 4px;*/}
                         {editedParameters.map((param, index) => (
-                            <Space key={index} style={{display: 'flex', marginBottom: 8}} align="start">
+                            <Space key={index} style={{
+                                width: '350px',
+                                display: 'flex',
+                                marginBottom: '4px',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }} align="start">
                                 <Input
                                     value={param.parameterName}
                                     onChange={(e) => {
@@ -186,7 +196,7 @@ const ArrangeIndex: React.FC = () => {
                                         newParams[index].parameterName = e.target.value;
                                         setEditedParameters(newParams);
                                     }}
-                                    style={{width: '200px'}}
+                                    style={{width: '150px'}}
                                 />
                                 <Select
                                     value={param.parameterType}
@@ -198,7 +208,7 @@ const ArrangeIndex: React.FC = () => {
                                     options={DataTypes.map((type) => ({
                                         value: type, label: type
                                     }))}
-                                    style={{width: '200px'}}
+                                    style={{width: '150px'}}
                                 />
                                 <MinusCircleOutlined
                                     onClick={() => {
@@ -219,7 +229,7 @@ const ArrangeIndex: React.FC = () => {
                         >
                             Add Parameter
                         </Button>
-                    </>
+                    </div>
                 ) : (
                     editedParameters.map((param, index) => (
                         <div key={index} className={styles.parameterItem}>
@@ -249,11 +259,25 @@ const ArrangeIndex: React.FC = () => {
                 key: 'remark',
                 label: 'Remark',
                 span: 2,
+                // style: {height: '50px', overflow: 'hidden'},
                 children: isEditMode ? (
-                    <Input.TextArea
-                        defaultValue={editedRemark}
-                        onChange={(e) => setEditedRemark(e.target.value)}
-                    />
+
+                    <div style={{position: 'relative', height: '100%', width: '100%' , top: -20}}>
+                        <Input.TextArea
+                            defaultValue={editedRemark}
+                            onChange={(e) => setEditedRemark(e.target.value)}
+                            style={{
+                                position: 'absolute',
+                                top: 0, // 根据需要调整
+                                left: 0, // 根据需要调整
+                                height: '80px', // 初始高度
+                                width: '100%', // 宽度调整为100%以填满容器
+                                maxHeight: '100px',
+                                overflow: 'auto' // 超出初始高度时显示滚动条
+                            }}
+                        />
+                    </div>
+
                 ) : (
                     <div className={styles.remarkContent}>{editedRemark}</div>
                 ),
@@ -290,7 +314,8 @@ const ArrangeIndex: React.FC = () => {
                         items={descriptionsItems} // 使用动态生成的描述项
                         // contentStyle={{width:'80vh'}} // 限制内容的最大宽度
                         //
-                        labelStyle={{width: '150px'}} // 限制标签的最大宽度
+
+                        labelStyle={{width: '140px'}} // 限制标签的最大宽度
 
                         extra={
                             <Button type="primary" onClick={toggleEditMode}>
