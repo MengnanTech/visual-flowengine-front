@@ -242,6 +242,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
     const [windowWidth] = useState(window.innerWidth);
     const [windowHeight] = useState(window.innerHeight);
     const svgHeight = windowWidth - 256
+
     const svgWidth = windowHeight - 62
 
     const items: MenuProps['items'] = [
