@@ -1,4 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="-12 -12 48 48" id="myLock">
-    <rect x="1" y="8" width="22" height="16" fill="black"></rect>
-    <path d="M 6,8 L 6,1 C 6,-2 9,-4 12,-4 C 15,-4 18,-2 18,1 L 18,8" fill="none" stroke="black" stroke-width="2" id="lockTongue" />
+    <rect x="1" y="8" width="22" height="16" fill="black">
+
+    </rect>
+    <path d="M 6,8 L 6,1 C 6,-2 9,-4 12,-4 C 15,-4 18,-2 18,1 L 18,8" fill="none" stroke="black" stroke-width="2"
+          id="lockTongue"/>
 </svg>

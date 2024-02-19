@@ -9,9 +9,9 @@ export class NodeData {
     scriptText: string;
     scriptType: string;
     scriptDesc: string;
-    children?: NodeData[]|null;
+    children?: NodeData[] | null;
 
-    constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string,children?: NodeData[]) {
+    constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string, children?: NodeData[]) {
         makeObservable(this);
         this.scriptId = id;
         this.scriptName = name;
@@ -52,7 +52,7 @@ export interface TreeChartState {
     rootNode: D3Node;
     svgRef: SVGSVGElement;
     treeLayout: d3.TreeLayout<NodeData>;
-    closestNodeRef:D3Node | null;
+    closestNodeRef: D3Node | null;
     treeStore: TreeStore;
     currentData: WorkflowMetadata;
 }

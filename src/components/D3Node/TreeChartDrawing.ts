@@ -22,7 +22,7 @@ export function endNodeEvent(selection: d3.Selection<SVGRectElement, D3Node, nul
         const boundingClientRect = svgRef.getBoundingClientRect();
 
         // 计算 Popover 在文档中的位置
-        const x = boundingClientRect.left + window.scrollX + transformedX-scaledEndNodeLength; // 调整 X 坐标
+        const x = boundingClientRect.left + window.scrollX + transformedX - scaledEndNodeLength; // 调整 X 坐标
         const y = boundingClientRect.top + window.scrollY + transformedY;
         treeStore.setCurrentMenu(null)
         console.log('setCurrentMenu', x, y);
@@ -122,9 +122,10 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                 .attr("height", 20)
                 .attr("x", -10)
                 .attr("y", -10)
-                .style("fill", "red")
+                .attr("rx", 5)
+                .style("fill", "black")
                 .style("stroke", "#999")
-                .style("stroke-width", 1.5)
+                .style("stroke-width", 1.2)
                 .style("opacity", 1)
                 .raise();
             if (needEvent) {
@@ -252,90 +253,90 @@ export function generateLinkId(sourceId: string, targetId: string): string {
 }
 
 
-function updateLinkPath(ele: SVGPathElement, d3Link: D3Link, rootNode: D3Node) {
-    const node = rootNode.descendants().find(n => n.data.scriptId === d3Link.source.data.scriptId);
+function updateLinkPath(ele: SVGPathElement, _d3Link: D3Link, rootNode: D3Node) {
+    // const node = rootNode.descendants().find(n => n.data.scriptId === d3Link.source.data.scriptId);
 
-    const no_animation_required = node && node.data.scriptType !== "Start"
-        && (node.previousX === node.x && node.previousY === node.y)
-        && (d3Link.target.children && d3Link.target.children.length == 1 && d3Link.target.children[0].data.scriptType !== 'End');
-
-    if (no_animation_required) {
-
-        let targetY = d3Link.target.y;
-        if (d3Link.target.data.scriptType === 'End') {
-            targetY -= END_NODE_LENGTH;
-        }
-        const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
-            source: d3Link.source,
-            target: {...d3Link.target, y: targetY} as D3Node,
-        });
-        d3.select(ele).attr("d", path);
-    } else {
-        // 应用动画
-        d3.select<SVGPathElement, D3Link>(ele)
-            .transition()
-            .duration(750)
-            .attrTween("d", function (d): (t: number) => string {
-
-
-                let nodePreviousPosition: number[] | null = null;
-                const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
-
-                // if (node?.previousX && node?.previousY) 这里巨坑。如果是0的话。也会被判断为false 其实想想也对。弱类型的判断0都是false
-                if (node?.previousX !== undefined && node?.previousX !== null && node?.previousY !== undefined && node?.previousY !== null) {
-                    nodePreviousPosition = [node.previousX, node.previousY];
-                }
+    // const no_animation_required = node && node.data.scriptType !== "Start"
+    //     && (node.previousX === node.x && node.previousY === node.y)
+    //     && (d3Link.target.children && d3Link.target.children.length == 1 && d3Link.target.children[0].data.scriptType !== 'End');
+    //
+    // if (false) {
+    //
+    //     let targetY = d3Link.target.y;
+    //     if (d3Link.target.data.scriptType === 'End') {
+    //         targetY -= END_NODE_LENGTH;
+    //     }
+    //     const path = d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)({
+    //         source: d3Link.source,
+    //         target: {...d3Link.target, y: targetY} as D3Node,
+    //     });
+    //     d3.select(ele).attr("d", path);
+    // } else {
+    // 应用动画
+    d3.select<SVGPathElement, D3Link>(ele)
+        .transition()
+        .duration(750)
+        .attrTween("d", function (d): (t: number) => string {
 
 
-                if (nodePreviousPosition == null) {
-                    return function (t: number): string {
-                        let interpolateY = d3.interpolate(d.source.y, d.target.y);
+            let nodePreviousPosition: number[] | null = null;
+            const node = rootNode.descendants().find(node => node.data.scriptId === d.source.data.scriptId);
 
-                        if (d.target.data.scriptType === 'End') {
-                            interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
-                        }
-                        const interpolateX = d3.interpolate(d.source.x, d.target.x);
+            // if (node?.previousX && node?.previousY) 这里巨坑。如果是0的话。也会被判断为false 其实想想也对。弱类型的判断0都是false
+            if (node?.previousX !== undefined && node?.previousX !== null && node?.previousY !== undefined && node?.previousY !== null) {
+                nodePreviousPosition = [node.previousX, node.previousY];
+            }
 
-                        const tempD: D3Link = {
-                            source: {x: d.source.x, y: d.source.y} as D3Node,
-                            target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
-                        };
 
-                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
-                    };
-
-                } else {
-                    const previousY = nodePreviousPosition[1];
-                    const previousX = nodePreviousPosition[0];
-                    let interpolateY = d3.interpolate(previousY, d.target.y);
+            if (nodePreviousPosition == null) {
+                return function (t: number): string {
+                    let interpolateY = d3.interpolate(d.source.y, d.target.y);
 
                     if (d.target.data.scriptType === 'End') {
                         interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
                     }
-                    const interpolateX = d3.interpolate(previousX, d.target.x);
+                    const interpolateX = d3.interpolate(d.source.x, d.target.x);
 
-                    const sourceY = d3.interpolate(previousY, d.source.y);
-                    const sourceX = d3.interpolate(previousX, d.source.x);
-
-
-                    return function (t: number): string {
-                        // t 是从 0 到 1 的过渡状态
-                        // 计算新的目标位置
-                        const newY = interpolateY(t);
-                        const newX = interpolateX(t);
-
-                        // 临时更新 d.target 的位置
-                        const tempD: D3Link = {
-                            source: {x: sourceX(t), y: sourceY(t)} as D3Node,
-                            target: {x: newX, y: newY} as D3Node,
-                        };
-
-                        return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                    const tempD: D3Link = {
+                        source: {x: d.source.x, y: d.source.y} as D3Node,
+                        target: {x: interpolateX(t), y: interpolateY(t)} as D3Node,
                     };
-                }
 
-            })
-    }
+                    return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                };
+
+            } else {
+                const previousY = nodePreviousPosition[1];
+                const previousX = nodePreviousPosition[0];
+                let interpolateY = d3.interpolate(previousY, d.target.y);
+
+                if (d.target.data.scriptType === 'End') {
+                    interpolateY = d3.interpolate(d.source.y, d.target.y - END_NODE_LENGTH);
+                }
+                const interpolateX = d3.interpolate(previousX, d.target.x);
+
+                const sourceY = d3.interpolate(previousY, d.source.y);
+                const sourceX = d3.interpolate(previousX, d.source.x);
+
+
+                return function (t: number): string {
+                    // t 是从 0 到 1 的过渡状态
+                    // 计算新的目标位置
+                    const newY = interpolateY(t);
+                    const newX = interpolateX(t);
+
+                    // 临时更新 d.target 的位置
+                    const tempD: D3Link = {
+                        source: {x: sourceX(t), y: sourceY(t)} as D3Node,
+                        target: {x: newX, y: newY} as D3Node,
+                    };
+
+                    return d3.linkHorizontal<D3Link, D3Node>().x(d => d.y).y(d => d.x)(tempD)!;
+                };
+            }
+
+        })
+    // }
 }
 
 export function DrawLinks(treeChartState: TreeChartState) {

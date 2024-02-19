@@ -2,8 +2,6 @@ import * as monaco from "monaco-editor";
 import {NodeData} from "@/components/D3Node/NodeModel.ts";
 
 
-
-
 export interface WorkflowCreateRequest {
     workflowName: string;
     workflowDescription: string;
@@ -22,6 +20,7 @@ export interface Parameter {
     parameterName: string;
     parameterType: string;
 }
+
 export interface MenuItemsIdAndName {
     workflowId: number;
     workflowName: string;
@@ -29,11 +28,11 @@ export interface MenuItemsIdAndName {
 
 export interface WorkflowMetadata {
     workflowId: number;
-    workflowName: string;
-    workflowParameters: Parameter[];
-    workflowDescription: string;
-    remark: string;
-    scriptMetadata: NodeData;
+    workflowName?: string;
+    workflowParameters?: Parameter[];
+    workflowPurpose?: string | null;
+    remark?: string | null;
+    scriptMetadata?: NodeData | null;
 }
 
 export const findNodeDataById = (node: NodeData, scriptId: string): NodeData | undefined => {
@@ -69,10 +68,12 @@ export interface Diagnostic {
     message: string;
     severity: monaco.MarkerSeverity;
 }
-export interface DebugRequest{
-    scriptMetadata:NodeData;
-    inputValues:any
+
+export interface DebugRequest {
+    scriptMetadata: NodeData;
+    inputValues: any
 }
+
 export type ScriptRunStatus = 'Start' | 'End' | 'Success' | 'Error';
 
 export interface WorkflowTaskLog {

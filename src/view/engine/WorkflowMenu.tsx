@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
-import scriptNodeIcon from '@/assets/logo/ScriptNode.svg';
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
@@ -28,12 +27,21 @@ interface LineContent {
 }
 
 
+const calculateInitialPosition = () => {
+    // 视口宽度减去气泡宽度和边距，得到 x 坐标
+    const x: number = 40; // 左下角意味着 x 值较小，这里设置为左边距
+    // 视口高度减去气泡高度和边距，得到 y 坐标
+    const y = window.innerHeight - 120;
+
+    return {x, y};
+};
+
 const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const [api, contextHolder] = notification.useNotification();
     const [messageApi, messageContextHolder] = message.useMessage();
 
-    const [bubblePosition, setBubblePosition] = useState({x: 100, y: 100});
+    const [bubblePosition, setBubblePosition] = useState(calculateInitialPosition());
     const [isDragging, setIsDragging] = useState(false);
     const bubbleRef = useRef<BubbleRef | null>(null);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -145,22 +153,21 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             style: {
                 width: 290,
             },
-            btn: (
-                <div>
-                    <Button
-                        type="primary"
-                        onClick={handleCompare}
-                        disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
-                        style={{marginRight: 8}}
-                    >
-                        开始对比
-                    </Button>
-                    <Button
-                        onClick={clean} // 这里调用一个函数来清空compareLines并关闭通知
-                    >
-                        清空
-                    </Button>
-                </div>),
+            btn: (<div>
+                <Button
+                    type="primary"
+                    onClick={handleCompare}
+                    disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
+                    style={{marginRight: 8}}
+                >
+                    开始对比
+                </Button>
+                <Button
+                    onClick={clean} // 这里调用一个函数来清空compareLines并关闭通知
+                >
+                    清空
+                </Button>
+            </div>),
             duration: null,
             placement: 'top' as NotificationPlacement,
             onClose: resetNotification,
@@ -258,6 +265,20 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     }
 
+
+    useEffect(() => {
+        // 当窗口大小变化时，更新气泡的位置
+        const handleResize = () => {
+            setBubblePosition(calculateInitialPosition());
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // 组件卸载时清理事件监听器
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
     useEffect(() => {
 
         if (isDragging) {
@@ -289,26 +310,21 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 className={isExpanded ? styles.expanded : styles.bubble}
                 onMouseDown={handleDragStart}
             >
-                {/*{isExpanded ? <div ref={expandedContentRef} className={styles.expandedContent}>*/}
                 {isExpanded ? <div className={styles.expandedContent}>
-
-                        <div onClick={handleDebugWorkflow} className={styles.icon}>
+                        <div onClick={handleDebugWorkflow} className={`${styles.icon} ${styles.debugIcon}`}>
                             调试
                         </div>
-                        <div onClick={toggleExpand} className={styles.icon}>
-                            <img src={scriptNodeIcon} alt="icon" style={{width: '42px', height: '42px'}}/>
-                        </div>
-                        <div onClick={handleWorkflowUpdate} className={styles.icon}>
+                        <div onClick={handleWorkflowUpdate} className={`${styles.icon} ${styles.updateIcon}`}>
                             更新
                         </div>
-                        <div onClick={showModal} className={`${styles.icon} ${styles.iconMove1}`}>
+                        <div onClick={showModal} className={`${styles.icon} ${styles.compareIcon}`}>
                             对比
                         </div>
-                        <div className={styles.icon}>
+                        <div className={`${styles.icon} ${styles.reviewIcon}`}>
                             Review Standard
                         </div>
-                        <div className={styles.icon}>
-                            6
+                        <div onClick={toggleExpand} className={styles.icon}>
+                            收起
                         </div>
                     </div>
                     : "菜单"}
@@ -318,8 +334,8 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 display: isExpanded ? 'block' : 'none',
                 position: 'absolute',
                 cursor: 'grab',
-                left: `${bubblePosition.x + 770}px`,
-                top: `${bubblePosition.y - 15}px`,
+                left: `${bubblePosition.x + 778}px`,
+                top: `${bubblePosition.y - 5}px`,
                 transform: rotated ? 'rotate(-45deg)' : 'none', // 根据状态旋转图标
                 transition: 'transform 0.3s' // 平滑过渡效果
             }}/>
@@ -329,7 +345,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                                            transition: isDragging ? 'none' : 'all 0.3s ease',
                                            position: 'absolute',
                                            cursor: 'grab',
-                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 20}px`,
+                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 22}px`,
                                            top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
                                        }}/>
             }

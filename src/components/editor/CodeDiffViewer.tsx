@@ -5,9 +5,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css';
 
 
-
-
-
 import styles from './style/diff.module.scss';
 
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";

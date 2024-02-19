@@ -1,16 +1,15 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <script type="text/javascript" th:inline="javascript">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script th:inline="javascript" type="text/javascript">
 
         window.compileScriptApiPath = "/api/engine/groovyScript/compile";
         window.executeWorkflowApiPath = "/api/engine/workflow/execute";
         window.debugWorkflowApiPath = "/api/engine/workflow/debug";
         window.createWorkflowApiPath = "/api/engine/workflow";
         window.updateWorkflowApiPath = "/api/engine/workflow";
-        window.updateWorkflowNameApiPath = "/api/engine/workflowName";
         window.deleteWorkflowApiPath = "/api/engine/workflow";
         window.listWorkflowsApiPath = "/api/engine/workflowList";
         window.getWorkflowMetadataApiPath = "/api/engine/workflow";
@@ -20,11 +19,9 @@
         // window.debugWorkflowApiPath = [[${visualFlowProperties.debugWorkflowApiPath}]]; // 调试工作流的API路径
         // window.createWorkflowApiPath = [[${visualFlowProperties.createWorkflowApiPath}]]; // 创建新工作流的API路径
         // window.updateWorkflowApiPath = [[${visualFlowProperties.updateWorkflowApiPath}]]; // 更新工作流的API路径
-        // window.updateWorkflowNameApiPath = [[${visualFlowProperties.updateWorkflowNameApiPath}]]; // 更新工作流名称的API路径
         // window.deleteWorkflowApiPath = [[${visualFlowProperties.deleteWorkflowApiPath}]]; // 删除工作流的API路径
         // window.listWorkflowsApiPath = [[${visualFlowProperties.listWorkflowsApiPath}]]; // 列出所有工作流的API路径
         // window.getWorkflowMetadataApiPath = [[${visualFlowProperties.getWorkflowMetadataApiPath}]]; // 获取工作流元数据的API路径
-
 
 
     </script>
@@ -32,6 +29,6 @@
 </head>
 <body>
 <div id="root"></div>
-<script type="module" src="/src/main.tsx"></script>
+<script src="/src/main.tsx" type="module"></script>
 </body>
 </html>

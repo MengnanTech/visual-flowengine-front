@@ -23,7 +23,6 @@ img {
   }
 
 
-
   //背景那条缝懂颜色
   .site-layout {
     background: #efefed;
@@ -35,7 +34,7 @@ img {
   //面包屑 和 内容区域的背景颜色
   .site-layout-background {
     padding: 0;
-    margin:1px 5px 5px  5px;
+    margin: 1px 5px 5px 5px;
     background: #ffffff;
   }
 
@@ -44,11 +43,12 @@ img {
     background: #ffffff;
   }
 
-  .breadcrumb{
+  .breadcrumb {
     margin: 16px 0;
 
   }
-  .collapse-breadcrumb{
+
+  .collapse-breadcrumb {
     display: flex;
   }
 

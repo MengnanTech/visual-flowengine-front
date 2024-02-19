@@ -17,7 +17,7 @@ import dragIcon from '@/assets/logo/drag.svg';
 import batchAdd from '@/assets/logo/batchAdd.svg';
 
 interface NodeAction {
-    icon: string ;
+    icon: string;
     label: string;
     nodeType?: string;
     disabled?: boolean;
@@ -30,7 +30,7 @@ interface NodeMenuProps {
 }
 
 
-const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
+const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
     let treeStore = treeChartState.treeStore;
     const menuPosition = treeStore.menuPosition;
     let siderWidth = treeChartState.treeStore.siderWidth;
@@ -146,7 +146,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
 
     function handleConditionNode(clickedNode: D3Node) {
 
-        const newNodeData:NodeData  = {
+        const newNodeData: NodeData = {
             scriptId: GenerateUUID(),
             scriptName: "New Condition Node" + (Math.floor(Math.random() * 90) + 10),
             scriptText: '',
@@ -173,15 +173,15 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
         }
 
         // 准备一个数组来收集非Condition类型的子节点数据
-        const nonConditionChildrenData:NodeData[] = [];
+        const nonConditionChildrenData: NodeData[] = [];
 
         // 逆序遍历以避免在遍历过程中修改数组长度带来的问题
         for (let i = clickedNode.children.length - 1; i >= 0; i--) {
             let child = clickedNode.children[i];
             if (child.data.scriptType !== "Condition") {
 
-                if (!newNode.children){
-                    newNode.children=[]
+                if (!newNode.children) {
+                    newNode.children = []
                 }
                 newNode.children.push(child);
                 clickedNode.children.splice(i, 1); // 从clickedNode的children中移除该子节点
@@ -727,7 +727,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({ treeChartState}) => {
                         <div key={index}
                              className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
                              onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
-                            <img style={{ width: '24px', height: '24px' }}  src={nodeAction.icon} alt={nodeAction.label}/>
+                            <img style={{width: '24px', height: '24px'}} src={nodeAction.icon} alt={nodeAction.label}/>
                             <span className={NodeMenuStyles.nodeLabel}>{nodeAction.label}</span>
                         </div>
                     ))}

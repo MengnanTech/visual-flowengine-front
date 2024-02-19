@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
-import {Form, Input, Button, Tabs, Row, Col, message, CollapseProps, Collapse} from 'antd';
+import {Button, Col, Collapse, CollapseProps, Form, Input, message, Row, Tabs} from 'antd';
 import Editor from "@monaco-editor/react";
 import {debugWorkflow} from "@/network/api.ts";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 import {CheckOutlined, EditOutlined} from "@ant-design/icons";
 import {ItemType} from "rc-collapse/es/interface";
+
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
 
@@ -30,7 +31,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         setEditorValue(value || '');
     };
 
-    const generateItemsNest = (debugResults:Record<string, WorkflowTaskLog[]>) => {
+    const generateItemsNest = (debugResults: Record<string, WorkflowTaskLog[]>) => {
         return Object.entries(debugResults).flatMap(([step, logs]) => {
             // 当一个步骤中有多个WorkflowTaskLog对象
             if (logs.length > 1) {
@@ -40,7 +41,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     return {
                         key: `${step}-${index}`,
                         label: log.scriptName,
-                        style: {backgroundColor:  log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
+                        style: {backgroundColor: log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
                         children: (
 
 
@@ -72,14 +73,14 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                 const label = (
                     <React.Fragment>
                         {`Condition: `}
-                        <span style={{ color: 'red' }}>({scriptNames})-{` ${step}`}</span>
+                        <span style={{color: 'red'}}>({scriptNames})-{` ${step}`}</span>
                     </React.Fragment>
                 );
                 return [{
                     key: step,
                     label: label,
-                    children: <Collapse size="small" defaultActiveKey={[step]} items={children} />,
-                }as ItemType];
+                    children: <Collapse size="small" defaultActiveKey={[step]} items={children}/>,
+                } as ItemType];
             }
             // 当只有一个WorkflowTaskLog对象
             else if (logs.length === 1) {
@@ -111,16 +112,16 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     key: step,
                     label: label,
                     children: content,
-                }as ItemType];
+                } as ItemType];
             }
             return [];
         });
     };
 
     const onFinish = (values: any) => {
-        const {jsonInput,...inputValuesWithoutJsonInput} = values;
+        const {jsonInput, ...inputValuesWithoutJsonInput} = values;
 
-        const nodeData = findNodeDataById(treeChartState.currentData.scriptMetadata, scriptId);
+        const nodeData = findNodeDataById(treeChartState.currentData!.scriptMetadata!, scriptId);
         if (!nodeData) {
             message.error('Script ID not found').then(r => r);
             return;
@@ -155,7 +156,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         {
             key: '1',
             label: 'Debug Output',
-            children: <Collapse size="small" defaultActiveKey="1" items={generatedItems} />,
+            children: <Collapse size="small" defaultActiveKey="1" items={generatedItems}/>,
         }
     ];
 
@@ -179,8 +180,8 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             key: '1',
             children: (
                 <Row gutter={16}>
-                    {treeChartState.currentData.workflowParameters&&treeChartState.currentData.workflowParameters.map((field) => (
-                        <Col span={24} key={field.parameterName} >
+                    {treeChartState.currentData.workflowParameters && treeChartState.currentData.workflowParameters.map((field) => (
+                        <Col span={24} key={field.parameterName}>
                             <Form.Item
                                 label={
                                     <div>
@@ -255,7 +256,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     调试
                 </Button>
             </Form.Item>
-            <Collapse key={"1"} onChange={handleCollapseChange} size="small" activeKey={expandedKeys}  items={items} />
+            <Collapse key={"1"} onChange={handleCollapseChange} size="small" activeKey={expandedKeys} items={items}/>
 
         </Form>
     );

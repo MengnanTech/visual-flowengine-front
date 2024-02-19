@@ -34,7 +34,12 @@ const pageContainerLockBackgroundColor = '#e6e6ea';
  * 直接影响会导致后面的代码对比 不是初始状态和编辑后的代码对比。
  * <p>特别注意 initialData 在后面的D3操作中会发生变化。内存地址不变。但是值会发生变化。 </p>
  */
-const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, updateTreeData,forceUpdateTreeChart}) => {
+const TreeChart: React.FC<TreeChartProps> = observer(({
+                                                          treeStore,
+                                                          initialData,
+                                                          updateTreeData,
+                                                          forceUpdateTreeChart
+                                                      }) => {
 
     console.log("TreeChart render", initialData)
     const svgRef = useRef<SVGSVGElement>(null);
@@ -266,9 +271,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
 
     return (
         <div>
-            <div style={{position: 'relative'}}>
+            <div style={{position: 'relative', overflowX: 'hidden'}}>
                 <svg
-                    style={{position: 'absolute', left: '10px',borderRadius: '50%',padding: '8px 10px'}}
+                    style={{position: 'absolute', left: '10px', borderRadius: '50%', padding: '8px 10px'}}
                     className={styles.iconWrapper}
                     transform={isTreeChartStateReady ? `translate(${parseFloat(svgSelect.current!.attr("width")) - 180}, 10)` : undefined}
                     ref={lockedIconRef}
@@ -285,7 +290,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                 </svg>
 
                 <svg fill="#000000"
-                     style={{position: 'absolute', left: '50px',borderRadius: '50%' ,padding: '8px 2px'}}
+                     style={{position: 'absolute', left: '50px', borderRadius: '50%', padding: '8px 2px'}}
                      className={styles.iconWrapper}
                      ref={refreshIconRef}
                      visibility={isTreeChartStateReady ? 'visible' : 'hidden'}
@@ -306,9 +311,12 @@ const TreeChart: React.FC<TreeChartProps> = observer(({treeStore, initialData, u
                 </svg>
 
                 <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
-                <svg>
-                    <MovingArrowPattern/>
-                </svg>
+                <div style={{position: 'absolute', top: 0, left: 0}}>
+                    <svg>
+                        <MovingArrowPattern/>
+                    </svg>
+                </div>
+
             </div>
 
 
