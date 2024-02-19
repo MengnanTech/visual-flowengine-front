@@ -182,7 +182,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         }
 
         // 提取 label 和 code
-        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 62); // 获取 scriptText 后面的内容作为 label
+        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 162); // 获取 scriptText 后面的内容作为 label
         const code = lineContent.substring(scriptTextIndex + 12).trim().replace(/,$/, ''); // 从 "scriptText": 后面开始提取代码，并去除前后空格，并去除尾部逗号
 
         setCompareLines(prev => {
