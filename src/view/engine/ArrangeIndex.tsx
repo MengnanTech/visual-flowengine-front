@@ -71,7 +71,6 @@ const ArrangeIndex: React.FC = () => {
 
     useEffect(() => {
         if (treeData) {
-            console.log('workflowPurpose:', treeData.workflowPurpose);
             setEditedPurpose(treeData.workflowPurpose || '');
             setEditedParameters(treeData.workflowParameters || []);
             setEditedRemark(treeData.remark || '');
@@ -122,6 +121,7 @@ const ArrangeIndex: React.FC = () => {
             setKeyValue(e.key);
             return;
         }
+        setIsEditMode(false);
         if (e.key === undefined) {
             message.error('Menu item key is undefined');
             return;
@@ -177,9 +177,6 @@ const ArrangeIndex: React.FC = () => {
                 label: 'Parameters',
                 children: isEditMode ? (
                     <div style={{display: 'flex', flexDirection: 'column'}}>
-                        {/*justify-content: space-between;*/}
-                        {/*align-items: center;*/}
-                        {/*margin-bottom: 4px;*/}
                         {editedParameters.map((param, index) => (
                             <Space key={index} style={{
                                 width: '350px',
@@ -191,18 +188,23 @@ const ArrangeIndex: React.FC = () => {
                                 <Input
                                     value={param.parameterName}
                                     onChange={(e) => {
-                                        const newParams = [...editedParameters];
-                                        newParams[index].parameterName = e.target.value;
-                                        setEditedParameters(newParams);
+                                        const value = e.target.value;
+                                        if (value.trim() !== '') { // 确保输入非空
+                                            const newParams = [...editedParameters];
+                                            newParams[index].parameterName = value;
+                                            setEditedParameters(newParams);
+                                        }
                                     }}
                                     style={{width: '150px'}}
                                 />
                                 <Select
                                     value={param.parameterType}
                                     onChange={(value) => {
-                                        const newParams = [...editedParameters];
-                                        newParams[index].parameterType = value;
-                                        setEditedParameters(newParams);
+                                        if (value) { // 确保选择非空
+                                            const newParams = [...editedParameters];
+                                            newParams[index].parameterType = value;
+                                            setEditedParameters(newParams);
+                                        }
                                     }}
                                     options={DataTypes.map((type) => ({
                                         value: type, label: type
@@ -221,7 +223,7 @@ const ArrangeIndex: React.FC = () => {
                         <Button
                             type="dashed"
                             onClick={() => {
-                                setEditedParameters([...editedParameters, {parameterName: '', parameterType: ''}]);
+                                setEditedParameters([...editedParameters, {parameterName: 'NewParam', parameterType: 'String'}]);
                             }}
                             block
                             icon={<PlusOutlined/>}
@@ -261,7 +263,7 @@ const ArrangeIndex: React.FC = () => {
                 // style: {height: '50px', overflow: 'hidden'},
                 children: isEditMode ? (
 
-                    <div style={{position: 'relative', height: '100%', width: '100%' , top: -20}}>
+                    <div style={{position: 'relative', height: '100%', width: '100%', top: -25}}>
                         <Input.TextArea
                             defaultValue={editedRemark}
                             onChange={(e) => setEditedRemark(e.target.value)}
@@ -269,9 +271,9 @@ const ArrangeIndex: React.FC = () => {
                                 position: 'absolute',
                                 top: 0, // 根据需要调整
                                 left: 0, // 根据需要调整
-                                height: '80px', // 初始高度
+                                height: (editedParameters.length <= 1) ? '50px' : `${editedParameters.length * 8}px`, // 初始高度
                                 width: '100%', // 宽度调整为100%以填满容器
-                                maxHeight: '100px',
+                                maxHeight: (editedParameters.length <= 1) ? '50px' : `${editedParameters.length * 40}px`,
                                 overflow: 'auto' // 超出初始高度时显示滚动条
                             }}
                         />
@@ -450,7 +452,7 @@ const ArrangeIndex: React.FC = () => {
             title="可视化流程引擎"
             token={{
 
-                sider:{
+                sider: {
                     // colorMenuBackground: '#F9F9F9',
                 }
             }}

@@ -22,7 +22,6 @@ self.MonacoEnvironment = {
     // @ts-ignore
     getWorker: function (_: any, label: string) {
 
-        console.log("label", label)
         if (label === 'json') {
             return new jsonWorker()
         }

@@ -5,7 +5,6 @@ class HTTP {
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
-                console.error("HTTP error:", response.status, response.statusText);
                 return null;
             }
 

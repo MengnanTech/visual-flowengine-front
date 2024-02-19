@@ -40,7 +40,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                                                           forceUpdateTreeChart
                                                       }) => {
 
-    console.log("TreeChart render", initialData)
+
     const svgRef = useRef<SVGSVGElement>(null);
     const svgSelect = useRef<d3.Selection<any, any, any, any> | null>(null);
     const gRef = useRef<d3.Selection<any, any, any, any> | null>(null);
