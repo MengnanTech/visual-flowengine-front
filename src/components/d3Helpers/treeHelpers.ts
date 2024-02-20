@@ -50,12 +50,12 @@ export const findNodeDataById = (nodes: NodeData[], scriptId: string): NodeData 
 };
 
 export const config = {
-    "link1": '#8adaf6',
-    "link2": '#b1e1f3',
-    "circle": '#b3f89c',
-    "ruleCircle": '#ac38f1',
+    "link1": '#DADADA',
+    "link2": '#A3A3A3',
+    "circle": '#2196F3',
+    "ruleCircle": '#FFC107',
     "pageContainerLockBackgroundColor":"#F5F5F5",
-    "pageContainerUnLockBackgroundColor":"#c6c6e1"
+    "pageContainerUnLockBackgroundColor":"#eee"
 }
 export const DataTypes = [
     'Object',

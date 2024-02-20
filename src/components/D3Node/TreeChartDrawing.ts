@@ -139,7 +139,7 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                 .attr("r", 20)
                 .style("fill", d.data.scriptType=="Rule"? config.ruleCircle:config.circle)
                 .style("stroke", "#999")
-                .style("stroke-width", 1.5)
+                .style("stroke-width", 0)
                 .style("opacity", 1)
                 .raise();
             if (needEvent) {
