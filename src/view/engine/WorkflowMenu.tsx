@@ -311,16 +311,16 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 onMouseDown={handleDragStart}
             >
                 {isExpanded ? <div className={styles.expandedContent}>
-                        <div onClick={handleDebugWorkflow} className={`${styles.icon} ${styles.debugIcon}`}>
+                        <div onClick={handleDebugWorkflow} className={styles.icon}>
                             调试
                         </div>
-                        <div onClick={handleWorkflowUpdate} className={`${styles.icon} ${styles.updateIcon}`}>
+                        <div onClick={handleWorkflowUpdate} className={styles.icon}>
                             更新
                         </div>
-                        <div onClick={showModal} className={`${styles.icon} ${styles.compareIcon}`}>
+                        <div onClick={showModal}  className={styles.icon}>
                             对比
                         </div>
-                        <div className={`${styles.icon} ${styles.reviewIcon}`}>
+                        <div  className={styles.icon}>
                             Review Standard
                         </div>
                         <div onClick={toggleExpand} className={styles.icon}>
