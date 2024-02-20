@@ -65,7 +65,7 @@ export function circleEvent(circle: d3.Selection<SVGCircleElement, D3Node, null,
             treeStore.setMenuNode(node);
         }, 1);
     })
-        .on('mouseout', function (node) {
+        .on('mouseout', function (_event, node) {
             d3.select(this) // 选择当前的圆
                 .transition() // 开始一个过渡效果
                 .duration(50) // 持续时间

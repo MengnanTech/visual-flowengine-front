@@ -3,31 +3,33 @@ import {v4 as uuid} from "uuid";
 
 
 export const centerTree = (rootNode: D3Node, width: number, height: number) => {
-    let x0 = Infinity;
-    let x1 = -x0;
-    let y0 = Infinity;
-    let y1 = -y0;
-    // 计算树的边界
-    rootNode.each((d) => {
-        if (d.x > x1) x1 = d.x;
-        if (d.x < x0) x0 = d.x;
-        if (d.y > y1) y1 = d.y;
-        if (d.y < y0) y0 = d.y;
+
+    let maxDepth = 0;
+
+    // 遍历所有节点以找到最大深度
+    rootNode.each(d => {
+        if (d.depth > maxDepth) maxDepth = d.depth;
     });
-    // 计算树的中心位置
-    const scaleX = (x1 - x0) / 2 + x0;
-    const scaleY = (y1 - y0) / 2 + y0;
-    // 计算平移量
-    const translateX = width / 2 - scaleY;
-    const translateY = height / 2 - scaleX;
-    // 如果树的大小是奇数，对齐到30像素网格
-    const offsetX = (x1 - x0) % 2 === 0 ? 0 : 30;
-    // 调整每个节点的位置
-    rootNode.each((d) => {
-        d.x += offsetX;
-    });
-    // 返回平移量
-    return [translateX, translateY];
+
+    console.log('maxDepth', maxDepth);
+    // 设定基础平移量
+    let baseTranslateX = 50; // 从左侧开始的默认边距
+
+    // 根据树的深度动态调整水平方向的平移量
+    if (maxDepth < 5) {
+        // 如果树的深度较小，增加水平方向的平移量，使树稍微向右偏移
+        baseTranslateX = width / 4; // 例如，可以设置为视图宽度的1/4
+    } else if (maxDepth >= 5 && maxDepth < 10) {
+        // 中等深度的树，适当减少平移量
+        baseTranslateX = width / 8; // 视图宽度的1/8
+    }
+    // 对于更深的树，保持baseTranslateX为初始值，即从左侧开始布局
+
+    // 计算垂直方向上的平移量以垂直居中根节点
+    const translateY = height / 2 - rootNode.x;
+
+    // 返回计算出的平移量
+    return [baseTranslateX, translateY];
 };
 export const GenerateUUID = () => {
     return uuid();
