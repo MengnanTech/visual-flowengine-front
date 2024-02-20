@@ -5,12 +5,12 @@ import "reset-css"
 import "@/assets/styles/global.scss"
 import Arrange from "@/view/engine/ArrangeIndex.tsx";
 import {loader} from "@monaco-editor/react";
-import * as monaco from 'monaco-editor';
-// import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+// import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 //json语法的按需导入
-// import 'monaco-editor/esm/vs/language/json/monaco.contribution'
+import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+// import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
 /**
@@ -22,13 +22,12 @@ self.MonacoEnvironment = {
     // @ts-ignore
     getWorker: function (_: any, label: string) {
 
-        console.log("label", label)
         if (label === 'json') {
             return new jsonWorker()
         }
         //editorWorkerService
         // 如果默认的worker diff 的小红点会失效。
-        return new editorWorker()
+        // return new editorWorker()
     },
 }
 

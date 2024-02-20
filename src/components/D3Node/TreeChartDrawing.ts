@@ -25,7 +25,6 @@ export function endNodeEvent(selection: d3.Selection<SVGRectElement, D3Node, nul
         const x = boundingClientRect.left + window.scrollX + transformedX - scaledEndNodeLength; // 调整 X 坐标
         const y = boundingClientRect.top + window.scrollY + transformedY;
         treeStore.setCurrentMenu(null)
-        console.log('setCurrentMenu', x, y);
         setTimeout(() => {
             treeStore.setCurrentMenu({x: x, y: y});
             treeStore.setMenuNode(d);

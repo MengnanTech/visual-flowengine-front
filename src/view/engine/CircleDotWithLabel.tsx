@@ -1,5 +1,5 @@
 import React from 'react';
-import {CloseCircleOutlined} from "@ant-design/icons";
+import { CloseCircleOutlined } from "@ant-design/icons";
 
 interface CircleDotWithLabelProps {
     color: string;
@@ -7,12 +7,11 @@ interface CircleDotWithLabelProps {
     onRemove?: () => void;
 }
 
-const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({color, label, onRemove}) => {
-    // 只有当颜色不是灰色时才显示删除图标
-    const isRemovable = color !== 'grey'; // 或者您用来表示灰色状态的确切颜色代码
+const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({ color, label, onRemove }) => {
+    const isRemovable = color !== 'grey';
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer'}}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
             <div style={{
                 width: '35px',
                 height: '35px',
@@ -21,10 +20,13 @@ const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({color, label, on
                 position: 'relative'
             }}>
                 {isRemovable && <CloseCircleOutlined
-                    style={{color: 'red', position: 'absolute', top: '-10px', right: '-10px', cursor: 'pointer'}}
-                    onClick={onRemove}/>}
+                    style={{ color: 'red', position: 'absolute', top: '-10px', right: '-10px', cursor: 'pointer' }}
+                    onClick={onRemove} />}
             </div>
-            <span style={{fontSize: '10px', marginTop: '4px'}}>{label}</span>
+            {/* 使用 title 属性提供简单的hover提示 */}
+            <span title={label} style={{ fontSize: '10px', marginTop: '4px', maxWidth: '70px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {label}
+            </span>
         </div>
     );
 };
