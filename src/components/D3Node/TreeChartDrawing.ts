@@ -56,7 +56,8 @@ export function circleEvent(circle: d3.Selection<SVGCircleElement, D3Node, null,
             .transition()
             .duration(5)
             .attr("r", 25)
-            .style("fill", "#a9db80");
+            .style("fill", node.data.scriptType=="Rule"? config.ruleCircle:config.circle)
+
         treeStore.setCurrentMenu(null)
 
         setTimeout(() => {
@@ -64,12 +65,12 @@ export function circleEvent(circle: d3.Selection<SVGCircleElement, D3Node, null,
             treeStore.setMenuNode(node);
         }, 1);
     })
-        .on('mouseout', function () {
+        .on('mouseout', function (node) {
             d3.select(this) // 选择当前的圆
                 .transition() // 开始一个过渡效果
                 .duration(50) // 持续时间
                 .attr("r", 20) // 恢复圆的半径
-                .style("fill", "#c0f1b0"); // 恢复填充色
+                .style("fill", node.data.scriptType=="Rule"? config.ruleCircle:config.circle)
         })
 
         .on('contextmenu', function (event,) {
@@ -136,7 +137,7 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
             // 否则，绘制圆形
             const circle: d3.Selection<SVGCircleElement, D3Node, null, undefined> = nodeGroup.append<SVGCircleElement>("circle")
                 .attr("r", 20)
-                .style("fill", config.circle)
+                .style("fill", d.data.scriptType=="Rule"? config.ruleCircle:config.circle)
                 .style("stroke", "#999")
                 .style("stroke-width", 1.5)
                 .style("opacity", 1)
@@ -165,7 +166,7 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                     d3.select(this)
                         .transition()
                         .duration(250)
-                        .style("fill", "#555") // 恢复默认文本颜色
+                        .style("fill", "#171616") // 恢复默认文本颜色
                         .style("font-weight", "normal"); // 文字恢复正常
                 });
 
