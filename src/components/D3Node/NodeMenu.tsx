@@ -480,7 +480,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
     const isStartNodeType = menuNode?.data.scriptType === "Start";
     const nextNodeIsEnd = isNextNodeEnd(treeStore.menuNode);
     const hasChildren = !!(menuNode && menuNode.data.children && menuNode.data.children.length > 0);
-    // const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
+    const hasEndChildNode = !!(menuNode && menuNode.data.children && menuNode.data.children.some(child => child.scriptType === 'End'));
 
     function handleScriptNode(clickedNode: D3Node, stringType: string) {
         const uuid = GenerateUUID();
@@ -581,7 +581,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             icon: replace,
             label: '被顶替',
             nodeType: "Replace",
-            disabled: isStartNodeType ,
+            disabled: isStartNodeType || hasEndChildNode || isEndNodeType,
             action: () => handleReplaceNode(treeStore.menuNode!)
         },
         {
