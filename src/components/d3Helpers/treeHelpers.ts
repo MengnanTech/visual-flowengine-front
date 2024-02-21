@@ -55,7 +55,7 @@ export const config = {
     "circle": '#2196F3',
     "ruleCircle": '#FFC107',
     "pageContainerLockBackgroundColor":"#F5F5F5",
-    "pageContainerUnLockBackgroundColor":"#eee"
+    "pageContainerUnLockBackgroundColor":"#e0dddd"
 }
 export const DataTypes = [
     'Object',
