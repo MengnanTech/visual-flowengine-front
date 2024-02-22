@@ -50,7 +50,7 @@ export const findNodeDataById = (nodes: NodeData[], scriptId: string): NodeData 
 };
 
 export const config = {
-    "link1": '#DADADA',
+    "link1": '#bebdbd',
     "link2": '#A3A3A3',
     "circle": '#2196F3',
     "ruleCircle": '#FFC107',
