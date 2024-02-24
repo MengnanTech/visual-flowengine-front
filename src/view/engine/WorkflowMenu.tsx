@@ -1,9 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import {DragOutlined, PushpinOutlined} from "@ant-design/icons";
+import {DragOutlined, PushpinOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
-import {Button, message, Modal, notification, NotificationArgsProps} from 'antd';
+import {Button, message, Modal, notification, NotificationArgsProps, Popconfirm} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
@@ -300,6 +300,14 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             document.removeEventListener('mouseup', handleDragEnd);
         };
     }, [isDragging]);
+
+
+
+
+    const confirm = () => {
+        window.open('https://github.com/code-visual/visual-flowengine-spring-boot-starter', '_blank');
+    };
+
     return (
         <> {contextHolder}
             {messageContextHolder}
@@ -326,9 +334,25 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                         <div onClick={showModal} className={styles.icon}>
                             <img src={vs} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
-                        <div className={styles.icon}>
-                            <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
-                        </div>
+
+
+                        <Popconfirm
+                            title="前往GitHub查看官方文档？"
+                            icon={<QuestionCircleOutlined style={{ color: '#7cb25d' }} />}
+                            onConfirm={confirm}
+                            okText="Yes"
+                            cancelText="No"
+                            style={{marginBottom: '110px',paddingBottom: '110px',position: 'absolute',left: '0px',top: '0px'}}
+                        >
+                            <div style={{padding:'12px'}}>
+                                <div className={styles.icon}>
+                                    <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
+                                </div>
+                            </div>
+                        </Popconfirm>
+
+
+
                         <div onClick={toggleExpand} className={styles.icon}>
                             <img src={close} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
