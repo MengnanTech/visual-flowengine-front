@@ -65,7 +65,10 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
     const [readonly, setReadonly] = useState(true);
     const lockedIconRef = useRef(null);
     const refreshIconRef = useRef(null);
-
+    const [windowSize, setWindowSize] = useState({
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+    });
     const showModal = (data: string) => {
         setJsonData(data);
         setIsModalVisible(true);
@@ -242,12 +245,27 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
 
     }, [treeStore]);
 
-    // 计算svg窗口大小
-    const [windowWidth] = useState(window.innerWidth);
-    const [windowHeight] = useState(window.innerHeight);
-    const svgHeight = windowWidth - 256
 
-    const svgWidth = windowHeight - 62
+
+    useEffect(() => {
+        // 定义处理窗口大小变化的函数
+        function handleResize() {
+            setWindowSize({
+                windowWidth: window.innerWidth,
+                windowHeight: window.innerHeight,
+            });
+        }
+
+        // 添加事件监听器
+        window.addEventListener('resize', handleResize);
+
+        // 清理函数：组件卸载时移除事件监听器
+        return () => window.removeEventListener('resize', handleResize);
+    }, []); // 空依赖数组表示这个effect仅在组件挂载时运行一次
+
+    // 根据窗口大小计算SVG尺寸
+    const svgWidth = windowSize.windowWidth - 256;
+    const svgHeight = windowSize.windowHeight - 62;
 
     const items: MenuProps['items'] = [
         {
@@ -309,7 +327,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                     </g>
                 </svg>
 
-                <svg ref={svgRef} width={svgHeight} height={svgWidth} onContextMenu={handleContextMenu}></svg>
+                <svg ref={svgRef} width={svgWidth} height={svgHeight} onContextMenu={handleContextMenu}></svg>
                 <div style={{position: 'absolute', top: 0, left: 0}}>
                     <svg>
                         <MovingArrowPattern/>
