@@ -7,6 +7,12 @@ import {Button, message, Modal, notification, NotificationArgsProps} from 'antd'
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
+import debug from '@/assets/logo/debug.svg';
+import update from '@/assets/logo/update.svg';
+import close from '@/assets/logo/close.svg';
+import can from '@/assets/logo/can.svg';
+
+import vs from '@/assets/logo/vs.svg';
 
 import DebugForm from "@/view/engine/DebugForm.tsx";
 
@@ -312,20 +318,22 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             >
                 {isExpanded ? <div className={styles.expandedContent}>
                         <div onClick={handleDebugWorkflow} className={styles.icon}>
-                            调试
+                            <img src={debug} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
                         <div onClick={handleWorkflowUpdate} className={styles.icon}>
-                            更新
+                            <img src={update} alt="icon" style={{width: '42px', height: '42px'}}/>
                         </div>
-                        <div onClick={showModal}  className={styles.icon}>
-                            对比
+                        <div onClick={showModal} className={styles.icon}>
+                            <img src={vs} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
-                        <div  className={styles.icon}>
-                            Review Standard
+                        <div className={styles.icon}>
+                            <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
                         <div onClick={toggleExpand} className={styles.icon}>
-                            收起
+                            <img src={close} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
+
+
                     </div>
                     : "菜单"}
 

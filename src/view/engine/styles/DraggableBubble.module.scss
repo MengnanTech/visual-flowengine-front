@@ -40,7 +40,7 @@
   background-color: skyblue;
   width: 800px; // 展开后的宽度
   height: 60px; // 展开后的高度
-  border-radius: 30px; // 调整为适当的圆角
+  border-radius: 20px; // 调整为适当的圆角
 }
 
 .fixedIcon {
@@ -94,21 +94,22 @@
 
 
 .icon {
-  width: 40px; // 调整图标大小
-  height: 40px;
-  background-color: #e3f1f1; // 假设所有图标都有统一的背景色，实际情况可能需要调整
-  border-radius: 50%;
+  width: 42px; // 调整图标大小
+  height: 42px;
+  //background-color: #e3f1f1; // 假设所有图标都有统一的背景色，实际情况可能需要调整
+  border-radius: 30%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.3s ease;
-
+  //box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 调整阴影的颜色、模糊半径等参数以符合设计需求 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 8px rgba(255, 255, 255, 0.3); /* 添加亮光效果 */
 
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    background-color: #def3f3;
+    //background-color: #def3f3;
   }
 
   &:active {
