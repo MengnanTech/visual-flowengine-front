@@ -2,23 +2,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 class HTTP {
     static async request(url: string, options = {}) {
-        try {
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                return null;
-            }
 
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                // 返回 JSON 数据
-                return await response.json();
-            } else {
-                // 返回字符串数据
-                return await response.text();
-            }
-        } catch (error) {
-            console.error("Network error:", error);
-            return null;
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`HTTP request error: ${response.status}`);
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            // 返回 JSON 数据
+            return await response.json();
+        } else {
+            // 返回字符串数据
+            return await response.text();
         }
     }
 
