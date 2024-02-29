@@ -73,8 +73,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                 });
                 const label = (
                     <React.Fragment>
-                        {`Condition: `}
-                        <span style={{color: 'red'}}>({scriptNames})-{` ${step}`}</span>
+                        <span style={{color: 'red'}}>({scriptNames}){` level:${step}`}</span>
                     </React.Fragment>
                 );
                 return [{

@@ -54,7 +54,7 @@ export enum ScriptType {
     Start,
     Script,
     Condition,
-    Decision,
+    Rule,
     Fork,
     Join,
     End
@@ -79,6 +79,8 @@ export type ScriptRunStatus = 'Start' | 'End' | 'Success' | 'Error';
 export interface WorkflowTaskLog {
     scriptId: string;
     scriptName: string;
+    scriptType: ScriptType;
+
     beforeRunBinding: Record<string, any>;
     afterRunBinding: Record<string, any>;
     scriptRunStatus: ScriptRunStatus;
