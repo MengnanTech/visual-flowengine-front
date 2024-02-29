@@ -41,7 +41,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
                     return {
                         key: `${step}-${index}`,
-                        label: log.scriptType == ScriptType.End ? ScriptType.End : log.scriptName,
+                        label: log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName,
                         style: {backgroundColor: log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
                         children: (
 
@@ -86,7 +86,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             else if (logs.length === 1) {
                 const log = logs[0];
                 // 注意这里的逻辑，确保它符合您的要求
-                const label = log.scriptType == ScriptType.End ? ScriptType.End : log.scriptName;
+                const label = log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName;
 
                 const content = log.scriptType === ScriptType.End ? (
                     <div>
