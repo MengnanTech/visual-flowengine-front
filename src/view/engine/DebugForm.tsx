@@ -7,9 +7,6 @@ import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/mode
 import {CheckOutlined, EditOutlined} from "@ant-design/icons";
 import {ItemType} from "rc-collapse/es/interface";
 
-const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
-
-
 interface DebugFormProps {
     treeChartState: TreeChartState;
 }
@@ -21,8 +18,12 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     const [scriptId, setScriptId] = useState("1");
     const [isScriptIdEditable, setIsScriptIdEditable] = useState(false);
     // const [debugResults, setDebugResults] = useState<Record<string, WorkflowTaskLog[]>>({});
-    const [expandedKeys, setExpandedKeys] = useState<string>('1');
+    const [expandedKeys, setExpandedKeys] = useState<string>('');
     const [generatedItems, setGeneratedItems] = useState<ItemType[]>([]);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+
     const toggleScriptIdEditability = () => {
         setIsScriptIdEditable((prevEditable) => !prevEditable);
     };
@@ -45,7 +46,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         children: (
 
 
-                            <MonacoEditor
+                            <Editor
                                 key={Math.random()}
                                 height={"30vh"}
                                 defaultLanguage="json"
@@ -93,7 +94,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         <p>Status: {log.scriptRunStatus}</p>
                     </div>
                 ) : (
-                    <MonacoEditor
+                    <Editor
                         key={Math.random()}
                         height={"30vh"}
                         defaultLanguage="json"
@@ -119,11 +120,13 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     };
 
     const onFinish = (values: any) => {
+        setLoading(true);
         const {jsonInput, ...inputValuesWithoutJsonInput} = values;
 
         const nodeData = findNodeDataById(treeChartState.currentData!.scriptMetadata!, scriptId);
         if (!nodeData) {
             message.error('Script ID not found').then(r => r);
+            setLoading(false);
             return;
         }
 
@@ -141,12 +144,17 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             }
         }
 
+        setExpandedKeys('');
         debugWorkflow(debugRequest).then(
             r => {
 
                 const itemsNest = generateItemsNest(r); // 确保generateItemsNest能够接收debugResults作为参数
                 setGeneratedItems(itemsNest);
-                setExpandedKeys('1');
+                setLoading(false);
+                setTimeout(
+                    () => setExpandedKeys('1'),
+                    100
+                );
 
             }
         )
@@ -252,11 +260,11 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
             <Tabs items={tabItems} defaultActiveKey="1" type="card" onChange={setActiveTabKey}/>
             <Form.Item>
-                <Button type="primary" htmlType="submit" style={{width: '100%'}}>
+                <Button type="primary" loading={loading} htmlType="submit" style={{width: '100%'}}>
                     调试
                 </Button>
             </Form.Item>
-            <Collapse key={"1"} onChange={handleCollapseChange} size="small" activeKey={expandedKeys} items={items}/>
+            <Collapse  onChange={handleCollapseChange} size="small" activeKey={expandedKeys} items={items}/>
 
         </Form>
     );
