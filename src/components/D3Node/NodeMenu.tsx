@@ -15,7 +15,6 @@ import deleteTreeIcon from '@/assets/logo/DeleteTree.svg';
 import endIcon from '@/assets/logo/end.svg';
 import dragIcon from '@/assets/logo/drag.svg';
 import replace from '@/assets/logo/replace.svg';
-
 interface NodeAction {
     icon: string;
     label: string;
@@ -201,7 +200,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
         }
 
         // 更新新节点的数据部分以反映非Condition类型的子节点
-        newNodeData.children = nonConditionChildrenData;
+        newNodeData.children = nonConditionChildrenData.length == 0 ? null : nonConditionChildrenData;
 
         // 将新节点添加为clickedNode的子节点（视图层和数据层）
         clickedNode.children.push(newNode);
@@ -295,11 +294,11 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             });
         }
 
-
         const parentChildren = nodeToRemove.parent.children;
         if (parentChildren) {
             // 直接将nodeToRemove的子节点赋给父节点
             const newChildren = [...parentChildren];
+
             const nodeIndex = newChildren.findIndex(child => child === nodeToRemove);
             if (nodeIndex !== -1) {
                 if (nodeToRemove.children && nodeToRemove.children.length > 0) {
@@ -315,7 +314,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
                     newChildren.splice(nodeIndex, 1);
                 }
             }
-            nodeToRemove.parent.children = newChildren;
+            if (newChildren.length === 0) {
+                delete nodeToRemove.parent.children;
+            } else {
+                nodeToRemove.parent.children = newChildren;
+            }
+
         }
 
         // 更新数据模型中的children数组
@@ -328,11 +332,18 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             }
         } else {
             // 如果没有子节点的数据，正常移除
-            const parentDataChildren = nodeToRemove.parent.data.children;
-            const nodeIndex = parentDataChildren!.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
-            if (nodeIndex !== -1) {
-                parentDataChildren!.splice(nodeIndex, 1);
-            }
+            // const parentDataChildren = nodeToRemove.parent.data.children;
+            // if (parentDataChildren) {
+            //     const nodeIndex = parentDataChildren.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
+            //     if (nodeIndex !== -1) {
+            //         parentDataChildren.splice(nodeIndex, 1);
+            //     }
+            // }
+            nodeToRemove.parent.data.children = null;
+            // const nodeIndex = parentDataChildren!.findIndex(child => child.scriptId === nodeToRemove.data.scriptId);
+            // if (nodeIndex !== -1) {
+            //     parentDataChildren!.splice(nodeIndex, 1);
+            // }
         }
 
         // 设置延时以确保前面的操作完成
@@ -471,6 +482,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
 
 
     }
+
     // function handleBatchAdd(clickedNode: D3Node){
     //
     // }
@@ -499,7 +511,6 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
         const newNode = d3.hierarchy(newNodeData, (d) => d.children) as D3Node;
         newNode.depth = clickedNode.depth + 1;
         newNode.parent = clickedNode;
-
         // 3. 转移A的现有子节点到B下
         if (clickedNode.children) {
             newNode.children = clickedNode.children;
@@ -510,14 +521,14 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
         }
         clickedNode.children = [newNode];
 
-        if (!clickedNode.data.children) {
-            clickedNode.data.children = [];
-        }
+        // if (!clickedNode.data.children) {
+        //     clickedNode.data.children = [];
+        // }
         clickedNode.data.children = [newNodeData];
 
         // 5. 如果有必要，更新新节点B的数据结构以反映其子节点
-        newNodeData.children = newNode.children ? newNode.children.map(child => child.data) : [];
-        newNodeData.children.forEach(child => {
+        newNodeData.children = newNode.children ? newNode.children.map(child => child.data) : null;
+        newNodeData.children?.forEach(child => {
             let selection = d3.select<SVGPathElement, D3Link>(`#${generateLinkId(clickedNode.data.scriptId, child.scriptId)}`);
             selection.attr("id", `${generateLinkId(newNode.data.scriptId, child.scriptId)}`)
         })
@@ -588,7 +599,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             icon: deleteIcon,
             label: '删除当前节点',
             nodeType: "Delete",
-            disabled:  isStartNodeType,
+            disabled: isStartNodeType,
             action: () => handleDeleteNode(treeStore.menuNode!)
         },
         {
