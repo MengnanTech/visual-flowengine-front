@@ -146,7 +146,6 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         setExpandedKeys('');
         debugWorkflow(debugRequest).then(
             r => {
-
                 const itemsNest = generateItemsNest(r); // 确保generateItemsNest能够接收debugResults作为参数
                 setGeneratedItems(itemsNest);
                 setLoading(false);
@@ -154,9 +153,13 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                     () => setExpandedKeys('1'),
                     100
                 );
-
             }
-        )
+        ).catch(error => {
+            // 在这里处理异常，比如API调用失败或超时
+            console.error('Debug workflow failed:', error);
+            message.error('流程出现系统内部异常').then(r => r);
+            setLoading(false); // 确保在发生错误时停止加载状态
+        });
     };
 
     const items: CollapseProps['items'] = [
