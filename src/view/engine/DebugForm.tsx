@@ -3,7 +3,7 @@ import {Button, Col, Collapse, CollapseProps, Form, Input, message, Row, Tabs} f
 import Editor from "@monaco-editor/react";
 import {debugWorkflow} from "@/network/api.ts";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {DebugRequest, findNodeDataById, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
+import {DebugRequest, findNodeDataById, ScriptType, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 import {CheckOutlined, EditOutlined} from "@ant-design/icons";
 import {ItemType} from "rc-collapse/es/interface";
 
@@ -41,7 +41,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
 
                     return {
                         key: `${step}-${index}`,
-                        label: log.scriptName,
+                        label: log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName,
                         style: {backgroundColor: log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
                         children: (
 
@@ -86,9 +86,9 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             else if (logs.length === 1) {
                 const log = logs[0];
                 // 注意这里的逻辑，确保它符合您的要求
-                const label = log.scriptRunStatus === 'End' ? 'End' : log.scriptName;
+                const label = log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName;
 
-                const content = log.scriptRunStatus === 'End' ? (
+                const content = log.scriptType === ScriptType.End ? (
                     <div>
                         <p>Status: {log.scriptRunStatus}</p>
                     </div>
