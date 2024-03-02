@@ -329,6 +329,22 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                     documentation: 'Groovy for 循环',
                     range: range, // 确保 range 不是 undefined
                 },
+                {
+                    label: 'binding.setVariable',
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    insertText: 'binding.setVariable("${1:name}", ${2:value})',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'binding.setVariable',
+                    range: range, // 确保 range 不是 undefined
+                },
+                {
+                    label: 'binding.getVariable',
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    insertText: 'binding.setVariable("${1:name}")',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'binding.getVariable',
+                    range: range, // 确保 range 不是 undefined
+                },
 
             ];
 

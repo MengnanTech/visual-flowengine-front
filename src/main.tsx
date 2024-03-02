@@ -10,6 +10,10 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 //json语法的按需导入
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+
+import "monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController"
+import  "monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions"
+
 // import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
