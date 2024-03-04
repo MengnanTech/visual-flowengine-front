@@ -19,6 +19,14 @@ export default defineConfig(({mode}) => ({
 
 
     build: {
+        minify: 'terser', // 必须启用：terserOptions配置才会有效
+        terserOptions: {
+            compress: {
+                // 生产环境时移除console.log调试代码
+                drop_console:true,
+                drop_debugger: true,
+            }
+        },
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
