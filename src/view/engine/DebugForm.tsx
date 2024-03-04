@@ -225,7 +225,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         padding: '10px',
                     }}>
                         <Editor
-                            height="500px"
+                            height="300px"
                             defaultLanguage="json"
                             onChange={handleEditorChange}
                             options={{

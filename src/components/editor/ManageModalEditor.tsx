@@ -12,7 +12,8 @@ import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
-
+import type {DraggableData, DraggableEvent} from 'react-draggable';
+import Draggable from 'react-draggable';
 import {DebugRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
@@ -210,11 +211,59 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setActiveKey(newActiveKey);
     };
 
+
+    const [disabled, setDisabled] = useState(true);
+    const [bounds, setBounds] = useState({left: 0, top: 0, bottom: 0, right: 0});
+    const draggleRef = useRef<HTMLDivElement>(null);
+
+    const [disabledDebug, setDisabledDebug] = useState(true);
+    const [boundsDebug, setBoundsDebug] = useState({left: 0, top: 0, bottom: 0, right: 0});
+    const draggleDebugRef = useRef<HTMLDivElement>(null);
+
+    const onStartDebug = (_event: DraggableEvent, uiData: DraggableData) => {
+        const {clientWidth, clientHeight} = window.document.documentElement;
+        const targetRect = draggleDebugRef.current?.getBoundingClientRect();
+        if (!targetRect) {
+            return;
+        }
+        setBoundsDebug({
+            left: -targetRect.left + uiData.x,
+            right: clientWidth - (targetRect.right - uiData.x),
+            top: -targetRect.top + uiData.y,
+            bottom: clientHeight - (targetRect.bottom - uiData.y),
+        });
+    };
+
+
+    const onStart = (_event: DraggableEvent, uiData: DraggableData) => {
+        const {clientWidth, clientHeight} = window.document.documentElement;
+        const targetRect = draggleRef.current?.getBoundingClientRect();
+        if (!targetRect) {
+            return;
+        }
+        setBounds({
+            left: -targetRect.left + uiData.x,
+            right: clientWidth - (targetRect.right - uiData.x),
+            top: -targetRect.top + uiData.y,
+            bottom: clientHeight - (targetRect.bottom - uiData.y),
+        });
+    };
     return (
         <div>
             <Modal
                 title={
-                    <>
+                    <div style={{
+                        width: '100%',
+                        cursor: 'move',
+                    }}
+                         onMouseOver={() => {
+                             if (disabled) {
+                                 setDisabled(false);
+                             }
+                         }}
+                         onMouseOut={() => {
+                             setDisabled(true);
+                         }}>
                         <Descriptions size="small" column={1}>
                             <Descriptions.Item label="Node ID">
                                 <div style={{display: 'flex', alignItems: 'center'}}>
@@ -269,19 +318,20 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             icon={isFullScreen ? <FullscreenExitOutlined/> : <FullscreenOutlined/>}
                             style={{position: 'absolute', right: '50px', top: '13px'}}
                         />
-                    </>
+                    </div>
                 }
                 centered
                 maskClosable={false}
                 open={treeStore.clickNode !== null}
                 onCancel={handleEditModalClose}
                 width={modalSize.width}
-                style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
+                // style={{maxWidth: '100vw', maxHeight: '100vh', overflow: 'hidden'}}
                 footer={
                     clickNode && clickNode.data.scriptType === 'Start' ? null : (
                         <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
                             <div>
-                                <Button type="primary" onClick={handleCompile} style={{marginRight: '8px'}}>编译</Button>
+                                <Button type="primary" onClick={handleCompile}
+                                        style={{marginRight: '8px'}}>编译</Button>
                                 <Button type="primary" onClick={handleDebug} style={{marginRight: '8px'}}>调试</Button>
                             </div>
 
@@ -291,6 +341,20 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             </div>
                         </div>)
                 }
+
+
+                modalRender={(modal) => (
+                    <Draggable
+                        disabled={disabled}
+                        bounds={bounds}
+                        nodeRef={draggleRef}
+                        onStart={(event, uiData) => onStart(event, uiData)}
+                    >
+                        <div ref={draggleRef}>{modal}</div>
+                    </Draggable>
+                )}
+
+
             >
                 {!(clickNode && clickNode.data.scriptType === 'Start') && (<div style={{
                     border: '1px solid #e1e4e8',
@@ -332,7 +396,19 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             </Modal>
 
             <Modal
-                title="Debug Node"
+                title={<div style={{
+                    width: '100%',
+                    cursor: 'move',
+                }}
+                            onMouseOver={() => {
+                                if (disabledDebug) {
+                                    setDisabledDebug(false);
+                                }
+                            }}
+                            onMouseOut={() => {
+                                setDisabledDebug(true);
+                            }}>Debug Node
+                </div>}
                 open={isDebugVisible}
                 centered
                 onCancel={() => {
@@ -344,6 +420,18 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 footer={null}
                 width={1000}
                 style={{height: '95vh'}}
+
+
+                modalRender={(modal) => (
+                    <Draggable
+                        disabled={disabledDebug}
+                        bounds={boundsDebug}
+                        nodeRef={draggleDebugRef}
+                        onStart={(event, uiData) => onStartDebug(event, uiData)}
+                    >
+                        <div ref={draggleDebugRef}>{modal}</div>
+                    </Draggable>
+                )}
             >
                 <Form
                     name="Debug Node"

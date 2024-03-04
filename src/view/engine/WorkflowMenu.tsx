@@ -15,6 +15,7 @@ import can from '@/assets/logo/can.svg';
 import vs from '@/assets/logo/vs.svg';
 
 import DebugForm from "@/view/engine/DebugForm.tsx";
+import Draggable, {DraggableData, DraggableEvent} from "react-draggable";
 
 type NotificationPlacement = NotificationArgsProps['placement'];
 
@@ -302,6 +303,23 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     }, [isDragging]);
 
 
+    const [disabled, setDisabled] = useState(true);
+    const [bounds, setBounds] = useState({left: 0, top: 0, bottom: 0, right: 0});
+    const draggleRef = useRef<HTMLDivElement>(null);
+
+    const onStart = (_event: DraggableEvent, uiData: DraggableData) => {
+        const {clientWidth, clientHeight} = window.document.documentElement;
+        const targetRect = draggleRef.current?.getBoundingClientRect();
+        if (!targetRect) {
+            return;
+        }
+        setBounds({
+            left: -targetRect.left + uiData.x,
+            right: clientWidth - (targetRect.right - uiData.x),
+            top: -targetRect.top + uiData.y,
+            bottom: clientHeight - (targetRect.bottom - uiData.y),
+        });
+    };
 
 
     const confirm = () => {
@@ -338,19 +356,24 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
                         <Popconfirm
                             title="前往GitHub查看官方文档？"
-                            icon={<QuestionCircleOutlined style={{ color: '#7cb25d' }} />}
+                            icon={<QuestionCircleOutlined style={{color: '#7cb25d'}}/>}
                             onConfirm={confirm}
                             okText="Yes"
                             cancelText="No"
-                            style={{marginBottom: '110px',paddingBottom: '110px',position: 'absolute',left: '0px',top: '0px'}}
+                            style={{
+                                marginBottom: '110px',
+                                paddingBottom: '110px',
+                                position: 'absolute',
+                                left: '0px',
+                                top: '0px'
+                            }}
                         >
-                            <div style={{padding:'12px'}}>
+                            <div style={{padding: '12px'}}>
                                 <div className={styles.icon}>
                                     <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
                                 </div>
                             </div>
                         </Popconfirm>
-
 
 
                         <div onClick={toggleExpand} className={styles.icon}>
@@ -415,7 +438,19 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             </Modal>
 
             <Modal
-                title="Debug Workflow"
+                title={<div style={{
+                    width: '100%',
+                    cursor: 'move',
+                }}
+                            onMouseOver={() => {
+                                if (disabled) {
+                                    setDisabled(false);
+                                }
+                            }}
+                            onMouseOut={() => {
+                                setDisabled(true);
+                            }}>Debug Workflow
+                </div>}
                 open={isDebugVisible}
                 centered
                 onCancel={() => {
@@ -425,6 +460,16 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 footer={null}
                 width={1000}
                 style={{height: '80vh'}}
+                modalRender={(modal) => (
+                    <Draggable
+                        disabled={disabled}
+                        bounds={bounds}
+                        nodeRef={draggleRef}
+                        onStart={(event, uiData) => onStart(event, uiData)}
+                    >
+                        <div ref={draggleRef}>{modal}</div>
+                    </Draggable>
+                )}
             >
                 <DebugForm treeChartState={treeChartState}/>
 

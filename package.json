@@ -22,8 +22,10 @@
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "reset-css": "^5.0.2",
     "sass": "^1.64.1",
+    "terser": "^5.28.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
