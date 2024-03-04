@@ -14,6 +14,12 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import "monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController"
 import  "monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions"
 
+import "monaco-editor/esm/vs/editor/contrib/clipboard/browser/clipboard"
+import "monaco-editor/esm/vs/editor/contrib/folding/browser/folding"
+import "monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu"
+import "monaco-editor/esm/vs/editor/contrib/comment/browser/comment"
+
+// vs/editor/contrib/folding/browser/folding
 // import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 
