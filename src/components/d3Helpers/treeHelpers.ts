@@ -57,6 +57,34 @@ export const config = {
     "pageContainerLockBackgroundColor":"#F5F5F5",
     "pageContainerUnLockBackgroundColor":"#e0dddd"
 }
+
+
+export function simpleGroovyFormatter(code:string) {
+    let indentLevel = 0;
+    const indentSize = 4; // 每级缩进4个空格
+    const lines = code.split('\n');
+    const formattedLines = lines.map(line => {
+        // 移除行首和行尾的空白字符
+        const trimmedLine = line.trim();
+
+        // 简单的缩进逻辑：如果行包含结束大括号，缩进级别减少
+        if (trimmedLine.startsWith('}')) {
+            indentLevel = Math.max(0, indentLevel - 1);
+        }
+
+        // 根据当前缩进级别添加空格
+        const indentedLine = ' '.repeat(indentLevel * indentSize) + trimmedLine;
+
+        // 如果行包含开始大括号，缩进级别增加
+        if (trimmedLine.endsWith('{')) {
+            indentLevel++;
+        }
+
+        return indentedLine;
+    });
+
+    return formattedLines.join('\n');
+}
 export const DataTypes = [
     'Object',
     'String',
