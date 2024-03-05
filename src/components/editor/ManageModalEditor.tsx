@@ -476,7 +476,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             padding: '10px',
                         }}>
                             <Editor
-                                height="500px"
+                                height="300px"
                                 defaultLanguage="json"
                                 onChange={handleDebugJsonChange}
                                 key={clickNode ? clickNode.data.scriptId + clinkNodeChangeCount : 'jsonInput'}
