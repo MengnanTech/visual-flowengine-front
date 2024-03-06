@@ -82,10 +82,14 @@ const ArrangeIndex: React.FC = () => {
         if (isEditMode) {
             // 如果当前是编辑模式，点击则保存数据
             try {
+
+                const filteredParameters = editedParameters.filter(param => param.parameterName.trim() !== '');
+                setEditedParameters(filteredParameters);
+
                 let updatedData: WorkflowMetadata = {
                     workflowId: treeData!.workflowId,
                     workflowPurpose: editedPurpose,
-                    workflowParameters: editedParameters,
+                    workflowParameters: filteredParameters,
                     remark: editedRemark,
                 };
                 setTreeData(await updateWorkflow(updatedData));
@@ -189,11 +193,9 @@ const ArrangeIndex: React.FC = () => {
                                     value={param.parameterName}
                                     onChange={(e) => {
                                         const value = e.target.value;
-                                        if (value.trim() !== '') { // 确保输入非空
-                                            const newParams = [...editedParameters];
-                                            newParams[index].parameterName = value;
-                                            setEditedParameters(newParams);
-                                        }
+                                        const newParams = [...editedParameters];
+                                        newParams[index].parameterName = value;
+                                        setEditedParameters(newParams);
                                     }}
                                     style={{width: '150px'}}
                                 />
@@ -211,6 +213,7 @@ const ArrangeIndex: React.FC = () => {
                                     }))}
                                     style={{width: '150px'}}
                                 />
+                                {/* 删除按钮*/}
                                 <MinusCircleOutlined
                                     onClick={() => {
                                         const newParams = [...editedParameters];
