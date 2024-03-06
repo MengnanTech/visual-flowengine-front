@@ -44,8 +44,13 @@ const surroundingPairs = autoClosingPairs;
 
 const id = "groovy";
 const label = "Groovy";
-
+let isGroovyCompletionProviderRegistered = false;
 export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
+
+    if (isGroovyCompletionProviderRegistered){
+        return;
+    }
+
     monaco.languages.register({id, aliases: [label]});
 
     monaco.languages.setMonarchTokensProvider(id, {
@@ -357,4 +362,5 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
     };
 
     monaco.languages.registerCompletionItemProvider('groovy', completionItemProvider);
+    isGroovyCompletionProviderRegistered = true;
 };

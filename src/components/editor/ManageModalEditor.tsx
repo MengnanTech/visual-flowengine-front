@@ -15,6 +15,7 @@ import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-
 import type {DraggableData, DraggableEvent} from 'react-draggable';
 import Draggable from 'react-draggable';
 import {DebugRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
+import {simpleGroovyFormatter} from "@/components/d3Helpers/treeHelpers.ts";
 
 // import EditorStyles from "./style/editor.module.scss";
 
@@ -117,7 +118,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     function handleDebugJsonChange(value: string | undefined) {
         setDebugValue(value || '');
     }
-
+    let hasContextMenuBeenAdded = false;
     // 编辑器挂载完成时执行，可以获取到编辑器实例和 Monaco 实例
     const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
         editorRef.current = editor;
@@ -126,6 +127,31 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             const code = editor.getValue();
             setEditorCode(code);
         });
+
+
+        editor.onContextMenu((_event) => {
+            // 添加自定义的格式化命令
+            if (!hasContextMenuBeenAdded){
+                editor.addAction({
+                    id: 'groovy-format',
+                    label: 'Format Code',
+                    contextMenuGroupId: 'navigation',
+                    contextMenuOrder: 1.5,
+                    run: function(ed) {
+                        const unformattedCode = ed.getValue();
+                        const formattedCode = simpleGroovyFormatter(unformattedCode);
+                        ed.setValue(formattedCode);
+                    }
+
+                });
+                hasContextMenuBeenAdded = true; // 更新状态，避免重复添加
+            }
+
+
+        });
+
+
+
     };
 
 
@@ -450,7 +476,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                             padding: '10px',
                         }}>
                             <Editor
-                                height="500px"
+                                height="300px"
                                 defaultLanguage="json"
                                 onChange={handleDebugJsonChange}
                                 key={clickNode ? clickNode.data.scriptId + clinkNodeChangeCount : 'jsonInput'}
