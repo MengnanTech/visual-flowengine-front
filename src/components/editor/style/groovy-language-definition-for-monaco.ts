@@ -238,8 +238,10 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [/(\{)(\d+(?:,\d*)?)(\})/, ["regexp.escape.control", "regexp.escape.control", "regexp.escape.control"]],
                 [
                     /(\[)(\^?)(?=(?:[^\]\\/]|\\.)+)/,
-                    // @ts-ignore
-                    ["regexp.escape.control", {token: "regexp.escape.control", next: "@regexrange"}],
+                    [
+                        "regexp.escape.control",
+                        {token: "regexp.escape.control", next: "@regexrange"} as languages.IMonarchLanguageAction,
+                    ],
                 ],
                 [/(\()(\?:|\?=|\?!)/, ["regexp.escape.control", "regexp.escape.control"]],
                 [/[()]/, "regexp.escape.control"],
@@ -247,8 +249,10 @@ export const registerGroovyLanguageForMonaco = (monaco: Monaco) => {
                 [/[^\\/]/, "regexp"],
                 [/@regexpesc/, "regexp.escape"],
                 [/\\\./, "regexp.invalid"],
-                // @ts-ignore
-                [/(\/)([gimsuy]*)/, [{token: "regexp", bracket: "@close", next: "@pop"}, "keyword.other"]],
+                [
+                    /(\/)([gimsuy]*)/,
+                    [{token: "regexp", bracket: "@close", next: "@pop"} as languages.IMonarchLanguageAction, "keyword.other"],
+                ],
             ],
 
             regexrange: [

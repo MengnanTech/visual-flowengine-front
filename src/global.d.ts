@@ -13,5 +13,8 @@ declare global {
         updateWorkflowNameApiPath: string;
         listWorkflowsApiPath: string;
         getWorkflowMetadataApiPath: string;
+        MonacoEnvironment?: {
+            getWorker(_: string, label: string): Worker;
+        };
     }
 }

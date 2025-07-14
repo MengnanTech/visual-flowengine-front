@@ -29,8 +29,7 @@ import "monaco-editor/esm/vs/editor/contrib/comment/browser/comment"
  */
 
 self.MonacoEnvironment = {
-    // @ts-ignore
-    getWorker: function (_: any, label: string) {
+    getWorker: function (_: string, label: string): Worker | undefined {
 
         if (label === 'json') {
             return new jsonWorker()
@@ -38,6 +37,7 @@ self.MonacoEnvironment = {
         //editorWorkerService
         // 如果默认的worker diff 的小红点会失效。
         // return new editorWorker()
+        return undefined
     },
 }
 

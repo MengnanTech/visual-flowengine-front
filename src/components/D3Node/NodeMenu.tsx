@@ -352,19 +352,18 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
         }, 650);
     }
 
-    // @ts-ignore
     function handleReplaceNode(nodeToRemove: D3Node) {
         if (!nodeToRemove.parent) {
             message.error('根节点无法删除').then(r => r);
             return;
         }
 
-        const nodesEnter = gRef.select<SVGGElement>(`#node-${nodeToRemove.data.scriptId}`);
+        const nodesEnter = gRef.select<SVGGElement, D3Node>(`#node-${nodeToRemove.data.scriptId}`);
         // 视图上移除和这个节点相关的node 和link
         nodesEnter.transition().duration(500)
             .style('opacity', 0)
             .attr("transform", `translate(${nodeToRemove.parent!.y},${nodeToRemove.parent!.x})`)
-            .on('end', function () {
+            .on('end', function (this: SVGGElement) {
                 d3.select(this).remove(); // 在动画结束后移除节点
             });
 
@@ -390,12 +389,12 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             })
 
 
-            const nodesEnter = gRef.select<SVGGElement>(`#node-${firstChild.data.scriptId}`);
+            const nodesEnter = gRef.select<SVGGElement, D3Node>(`#node-${firstChild.data.scriptId}`);
 
             nodesEnter.transition()
                 .duration(650)
                 // .style('opacity', 1)
-                .attrTween("transform", function (d): (t: number) => string {
+                .attrTween("transform", function (d: D3Node): (t: number) => string {
 
                     const interpolateSourceX = d3.interpolate(d.x, nodeToRemove.x);
                     const interpolateSourceY = d3.interpolate(d.y, nodeToRemove.y);
