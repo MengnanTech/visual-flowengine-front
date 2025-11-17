@@ -8,6 +8,26 @@ import {config, END_NODE_LENGTH} from "@/components/d3Helpers/treeHelpers.ts";
 import {TreeStore} from "@/store/TreeStore.ts";
 
 
+function hasChildNodes(node: D3Node) {
+    return (node.children && node.children.length > 0) || (node._children && node._children.length > 0);
+}
+
+function toggleNodeCollapse(node: D3Node, treeChartState: TreeChartState) {
+    if (node.children && node.children.length > 0) {
+        node._children = node.children;
+        node.children = undefined;
+        node.data.collapsed = true;
+    } else if (node._children && node._children.length > 0) {
+        node.children = node._children;
+        node._children = undefined;
+        node.data.collapsed = false;
+    } else {
+        return;
+    }
+
+    refresh(treeChartState);
+}
+
 export function endNodeEvent(selection: d3.Selection<SVGRectElement, D3Node, null, undefined>, svgRef: SVGSVGElement, treeStore: TreeStore) {
     selection.on('mouseover', function (_event, d) {
         const transform = d3.zoomTransform(svgRef);
@@ -172,6 +192,19 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
                         .style("font-weight", "normal"); // 文字恢复正常
                 });
 
+            nodeGroup.append("text")
+                .attr("class", "collapse-toggle")
+                .attr("dy", "0.35em")
+                .attr("x", 32)
+                .style("text-anchor", "middle")
+                .style("cursor", "pointer")
+                .style("user-select", "none")
+                .on('click', function (event, d) {
+                    event.stopPropagation();
+                    if (!hasChildNodes(d)) return;
+                    toggleNodeCollapse(d, treeChartState);
+                });
+
 
             if (d.data.scriptType == 'Script') {
                 // 仅对非 'End' 类型的节点添加图标
@@ -217,6 +250,18 @@ export function DrawCircle(treeChartState: TreeChartState, needEvent: boolean = 
 
         }
     });
+
+    const mergedNodes = nodesEnter.merge(nodes as d3.Selection<SVGGElement, D3Node, any, any>);
+
+    mergedNodes.on('dblclick', function (event, d) {
+        event.stopPropagation();
+        if (!hasChildNodes(d)) return;
+        toggleNodeCollapse(d, treeChartState);
+    });
+
+    mergedNodes.select<SVGTextElement>('.collapse-toggle')
+        .text(d => d._children ? '+' : d.children ? '−' : '')
+        .attr('display', d => hasChildNodes(d) ? null : 'none');
 
     nodes.transition()
         .duration(750)

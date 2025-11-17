@@ -77,6 +77,15 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
         setIsModalVisible(false);
     };
 
+    const applyInitialCollapse = (node: D3Node) => {
+        if (node.data.collapsed && node.children) {
+            node._children = node.children;
+            node.children = undefined;
+        }
+
+        (node.children ?? node._children ?? []).forEach(child => applyInitialCollapse(child));
+    };
+
     const handleLockedIconClick = () => {
         const lockedTongueElement = d3.select("#lockTongue");
 
@@ -207,6 +216,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
             .style("stroke-dasharray", "5,5")  // 虚线样式
             .style("opacity", 0);  // 初始不可见
 
+        applyInitialCollapse(rootNode.current);
         treeLayout.current(root);
         const width = +svgSelect.current!.attr("width");
         const height = +svgSelect.current!.attr("height");

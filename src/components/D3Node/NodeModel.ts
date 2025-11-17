@@ -9,9 +9,10 @@ export class NodeData {
     scriptText: string;
     scriptType: string;
     scriptDesc: string;
+    collapsed?: boolean;
     children?: NodeData[] | null;
 
-    constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string, children?: NodeData[]) {
+    constructor(id: string, name: string, scriptText: string, nodeType: string, nodeDesc: string, children?: NodeData[], collapsed?: boolean) {
         makeObservable(this);
         this.scriptId = id;
         this.scriptName = name;
@@ -19,6 +20,7 @@ export class NodeData {
         this.scriptType = nodeType;
         this.scriptDesc = nodeDesc;
         this.children = children;
+        this.collapsed = collapsed;
     }
 }
 
@@ -32,6 +34,8 @@ export interface D3Node extends d3.HierarchyNode<NodeData> {
 
     previousX?: number;
     previousY?: number;
+
+    _children?: D3Node[] | null;
 }
 
 export interface D3Link extends d3.HierarchyLink<NodeData> {
