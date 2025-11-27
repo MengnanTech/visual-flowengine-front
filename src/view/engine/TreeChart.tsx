@@ -11,7 +11,7 @@ import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
 import {Dropdown, MenuProps, message, Modal} from "antd";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
-import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
+import WorkflowMenu from "@/view/engine/components/WorkflowMenu.tsx";
 import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
 import {getWorkflowMetadata} from "@/network/api.ts";
 

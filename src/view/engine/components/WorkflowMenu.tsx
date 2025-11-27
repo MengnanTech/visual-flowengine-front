@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import styles from './styles/DraggableBubble.module.scss';
+import styles from '../styles/DraggableBubble.module.scss';
 import {DragOutlined, PushpinOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
