@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloseCircleOutlined } from "@ant-design/icons";
+import {CloseCircleIcon} from '@/components/ui/icons';
 
 interface CircleDotWithLabelProps {
     color: string;
@@ -7,11 +7,11 @@ interface CircleDotWithLabelProps {
     onRemove?: () => void;
 }
 
-const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({ color, label, onRemove }) => {
+const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({color, label, onRemove}) => {
     const isRemovable = color !== 'grey';
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer'}}>
             <div style={{
                 width: '35px',
                 height: '35px',
@@ -19,12 +19,29 @@ const CircleDotWithLabel: React.FC<CircleDotWithLabelProps> = ({ color, label, o
                 backgroundColor: color,
                 position: 'relative'
             }}>
-                {isRemovable && <CloseCircleOutlined
-                    style={{ color: 'red', position: 'absolute', top: '-10px', right: '-10px', cursor: 'pointer' }}
-                    onClick={onRemove} />}
+                {isRemovable && (
+                    <CloseCircleIcon
+                        style={{
+                            color: 'red',
+                            position: 'absolute',
+                            top: '-10px',
+                            right: '-10px',
+                            cursor: 'pointer',
+                            width: '14px',
+                            height: '14px',
+                        }}
+                        onClick={onRemove}
+                    />
+                )}
             </div>
-            {/* 使用 title 属性提供简单的hover提示 */}
-            <span title={label} style={{ fontSize: '10px', marginTop: '4px', maxWidth: '70px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span title={label} style={{
+                fontSize: '10px',
+                marginTop: '4px',
+                maxWidth: '70px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+            }}>
                 {label}
             </span>
         </div>

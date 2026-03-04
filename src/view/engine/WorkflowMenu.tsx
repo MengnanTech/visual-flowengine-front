@@ -1,9 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
-import {DragOutlined, PushpinOutlined, QuestionCircleOutlined} from "@ant-design/icons";
+import {DragOutlinedIcon, PushpinOutlinedIcon, QuestionCircleOutlinedIcon} from "@/components/ui/icons";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
 import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
-import {Button, message, Modal, notification, NotificationArgsProps, Popconfirm} from 'antd';
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
@@ -11,13 +10,10 @@ import debug from '@/assets/logo/debug.svg';
 import update from '@/assets/logo/update.svg';
 import close from '@/assets/logo/close.svg';
 import can from '@/assets/logo/can.svg';
-
 import vs from '@/assets/logo/vs.svg';
-
 import DebugForm from "@/view/engine/DebugForm.tsx";
-import Draggable, {DraggableData, DraggableEvent} from "react-draggable";
-
-type NotificationPlacement = NotificationArgsProps['placement'];
+import CustomModal from "@/components/ui/CustomModal";
+import {toast} from "@/components/ui/toast";
 
 interface BubbleRef {
     offsetX: number;
@@ -33,20 +29,15 @@ interface LineContent {
     label: string;
 }
 
-
 const calculateInitialPosition = () => {
-    // 视口宽度减去气泡宽度和边距，得到 x 坐标
-    const x: number = 40; // 左下角意味着 x 值较小，这里设置为左边距
-    // 视口高度减去气泡高度和边距，得到 y 坐标
+    const x: number = 40;
     const y = window.innerHeight - 120;
-
     return {x, y};
 };
 
 const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
-
-    const [api, contextHolder] = notification.useNotification();
-    const [messageApi, messageContextHolder] = message.useMessage();
+    // Custom notification state
+    const [notificationVisible, setNotificationVisible] = useState(false);
 
     const [bubblePosition, setBubblePosition] = useState(calculateInitialPosition());
     const [isDragging, setIsDragging] = useState(false);
@@ -57,237 +48,131 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
     const [compareLines, setCompareLines] = useState<LineContent[] | null>(null);
     const [isCompareModalVisible, setIsCompareModalVisible] = useState(false);
     const [rotated, setRotated] = useState(false);
+    const [confirmGithub, setConfirmGithub] = useState(false);
 
     const [workflowMetadata, setWorkflowMetadata] = useState<WorkflowMetadata | null>(null);
-    const handleClick = () => {
-        setRotated(!rotated); // 切换状态
-    };
-    const showModal = async () => {
 
+    const handleClick = () => {
+        setRotated(!rotated);
+    };
+
+    const showModal = async () => {
         setWorkflowMetadata(await getWorkflowMetadata(treeChartState.currentData.workflowId));
         setIsModalVisible(true);
     };
+
     const handleCancel = () => {
         setIsModalVisible(false);
     };
 
-
     const handleDebugWorkflow = () => {
         setIsDebugVisible(true);
-    }
+    };
+
     const handleDetailCancel = () => {
         setCompareLines(null);
         setIsCompareModalVisible(false);
     };
-    const handleDragStart = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        // if (expandedContentRef.current && e.target instanceof Node) {
-        //     if (expandedContentRef.current.contains(e.target)) {
-        //         // 如果点击的是 expandedContent 内部或其自身，不执行拖动逻辑
-        //         // message.success('xiaoyu');
-        //         return;
-        //     }
-        // }
-        if (rotated) {
-            return;
-        }
 
+    const handleDragStart = (e: React.MouseEvent) => {
+        if (rotated) return;
         setIsDragging(true);
         treeChartState.treeStore.setCurrentMenu(null);
-
         e.preventDefault();
         bubbleRef.current = {
             offsetX: e.clientX - bubblePosition.x,
             offsetY: e.clientY - bubblePosition.y,
         };
     };
+
     const handleOnRemove = (index: number) => {
         setCompareLines(prev => {
             if (!prev || prev.length === 0) return prev;
             const updatedLines = prev.filter((_, i) => i !== index);
             return updatedLines.length > 0 ? updatedLines : [];
         });
-
-
     };
 
     useEffect(() => {
-
-        if (compareLines === null) {
-
-        } else {
-            // 处理非 null，包括空数组的状态
-            updateNotification(compareLines);
+        if (compareLines !== null) {
+            setNotificationVisible(true);
         }
     }, [compareLines]);
-    const handleCompare = () => {
-        api.destroy("compareNotification")
-        setIsCompareModalVisible(true);
 
+    const handleCompare = () => {
+        setNotificationVisible(false);
+        setIsCompareModalVisible(true);
     };
-    const resetNotification = () => {
-        api.destroy("compareNotification")
-    };
+
     const clean = () => {
         setCompareLines([]);
-    };
-    const updateNotification = (lines: LineContent[]) => {
-
-        api.open({
-            key: 'compareNotification',
-            message: '点击红点对比代码',
-            description: (
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-around'}}>
-                    {lines.length > 0 ? (
-                        <CircleDotWithLabel
-                            color="green"
-                            label={lines[0].label}
-                            onRemove={() => handleOnRemove(0)}
-                        />
-                    ) : (
-                        <CircleDotWithLabel color="grey" label=""/>
-                    )}
-                    {lines.length > 1 ? (
-                        <CircleDotWithLabel
-                            color="green"
-                            label={lines[1].label}
-                            onRemove={() => handleOnRemove(1)}
-                        />
-                    ) : (
-                        <CircleDotWithLabel color="grey" label=""/>
-                    )}
-                </div>
-            ),
-            style: {
-                width: 290,
-            },
-            btn: (<div>
-                <Button
-                    type="primary"
-                    onClick={handleCompare}
-                    disabled={compareLines == null || compareLines.length < 2} // 当 compareLines.length 小于 2 时禁用按钮
-                    style={{marginRight: 8}}
-                >
-                    开始对比
-                </Button>
-                <Button
-                    onClick={clean} // 这里调用一个函数来清空compareLines并关闭通知
-                >
-                    清空
-                </Button>
-            </div>),
-            duration: null,
-            placement: 'top' as NotificationPlacement,
-            onClose: resetNotification,
-        });
     };
 
     const handleLineClick = (lineContent: string) => {
         const scriptTextIndex = lineContent.indexOf("scriptText\":");
         if (scriptTextIndex === -1) {
-            message.success('只对比代码部分').then(r => r);
+            toast.success('只对比代码部分');
             return;
         }
-
-        // 提取 label 和 code
-        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 162); // 获取 scriptText 后面的内容作为 label
-        const code = lineContent.substring(scriptTextIndex + 12).trim().replace(/,$/, ''); // 从 "scriptText": 后面开始提取代码，并去除前后空格，并去除尾部逗号
-
+        const label = lineContent.substring(scriptTextIndex + 12, scriptTextIndex + 162);
+        const code = lineContent.substring(scriptTextIndex + 12).trim().replace(/,$/, '');
         setCompareLines(prev => {
-            const currentLines = prev || []; // 如果 prev 为 null，则使用空数组
-            if (currentLines.length >= 2) {
-                return [...currentLines];
-            }
-
-            const newLine = {content: JSON.parse(code), label}; // 使用提取到的完整code作为content
+            const currentLines = prev || [];
+            if (currentLines.length >= 2) return [...currentLines];
+            const newLine = {content: JSON.parse(code), label};
             return [...currentLines, newLine];
         });
     };
-
 
     const handleDragMove = (e: MouseEvent) => {
         if (isDragging) {
             const newX = e.clientX - bubbleRef.current!.offsetX;
             const newY = e.clientY - bubbleRef.current!.offsetY;
-
-            // 获取div的边界
             const divBounds = treeChartState.svgRef.getBoundingClientRect();
-
-            // 计算边界条件
             const minX = divBounds.left - 310;
             const maxX = isExpanded ? (divBounds.right - 1200) : (divBounds.right - 470);
             const minY = divBounds.top + 10;
             const maxY = divBounds.bottom + 230;
-
-            // 限制在div内部移动
             const clampedX = Math.max(Math.min(newX, maxX), minX);
             const clampedY = Math.max(Math.min(newY, maxY), minY);
-
             setBubblePosition({x: clampedX, y: clampedY});
         }
     };
 
-
     const handleDragEnd = () => {
         setIsDragging(false);
     };
+
     const toggleExpand = () => {
-        // 检查是否已固定（即 rotated 为 true）
         if (rotated) {
-            message.success('请先取消固定').then(r => r);
+            toast.success('请先取消固定');
             return;
         }
-
-        // 如果未固定，切换展开状态
         setIsExpanded(!isExpanded);
     };
 
     const handleWorkflowUpdate = () => {
-
-        messageApi.open({
-            key: 'loading',
-            type: 'loading',
-            content: 'Loading...',
-        });
-
+        toast.success('Loading...');
         setTimeout(() => {
             updateWorkflow(treeChartState.currentData).then(r => {
                 if (r) {
-                    messageApi.open({
-                        key: 'loading',
-                        type: 'success',
-                        content: '更新成功!',
-                        duration: 2,
-                    });
+                    toast.success('更新成功!');
                 } else {
-                    messageApi.open({
-                        key: 'loading',
-                        type: 'error',
-                        content: '更新失败!',
-                        duration: 2,
-                    });
+                    toast.error('更新失败!');
                 }
             });
         }, 500);
-
-
-    }
-
+    };
 
     useEffect(() => {
-        // 当窗口大小变化时，更新气泡的位置
         const handleResize = () => {
             setBubblePosition(calculateInitialPosition());
         };
-
         window.addEventListener('resize', handleResize);
-
-        // 组件卸载时清理事件监听器
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
-    useEffect(() => {
 
+    useEffect(() => {
         if (isDragging) {
             document.addEventListener('mousemove', handleDragMove);
             document.addEventListener('mouseup', handleDragEnd);
@@ -295,46 +180,104 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             document.removeEventListener('mousemove', handleDragMove);
             document.removeEventListener('mouseup', handleDragEnd);
         }
-
         return () => {
             document.removeEventListener('mousemove', handleDragMove);
             document.removeEventListener('mouseup', handleDragEnd);
         };
     }, [isDragging]);
 
-
-    const [disabled, setDisabled] = useState(true);
-    const [bounds, setBounds] = useState({left: 0, top: 0, bottom: 0, right: 0});
-    const draggleRef = useRef<HTMLDivElement>(null);
-
-    const onStart = (_event: DraggableEvent, uiData: DraggableData) => {
-        const {clientWidth, clientHeight} = window.document.documentElement;
-        const targetRect = draggleRef.current?.getBoundingClientRect();
-        if (!targetRect) {
-            return;
-        }
-        setBounds({
-            left: -targetRect.left + uiData.x,
-            right: clientWidth - (targetRect.right - uiData.x),
-            top: -targetRect.top + uiData.y,
-            bottom: clientHeight - (targetRect.bottom - uiData.y),
-        });
-    };
-
-
     const confirm = () => {
         window.open('https://github.com/code-visual/visual-flowengine-spring-boot-starter', '_blank');
+        setConfirmGithub(false);
     };
 
     return (
-        <> {contextHolder}
-            {messageContextHolder}
+        <>
+            {/* Custom notification for code compare */}
+            {notificationVisible && compareLines !== null && (
+                <div style={{
+                    position: 'fixed',
+                    top: 24,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 1001,
+                    background: '#fff',
+                    borderRadius: 8,
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                    padding: '12px 16px',
+                    width: 290,
+                }}>
+                    <div style={{fontWeight: 500, marginBottom: 8}}>点击红点对比代码</div>
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-around', marginBottom: 12}}>
+                        {compareLines.length > 0 ? (
+                            <CircleDotWithLabel color="green" label={compareLines[0].label} onRemove={() => handleOnRemove(0)}/>
+                        ) : (
+                            <CircleDotWithLabel color="grey" label=""/>
+                        )}
+                        {compareLines.length > 1 ? (
+                            <CircleDotWithLabel color="green" label={compareLines[1].label} onRemove={() => handleOnRemove(1)}/>
+                        ) : (
+                            <CircleDotWithLabel color="grey" label=""/>
+                        )}
+                    </div>
+                    <div style={{display: 'flex', gap: 8}}>
+                        <button
+                            onClick={handleCompare}
+                            disabled={!compareLines || compareLines.length < 2}
+                            style={{
+                                padding: '4px 12px',
+                                background: (!compareLines || compareLines.length < 2) ? '#d9d9d9' : '#1890ff',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: 4,
+                                cursor: (!compareLines || compareLines.length < 2) ? 'not-allowed' : 'pointer',
+                            }}
+                        >
+                            开始对比
+                        </button>
+                        <button
+                            onClick={clean}
+                            style={{padding: '4px 12px', background: '#f0f0f0', border: 'none', borderRadius: 4, cursor: 'pointer'}}
+                        >
+                            清空
+                        </button>
+                        <button
+                            onClick={() => setNotificationVisible(false)}
+                            style={{marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#999'}}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* GitHub confirm dialog */}
+            {confirmGithub && (
+                <div style={{
+                    position: 'fixed', inset: 0, zIndex: 1002, background: 'rgba(0,0,0,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }} onClick={() => setConfirmGithub(false)}>
+                    <div style={{
+                        background: '#fff', borderRadius: 8, padding: '20px 24px',
+                        boxShadow: '0 4px 16px rgba(0,0,0,0.15)', maxWidth: 320,
+                    }} onClick={e => e.stopPropagation()}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16}}>
+                            <QuestionCircleOutlinedIcon style={{color: '#7cb25d', width: 18, height: 18}}/>
+                            <span>前往GitHub查看官方文档？</span>
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'flex-end', gap: 8}}>
+                            <button onClick={() => setConfirmGithub(false)} style={{padding: '4px 12px', background: '#f0f0f0', border: 'none', borderRadius: 4, cursor: 'pointer'}}>No</button>
+                            <button onClick={confirm} style={{padding: '4px 12px', background: '#1890ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer'}}>Yes</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div
                 style={{
                     left: `${bubblePosition.x}px`,
                     top: `${bubblePosition.y}px`,
                     transition: isDragging ? 'none' : 'all 0.5s ease',
-
                 }}
                 onClick={() => {
                     if (!isExpanded) toggleExpand();
@@ -342,7 +285,8 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 className={isExpanded ? styles.expanded : styles.bubble}
                 onMouseDown={handleDragStart}
             >
-                {isExpanded ? <div className={styles.expandedContent}>
+                {isExpanded ? (
+                    <div className={styles.expandedContent}>
                         <div onClick={handleDebugWorkflow} className={styles.icon}>
                             <img src={debug} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
@@ -353,131 +297,93 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                             <img src={vs} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
 
-
-                        <Popconfirm
-                            title="前往GitHub查看官方文档？"
-                            icon={<QuestionCircleOutlined style={{color: '#7cb25d'}}/>}
-                            onConfirm={confirm}
-                            okText="Yes"
-                            cancelText="No"
-                            style={{
-                                marginBottom: '110px',
-                                paddingBottom: '110px',
-                                position: 'absolute',
-                                left: '0px',
-                                top: '0px'
-                            }}
-                        >
-                            <div style={{padding: '12px'}}>
-                                <div className={styles.icon}>
-                                    <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
-                                </div>
+                        <div style={{padding: '12px'}} onClick={() => setConfirmGithub(true)}>
+                            <div className={styles.icon}>
+                                <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
                             </div>
-                        </Popconfirm>
-
+                        </div>
 
                         <div onClick={toggleExpand} className={styles.icon}>
                             <img src={close} alt="icon" style={{width: '30px', height: '30px'}}/>
                         </div>
-
-
                     </div>
-                    : "菜单"}
-
+                ) : "菜单"}
             </div>
-            <PushpinOutlined onClick={handleClick} className={styles.fixedIcon} style={{
+
+            <PushpinOutlinedIcon onClick={handleClick} className={styles.fixedIcon} style={{
                 display: isExpanded ? 'block' : 'none',
                 position: 'absolute',
                 cursor: 'grab',
                 left: `${bubblePosition.x + 778}px`,
                 top: `${bubblePosition.y - 5}px`,
-                transform: rotated ? 'rotate(-45deg)' : 'none', // 根据状态旋转图标
-                transition: 'transform 0.3s' // 平滑过渡效果
+                transform: rotated ? 'rotate(-45deg)' : 'none',
+                transition: 'transform 0.3s',
+                width: '16px',
+                height: '16px',
             }}/>
-            {!rotated && <DragOutlined className={styles.dragIcon} onMouseDown={handleDragStart}
 
-                                       style={{
-                                           transition: isDragging ? 'none' : 'all 0.3s ease',
-                                           position: 'absolute',
-                                           cursor: 'grab',
-                                           left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 22}px`,
-                                           top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
-                                       }}/>
-            }
+            {!rotated && (
+                <DragOutlinedIcon
+                    className={styles.dragIcon}
+                    onMouseDown={handleDragStart}
+                    style={{
+                        transition: isDragging ? 'none' : 'all 0.3s ease',
+                        position: 'absolute',
+                        cursor: 'grab',
+                        left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 22}px`,
+                        top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
+                        width: '16px',
+                        height: '16px',
+                    }}
+                />
+            )}
 
-            <Modal
+            <CustomModal
                 title="初始代码   VS   当前代码"
                 open={isModalVisible}
-                centered
                 onCancel={handleCancel}
                 maskClosable={false}
                 footer={null}
-                width={"90vw"}
+                width="90vw"
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
                 <CodeDiffViewer
                     language='groovy'
                     onLineClick={handleLineClick}
                     originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
-                    modifiedCode={JSON.stringify(treeChartState.currentData.scriptMetadata, null, 2)}/>
-            </Modal>
-            <Modal
+                    modifiedCode={JSON.stringify(treeChartState.currentData.scriptMetadata, null, 2)}
+                />
+            </CustomModal>
+
+            <CustomModal
                 title="详细代码对比"
                 open={isCompareModalVisible}
-                centered
                 onCancel={handleDetailCancel}
                 maskClosable={false}
                 footer={null}
-                width={"70vw"}
+                width="70vw"
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
                 <CodeDiffViewer
                     language='groovy'
                     originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}
-                    modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}/>
-            </Modal>
+                    modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}
+                />
+            </CustomModal>
 
-            <Modal
-                title={<div style={{
-                    width: '100%',
-                    cursor: 'move',
-                }}
-                            onMouseOver={() => {
-                                if (disabled) {
-                                    setDisabled(false);
-                                }
-                            }}
-                            onMouseOut={() => {
-                                setDisabled(true);
-                            }}>Debug Workflow
-                </div>}
+            <CustomModal
+                title="Debug Workflow"
                 open={isDebugVisible}
-                centered
-                onCancel={() => {
-                    setIsDebugVisible(false)
-                }}
+                onCancel={() => setIsDebugVisible(false)}
                 maskClosable={false}
                 footer={null}
                 width={1000}
                 style={{height: '80vh'}}
-                modalRender={(modal) => (
-                    <Draggable
-                        disabled={disabled}
-                        bounds={bounds}
-                        nodeRef={draggleRef}
-                        onStart={(event, uiData) => onStart(event, uiData)}
-                    >
-                        <div ref={draggleRef}>{modal}</div>
-                    </Draggable>
-                )}
+                draggable
             >
                 <DebugForm treeChartState={treeChartState}/>
-
-            </Modal>
-
-
+            </CustomModal>
         </>
-
     );
 };
 

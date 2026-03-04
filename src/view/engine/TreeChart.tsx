@@ -8,7 +8,8 @@ import {D3Node, NodeData, TreeChartState} from "@/components/D3Node/NodeModel.ts
 import {TreeStore} from "@/store/TreeStore.ts";
 import {circleEvent, DrawCircle, DrawLinks, endNodeEvent} from "@/components/D3Node/TreeChartDrawing.ts";
 import NodeMenu from "@/components/D3Node/NodeMenu.tsx";
-import {Dropdown, MenuProps, message, Modal} from "antd";
+import {toast} from "@/components/ui/toast";
+import CustomModal from "@/components/ui/CustomModal";
 import Editor from "@monaco-editor/react";
 import styles from './styles/TreeChart.module.scss'
 import WorkflowMenu from "@/view/engine/WorkflowMenu.tsx";
@@ -169,7 +170,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                     updateTreeData(res);
                     forceUpdateTreeChart()
                 }).finally(() => {
-                    message.success('刷新成功');
+                    toast.success('刷新成功');
                 })
             });
     };
@@ -267,19 +268,6 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
     const svgWidth = windowSize.windowWidth - 256;
     const svgHeight = windowSize.windowHeight - 62;
 
-    const items: MenuProps['items'] = [
-        {
-            key: '1',
-            label: (
-                <div>
-                    查看源代码
-                </div>
-            ),
-            onClick: () => {
-                showModal(JSON.stringify(rootNode.current!.data, null, 2))
-            }
-        }
-    ];
     // 编辑器配置项
     const editorOptions = {
         scrollBeyondLastLine: false, // 设置编辑器是否可以滚动到最后一行之后
@@ -345,10 +333,9 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
             {isTreeChartStateReady && <WorkflowMenu treeChartState={treeChartState.current!}/>}
             {/*悬浮菜单*/}
             {isTreeChartStateReady && <NodeMenu treeChartState={treeChartState.current!}/>}
-            <Modal
+            <CustomModal
                 title="源代码"
                 open={isModalVisible}
-                centered
                 onCancel={handleCancel}
                 maskClosable={false}
                 footer={null}
@@ -361,23 +348,30 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                     defaultValue={jsonData}
                     options={editorOptions}
                 />
-            </Modal>
+            </CustomModal>
 
             {contextMenu && (
-                <Dropdown menu={{items}}
-                          open={true}
-                          key={Math.random()}
-                          className={styles.dropdownCustom}
+                <div
+                    className={styles.dropdownCustom}
+                    style={{
+                        position: 'absolute',
+                        left: `${contextMenu.x - treeStore.siderWidth}px`,
+                        top: `${contextMenu.y}px`,
+                        zIndex: 1000,
+                    }}
                 >
                     <div
-                        style={{
-                            position: 'absolute',
-                            left: `${contextMenu.x - treeStore.siderWidth}px`,
-                            top: `${contextMenu.y}px`,
+                        style={{padding: '8px 12px', cursor: 'pointer'}}
+                        onClick={() => {
+                            showModal(JSON.stringify(rootNode.current!.data, null, 2));
+                            closeContextMenu();
                         }}
-                        onClick={closeContextMenu}
-                    />
-                </Dropdown>
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                        查看源代码
+                    </div>
+                </div>
             )}
 
         </div>

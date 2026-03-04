@@ -1,5 +1,5 @@
 import React from 'react';
-import {message, Popover} from "antd";
+import {toast} from "@/components/ui/toast";
 import NodeMenuStyles from './styles/D3node.module.scss';
 import * as d3 from "d3";
 import {Transition} from "d3";
@@ -40,7 +40,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
     function handleDeleteCurrentTree(nodeToRemove: D3Node) {
 
         if (nodeToRemove.parent == null) {
-            message.error('根节点无法删除').then(r => r)
+            toast.error('根节点无法删除');
             return
         }
 
@@ -263,7 +263,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
 
     function handleDeleteNode(nodeToRemove: D3Node) {
         if (!nodeToRemove.parent) {
-            message.error('根节点无法删除').then(r => r);
+            toast.error('根节点无法删除');
             return;
         }
 
@@ -355,7 +355,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
     // @ts-ignore
     function handleReplaceNode(nodeToRemove: D3Node) {
         if (!nodeToRemove.parent) {
-            message.error('根节点无法删除').then(r => r);
+            toast.error('根节点无法删除');
             return;
         }
 
@@ -642,7 +642,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
 
 
                 if (d === rootNode) {
-                    message.error("根节点不可拖拽").then(r => r)
+                    toast.error("根节点不可拖拽")
                     return
                 }
                 // 记录拖拽开始时鼠标的位置
@@ -660,7 +660,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
             .on("drag", function (event, d) {
                 treeStore.setDraggingNode(d)
                 if (d === rootNode) {
-                    message.error("根节点不可拖拽").then(r => r)
+                    toast.error("根节点不可拖拽")
                     return
                 }
                 // 计算鼠标的相对移动距离
@@ -760,7 +760,7 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
 
                 // 确保不是根节点
                 if (d === rootNode) {
-                    message.error("根节点不可拖拽").then(r => r);
+                    toast.error("根节点不可拖拽");
                     return;
                 }
 
@@ -828,21 +828,20 @@ const NodeMenu: React.FC<NodeMenuProps> = observer(({treeChartState}) => {
 
     }
 
+    if (treeStore.draggingNode != null) return null;
+
     return (
-        <div style={{position: 'absolute', left: menuPosition.x - siderWidth, top: menuPosition.y}}>
-            <Popover content={(
-                <div className={NodeMenuStyles.nodePopup}>
-                    {nodeActions.map((nodeAction, index) => (
-                        <div key={index}
-                             className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
-                             onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
-                            <img style={{width: '24px', height: '24px'}} src={nodeAction.icon} alt={nodeAction.label}/>
-                            <span className={NodeMenuStyles.nodeLabel}>{nodeAction.label}</span>
-                        </div>
-                    ))}
-                </div>
-            )} open={treeStore.draggingNode == null}>
-            </Popover>
+        <div style={{position: 'absolute', left: menuPosition.x - siderWidth, top: menuPosition.y, zIndex: 100}}>
+            <div className={NodeMenuStyles.nodePopup}>
+                {nodeActions.map((nodeAction, index) => (
+                    <div key={index}
+                         className={`${NodeMenuStyles.node} ${nodeAction.disabled ? NodeMenuStyles.disabled : ''}`}
+                         onClick={!nodeAction.disabled ? nodeAction.action : undefined}>
+                        <img style={{width: '24px', height: '24px'}} src={nodeAction.icon} alt={nodeAction.label}/>
+                        <span className={NodeMenuStyles.nodeLabel}>{nodeAction.label}</span>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 
