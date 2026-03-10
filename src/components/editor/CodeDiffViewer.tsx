@@ -1,13 +1,7 @@
 import React, {useEffect, useRef} from 'react';
-
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-//对比的那个小加号和小减号
-import 'monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.css';
-
-
 import styles from './style/diff.module.scss';
-
-import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
+import {registerGroovyLanguageForMonaco} from '@/components/editor/style/groovy-language-definition-for-monaco.ts';
+import {ensureMonacoSetup, MonacoModule} from '@/components/editor/monacoSetup.ts';
 
 interface CodeDiffViewerProps {
     originalCode: string;
@@ -19,13 +13,23 @@ interface CodeDiffViewerProps {
 const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCode, language, onLineClick}) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
-
     useEffect(() => {
-        if (language == "groovy") {
-            registerGroovyLanguageForMonaco(monaco);
-        }
-        let diffEditor: monaco.editor.IStandaloneDiffEditor;
-        if (editorRef.current) {
+        let disposed = false;
+        let diffEditor: ReturnType<MonacoModule['editor']['createDiffEditor']> | null = null;
+        let originalModel: ReturnType<MonacoModule['editor']['createModel']> | null = null;
+        let modifiedModel: ReturnType<MonacoModule['editor']['createModel']> | null = null;
+
+        const renderDiffEditor = async () => {
+            const monaco = await ensureMonacoSetup();
+
+            if (disposed || !editorRef.current) {
+                return;
+            }
+
+            if (language === 'groovy') {
+                registerGroovyLanguageForMonaco(monaco);
+            }
+
             diffEditor = monaco.editor.createDiffEditor(editorRef.current, {
                 scrollBeyondLastLine: false,
                 readOnly: true,
@@ -33,94 +37,102 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                 automaticLayout: true,
             });
 
-            const originalModel = monaco.editor.createModel(originalCode, language);
-            const modifiedModel = monaco.editor.createModel(modifiedCode, language);
-
+            originalModel = monaco.editor.createModel(originalCode, language);
+            modifiedModel = monaco.editor.createModel(modifiedCode, language);
             diffEditor.setModel({original: originalModel, modified: modifiedModel});
 
-            // 为了避免在渲染后立即调用getLineChanges可能导致的问题，使用setTimeout
-            setTimeout(() => {
-                const lineChanges = diffEditor.getLineChanges();
-                if (lineChanges) {
-                    const modifiedDecorations: monaco.editor.IModelDeltaDecoration[] = [];
-                    const decorations: monaco.editor.IModelDeltaDecoration[] = [];
-                    // 处理修改后的模型
-                    lineChanges.forEach(change => {
-                        for (let i = change.modifiedStartLineNumber; i <= change.modifiedEndLineNumber; i++) {
-                            const lineContent = modifiedModel.getLineContent(i);
-                            if (lineContent.includes("scriptText")) {
-                                modifiedDecorations.push({
-                                    range: new monaco.Range(i, 1, i, 1),
-                                    options: {
-                                        isWholeLine: true,
-                                        linesDecorationsClassName: styles.myScriptTextDecoration,
-                                        marginClassName: styles.myScriptTextMarginDecoration
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-                    // 处理原始模型
-                    lineChanges.forEach(change => {
-                        for (let i = change.originalStartLineNumber; i <= change.originalEndLineNumber; i++) {
-                            const lineContent = originalModel.getLineContent(i);
-                            if (lineContent.includes("scriptText")) {
-                                decorations.push({
-                                    range: new monaco.Range(i, 1, i, 1),
-                                    options: {
-                                        isWholeLine: true,
-                                        linesDecorationsClassName: styles.myScriptTextDecoration,
-                                        marginClassName: styles.myScriptTextMarginDecoration
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-                    // 添加装饰器到修改后的编辑器
-                    diffEditor.getModifiedEditor().createDecorationsCollection(modifiedDecorations);
-                    // 如果需要，也可以为原始编辑器添加装饰器
-                    diffEditor.getOriginalEditor().createDecorationsCollection(decorations);
-
-                    diffEditor.getModifiedEditor().onMouseDown(e => {
-
-                        //MouseTargetType 3:GUTTER_GLYPH_MARGIN 4:GUTTER_LINE_NUMBERS 3 表示点击了行号 4 表示点击了折叠图标
-                        if (e.target.type == 3 || e.target.type == 4) {
-                            const lineNumber = e.target.position!.lineNumber;
-                            const lineContent = diffEditor.getModifiedEditor()!.getModel()!.getLineContent(lineNumber);
-
-                            if (onLineClick) {
-                                onLineClick(lineContent)
-                            }
-                        }
-
-
-                    });
-
-                    diffEditor.getOriginalEditor().onMouseDown(e => {
-                        if (e.target.type == 3 || e.target.type == 4) {
-                            const lineNumber = e.target.position!.lineNumber;
-                            const lineContent = diffEditor.getOriginalEditor()!.getModel()!.getLineContent(lineNumber);
-                            onLineClick && onLineClick(lineContent);
-                        }
-
-                    });
-
-
+            window.setTimeout(() => {
+                if (!diffEditor || !originalModel || !modifiedModel) {
+                    return;
                 }
 
+                const lineChanges = diffEditor.getLineChanges();
 
+                if (!lineChanges) {
+                    return;
+                }
+
+                const originalDecorations: any[] = [];
+                const modifiedDecorations: any[] = [];
+
+                lineChanges.forEach((change) => {
+                    for (let lineNumber = change.modifiedStartLineNumber; lineNumber <= change.modifiedEndLineNumber; lineNumber += 1) {
+                        const lineContent = modifiedModel!.getLineContent(lineNumber);
+
+                        if (lineContent.includes('scriptText')) {
+                            modifiedDecorations.push({
+                                range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                                options: {
+                                    isWholeLine: true,
+                                    linesDecorationsClassName: styles.myScriptTextDecoration,
+                                    marginClassName: styles.myScriptTextMarginDecoration,
+                                },
+                            });
+                        }
+                    }
+                });
+
+                lineChanges.forEach((change) => {
+                    for (let lineNumber = change.originalStartLineNumber; lineNumber <= change.originalEndLineNumber; lineNumber += 1) {
+                        const lineContent = originalModel!.getLineContent(lineNumber);
+
+                        if (lineContent.includes('scriptText')) {
+                            originalDecorations.push({
+                                range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                                options: {
+                                    isWholeLine: true,
+                                    linesDecorationsClassName: styles.myScriptTextDecoration,
+                                    marginClassName: styles.myScriptTextMarginDecoration,
+                                },
+                            });
+                        }
+                    }
+                });
+
+                diffEditor.getModifiedEditor().createDecorationsCollection(modifiedDecorations);
+                diffEditor.getOriginalEditor().createDecorationsCollection(originalDecorations);
+
+                diffEditor.getModifiedEditor().onMouseDown((event) => {
+                    if (event.target.type !== 3 && event.target.type !== 4) {
+                        return;
+                    }
+
+                    const lineNumber = event.target.position?.lineNumber;
+
+                    if (!lineNumber) {
+                        return;
+                    }
+
+                    const lineContent = diffEditor!.getModifiedEditor().getModel()!.getLineContent(lineNumber);
+                    onLineClick?.(lineContent);
+                });
+
+                diffEditor.getOriginalEditor().onMouseDown((event) => {
+                    if (event.target.type !== 3 && event.target.type !== 4) {
+                        return;
+                    }
+
+                    const lineNumber = event.target.position?.lineNumber;
+
+                    if (!lineNumber) {
+                        return;
+                    }
+
+                    const lineContent = diffEditor!.getOriginalEditor().getModel()!.getLineContent(lineNumber);
+                    onLineClick?.(lineContent);
+                });
             }, 10);
-        }
+        };
 
+        void renderDiffEditor();
 
         return () => {
-            if (diffEditor) {
-                diffEditor.dispose();
-            }
+            disposed = true;
+            diffEditor?.dispose();
+            originalModel?.dispose();
+            modifiedModel?.dispose();
         };
-    }, [originalCode, modifiedCode, language]);
+    }, [language, modifiedCode, onLineClick, originalCode]);
 
     return <div ref={editorRef} className={styles.codeDiffViewer}/>;
 };

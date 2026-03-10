@@ -1,58 +1,86 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
+type RequestBody = BodyInit | object | null | undefined;
+
+interface RequestOptions extends Omit<RequestInit, 'body'> {
+    body?: RequestBody;
+}
+
 class HTTP {
-    static async request(url: string, options = {}) {
+    private static buildRequestInit(options: RequestOptions = {}): RequestInit {
+        const headers = new Headers(options.headers);
+        let body = options.body;
 
-        const response = await fetch(url, options);
+        if (
+            body != null &&
+            typeof body !== 'string' &&
+            !(body instanceof FormData) &&
+            !(body instanceof URLSearchParams) &&
+            !(body instanceof Blob) &&
+            !(body instanceof ArrayBuffer)
+        ) {
+            headers.set('Content-Type', 'application/json');
+            body = JSON.stringify(body);
+        }
+
+        return {
+            ...options,
+            headers,
+            body,
+        };
+    }
+
+    private static async parseResponse<T>(response: Response): Promise<T> {
+        const contentType = response.headers.get('content-type') || '';
+        const responseText = await response.text();
+
         if (!response.ok) {
-            throw new Error(`HTTP request error: ${response.status}`);
+            throw new Error(responseText || `HTTP request error: ${response.status}`);
         }
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            // 返回 JSON 数据
-            return await response.json();
-        } else {
-            // 返回字符串数据
-            return await response.text();
+
+        if (!responseText) {
+            return undefined as T;
         }
+
+        if (contentType.includes('application/json')) {
+            return JSON.parse(responseText) as T;
+        }
+
+        return responseText as T;
     }
 
+    static async request<T>(url: string, options: RequestOptions = {}): Promise<T> {
+        const response = await fetch(`${API_BASE_URL}${url}`, this.buildRequestInit(options));
+        return this.parseResponse<T>(response);
+    }
 
-    static get(url: string) {
-        return this.request(`${API_BASE_URL}${url}`, {
+    static get<T>(url: string, options?: Omit<RequestOptions, 'method' | 'body'>) {
+        return this.request<T>(url, {
+            ...options,
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
         });
     }
 
-    static post(url: string, body: any) {
-        return this.request(`${API_BASE_URL}${url}`, {
+    static post<TResponse, TBody extends RequestBody = RequestBody>(url: string, body?: TBody, options?: Omit<RequestOptions, 'method' | 'body'>) {
+        return this.request<TResponse>(url, {
+            ...options,
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: body
+            body,
         });
     }
 
-    static put(url: string, body: any) {
-        return this.request(`${API_BASE_URL}${url}`, {
+    static put<TResponse, TBody extends RequestBody = RequestBody>(url: string, body?: TBody, options?: Omit<RequestOptions, 'method' | 'body'>) {
+        return this.request<TResponse>(url, {
+            ...options,
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: body
+            body,
         });
     }
 
-    static delete(url: string) {
-        return this.request(`${API_BASE_URL}${url}`, {
+    static delete<T>(url: string, options?: Omit<RequestOptions, 'method' | 'body'>) {
+        return this.request<T>(url, {
+            ...options,
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
         });
     }
 }

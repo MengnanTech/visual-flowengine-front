@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useMemo, useState} from 'react';
+import React, {Suspense, useEffect, useRef, useState} from 'react';
 
 import {TreeStore} from '@/store/TreeStore';
 import styles from './styles/ArrangeIndex.module.scss';
@@ -27,11 +27,13 @@ const ArrangeIndex: React.FC = () => {
     const [siderWidth, setSiderWidth] = useState(280);
     const [keyValue, setKeyValue] = useState<string>('');
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [updateCounter, setUpdateCounter] = useState(0);
+    const treeStoreRef = useRef<TreeStore | null>(null);
 
-    const forceUpdateTreeChart = () => {
-        setUpdateCounter(prev => prev + 1);
-    };
+    if (!treeStoreRef.current) {
+        treeStoreRef.current = new TreeStore();
+    }
+
+    const treeStore = treeStoreRef.current;
 
     const fetchMenuItems = async () => {
         try {
@@ -91,13 +93,13 @@ const ArrangeIndex: React.FC = () => {
         setKeyValue('');
     };
 
-    const treeStore = useMemo(() => {
-        return new TreeStore().setSiderWidth(siderWidth).setTreeData(treeData);
-    }, [treeData]);
-
     useEffect(() => {
         treeStore.setSiderWidth(siderWidth);
     }, [siderWidth, treeStore]);
+
+    useEffect(() => {
+        treeStore.setTreeData(treeData);
+    }, [treeData, treeStore]);
 
     return (
         <div className={styles.layout}>
@@ -118,11 +120,9 @@ const ArrangeIndex: React.FC = () => {
                     <Suspense fallback={<div>Loading...</div>}>
                         {treeData ? (
                             <TreeChart
-                                key={`${treeData.workflowId}-${updateCounter}`}
                                 treeStore={treeStore}
                                 initialData={treeData}
                                 updateTreeData={setTreeData}
-                                forceUpdateTreeChart={forceUpdateTreeChart}
                             />
                         ) : (
                             <div className={styles.placeholder}>

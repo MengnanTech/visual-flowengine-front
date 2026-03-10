@@ -1,60 +1,42 @@
-import {defineConfig} from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import {visualizer} from "rollup-plugin-visualizer";
+import {defineConfig} from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import {visualizer} from 'rollup-plugin-visualizer';
 
-export default defineConfig(({mode}) => ({
-
+export default defineConfig({
     plugins: [
         react(),
         visualizer({
             gzipSize: true,
             brotliSize: true,
             emitFile: false,
-            filename: "test.html", //分析图生成的文件名
-            open: false //如果存在本地服务端口，将在打包后自动展示
-        }) as any,
-
+            filename: 'test.html',
+            open: false,
+        }) as never,
     ],
-
-
     build: {
-        minify: 'terser', // 必须启用：terserOptions配置才会有效
+        minify: 'terser',
         terserOptions: {
             compress: {
-                // 生产环境时移除console.log调试代码
-                drop_console:true,
+                drop_console: true,
                 drop_debugger: true,
-            }
+            },
         },
         rollupOptions: {
             output: {
-                manualChunks: (id) => {
+                manualChunks(id) {
                     if (id.includes('/node_modules/monaco-editor/')) {
                         return 'monaco';
                     }
-                    if (id.includes('/node_modules/antd/es/')) {
-                        return 'antd-es';
-                    }
-                }
-
+                },
             },
         },
     },
-
     resolve: {
-        extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.sass', '.scss'], // 忽略输入的扩展名
+        extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.sass', '.scss'],
         alias: {
-            "@": path.resolve(__dirname, "./src")
-        }
-    },
-    css: {
-        preprocessorOptions: {
-            less: {
-                javascriptEnabled: true
-            }
-        }
-
+            '@': path.resolve(__dirname, './src'),
+        },
     },
     server: {
         port: 3000,
@@ -62,8 +44,8 @@ export default defineConfig(({mode}) => ({
             '/api': {
                 target: 'http://8.137.20.123:8001',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, '')
-            }
-        }
-    }
-}))
+                rewrite: (requestPath) => requestPath.replace(/^\/api/, ''),
+            },
+        },
+    },
+});

@@ -1,8 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {Suspense, useEffect, useRef, useState} from 'react';
 import styles from './styles/DraggableBubble.module.scss';
 import {DragOutlinedIcon, PushpinOutlinedIcon, QuestionCircleOutlinedIcon} from "@/components/ui/icons";
 import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import CodeDiffViewer from "@/components/editor/CodeDiffViewer.tsx";
 import CircleDotWithLabel from "@/view/engine/CircleDotWithLabel.tsx";
 import {getWorkflowMetadata, updateWorkflow} from "@/network/api.ts";
 import {WorkflowMetadata} from "@/components/model/WorkflowModel.ts";
@@ -11,9 +10,11 @@ import update from '@/assets/logo/update.svg';
 import close from '@/assets/logo/close.svg';
 import can from '@/assets/logo/can.svg';
 import vs from '@/assets/logo/vs.svg';
-import DebugForm from "@/view/engine/DebugForm.tsx";
 import CustomModal from "@/components/ui/CustomModal";
 import {toast} from "@/components/ui/toast";
+
+const CodeDiffViewer = React.lazy(() => import('@/components/editor/CodeDiffViewer.tsx'));
+const DebugForm = React.lazy(() => import('@/view/engine/DebugForm.tsx'));
 
 interface BubbleRef {
     offsetX: number;
@@ -347,12 +348,14 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 width="90vw"
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
-                <CodeDiffViewer
-                    language='groovy'
-                    onLineClick={handleLineClick}
-                    originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
-                    modifiedCode={JSON.stringify(treeChartState.currentData.scriptMetadata, null, 2)}
-                />
+                <Suspense fallback={<div>Loading editor...</div>}>
+                    <CodeDiffViewer
+                        language='groovy'
+                        onLineClick={handleLineClick}
+                        originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
+                        modifiedCode={JSON.stringify(treeChartState.currentData.scriptMetadata, null, 2)}
+                    />
+                </Suspense>
             </CustomModal>
 
             <CustomModal
@@ -364,11 +367,13 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 width="70vw"
                 style={{maxWidth: '92vw', maxHeight: '100vh', overflow: 'hidden'}}
             >
-                <CodeDiffViewer
-                    language='groovy'
-                    originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}
-                    modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}
-                />
+                <Suspense fallback={<div>Loading editor...</div>}>
+                    <CodeDiffViewer
+                        language='groovy'
+                        originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}
+                        modifiedCode={compareLines && compareLines.length > 1 ? compareLines[1].content : ''}
+                    />
+                </Suspense>
             </CustomModal>
 
             <CustomModal
@@ -381,7 +386,9 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 style={{height: '80vh'}}
                 draggable
             >
-                <DebugForm treeChartState={treeChartState}/>
+                <Suspense fallback={<div>Loading debug panel...</div>}>
+                    <DebugForm treeChartState={treeChartState}/>
+                </Suspense>
             </CustomModal>
         </>
     );

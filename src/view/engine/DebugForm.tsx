@@ -1,26 +1,42 @@
-import React, {useState} from 'react';
-import Editor from "@monaco-editor/react";
-import {debugWorkflow} from "@/network/api.ts";
-import {TreeChartState} from "@/components/D3Node/NodeModel.ts";
-import {DebugRequest, findNodeDataById, ScriptType, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
-import {CheckOutlinedIcon, EditOutlinedIcon} from "@/components/ui/icons";
-import {toast} from "@/components/ui/toast";
-import CustomCollapse, {CollapseItem} from "@/components/ui/Collapse";
-import CustomTabs from "@/components/ui/Tabs";
+import React, {Suspense, useEffect, useState} from 'react';
+import {debugWorkflow} from '@/network/api.ts';
+import {TreeChartState} from '@/components/D3Node/NodeModel.ts';
+import {DebugRequest, findNodeDataById, ScriptType, WorkflowTaskLog} from '@/components/model/WorkflowModel.ts';
+import {CheckOutlinedIcon, EditOutlinedIcon} from '@/components/ui/icons';
+import {toast} from '@/components/ui/toast';
+import CustomCollapse, {CollapseItem} from '@/components/ui/Collapse';
+import CustomTabs from '@/components/ui/Tabs';
+import {ensureMonacoSetup} from '@/components/editor/monacoSetup.ts';
 
 interface DebugFormProps {
     treeChartState: TreeChartState;
 }
 
-const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
+const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
+const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
     const [activeTabKey, setActiveTabKey] = useState('1');
     const [editorValue, setEditorValue] = useState('');
-    const [scriptId, setScriptId] = useState("1");
+    const [scriptId, setScriptId] = useState('1');
     const [isScriptIdEditable, setIsScriptIdEditable] = useState(false);
     const [expandedKeys, setExpandedKeys] = useState<string>('');
     const [generatedItems, setGeneratedItems] = useState<CollapseItem[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isMonacoReady, setIsMonacoReady] = useState(false);
+
+    useEffect(() => {
+        let disposed = false;
+
+        ensureMonacoSetup().then(() => {
+            if (!disposed) {
+                setIsMonacoReady(true);
+            }
+        });
+
+        return () => {
+            disposed = true;
+        };
+    }, []);
 
     const toggleScriptIdEditability = () => {
         setIsScriptIdEditable((prev) => !prev);
@@ -30,102 +46,103 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
         setEditorValue(value || '');
     };
 
+    const renderJsonViewer = (value: string) => {
+        if (!isMonacoReady) {
+            return <div>Loading editor...</div>;
+        }
+
+        return (
+            <Suspense fallback={<div>Loading editor...</div>}>
+                <MonacoEditor
+                    height="30vh"
+                    defaultLanguage="json"
+                    options={{
+                        contextmenu: true,
+                        wordWrap: 'off',
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        fontSize: 16,
+                        readOnly: true,
+                    }}
+                    value={value}
+                />
+            </Suspense>
+        );
+    };
+
     const generateItemsNest = (debugResults: Record<string, WorkflowTaskLog[]>): CollapseItem[] => {
         return Object.entries(debugResults).flatMap(([step, logs]): CollapseItem[] => {
             if (logs.length > 1) {
-                const scriptNames = logs.map(log => log.scriptName).join(", ");
+                const scriptNames = logs.map((log) => log.scriptName).join(', ');
                 const children: CollapseItem[] = logs.map((log, index) => ({
                     key: `${step}-${index}`,
-                    label: log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName,
-                    style: {backgroundColor: log.scriptRunResult == true ? '#c5f8ac' : 'inherit'},
-                    children: (
-                        <Editor
-                            key={Math.random()}
-                            height={"30vh"}
-                            defaultLanguage="json"
-                            options={{
-                                contextmenu: true,
-                                wordWrap: 'off',
-                                scrollBeyondLastLine: false,
-                                automaticLayout: true,
-                                fontSize: 16,
-                                readOnly: true,
-                            }}
-                            defaultValue={JSON.stringify(log, null, 2)}
-                        />
-                    ),
+                    label: log.scriptType === ScriptType.End ? ScriptType.End.toString() : log.scriptName,
+                    style: {backgroundColor: log.scriptRunResult === true ? '#c5f8ac' : 'inherit'},
+                    children: renderJsonViewer(JSON.stringify(log, null, 2)),
                 }));
 
                 return [{
                     key: step,
                     label: (
                         <span>
-                            <span style={{color: 'red'}}>({scriptNames}){` level:${step}`}</span>
+                            <span style={{color: 'red'}}>{`(${scriptNames}) level:${step}`}</span>
                         </span>
                     ),
                     children: <CustomCollapse size="small" defaultActiveKey={[step]} items={children}/>,
                 }];
-            } else if (logs.length === 1) {
+            }
+
+            if (logs.length === 1) {
                 const log = logs[0];
-                const label = log.scriptType == ScriptType.End ? ScriptType.End.toString() : log.scriptName;
-                const content = log.scriptType === ScriptType.End ? (
-                    <div><p>Status: {log.scriptRunStatus}</p></div>
-                ) : (
-                    <Editor
-                        key={Math.random()}
-                        height={"30vh"}
-                        defaultLanguage="json"
-                        options={{
-                            contextmenu: true,
-                            wordWrap: 'off',
-                            scrollBeyondLastLine: false,
-                            automaticLayout: true,
-                            fontSize: 16,
-                            readOnly: true,
-                        }}
-                        defaultValue={JSON.stringify(log, null, 2)}
-                    />
-                );
+                const label = log.scriptType === ScriptType.End ? ScriptType.End.toString() : log.scriptName;
+                const content = log.scriptType === ScriptType.End
+                    ? <div><p>Status: {log.scriptRunStatus}</p></div>
+                    : renderJsonViewer(JSON.stringify(log, null, 2));
+
                 return [{key: step, label, children: content}];
             }
+
             return [];
         });
     };
 
-    const onFinish = (e: React.FormEvent) => {
-        e.preventDefault();
+    const onFinish = (event: React.FormEvent) => {
+        event.preventDefault();
         setLoading(true);
-        const formData = new FormData(e.target as HTMLFormElement);
+
+        const formData = new FormData(event.target as HTMLFormElement);
         const formValues: Record<string, string> = {};
+
         formData.forEach((value, key) => {
-            if (key !== 'jsonInput') formValues[key] = value as string;
+            if (key !== 'jsonInput') {
+                formValues[key] = value as string;
+            }
         });
 
         const nodeData = findNodeDataById(treeChartState.currentData!.scriptMetadata!, scriptId);
+
         if (!nodeData) {
             toast.error('Script ID not found');
             setLoading(false);
             return;
         }
 
-        let debugRequest: DebugRequest;
-        if (activeTabKey === '1') {
-            debugRequest = {scriptMetadata: nodeData, inputValues: formValues};
-        } else {
-            debugRequest = {scriptMetadata: nodeData, inputValues: editorValue ? JSON.parse(editorValue) : {}};
-        }
+        const debugRequest: DebugRequest = activeTabKey === '1'
+            ? {scriptMetadata: nodeData, inputValues: formValues}
+            : {scriptMetadata: nodeData, inputValues: editorValue ? JSON.parse(editorValue) : {}};
 
         setExpandedKeys('');
-        debugWorkflow(debugRequest).then(r => {
-            const itemsNest = generateItemsNest(r);
-            setGeneratedItems(itemsNest);
-            setLoading(false);
-            setTimeout(() => setExpandedKeys('1'), 100);
-        }).catch(error => {
-            console.error('Debug workflow failed:', error);
-            toast.error('流程出现系统内部异常');
-            setLoading(false);
-        });
+
+        debugWorkflow(debugRequest)
+            .then((result) => {
+                setGeneratedItems(generateItemsNest(result));
+                setLoading(false);
+                setTimeout(() => setExpandedKeys('1'), 100);
+            })
+            .catch(() => {
+                toast.error('流程出现系统内部异常');
+                setLoading(false);
+            });
     };
 
     const items: CollapseItem[] = [
@@ -133,16 +150,18 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             key: '1',
             label: 'Debug Output',
             children: <CustomCollapse size="small" defaultActiveKey="1" items={generatedItems}/>,
-        }
+        },
     ];
 
     const handleCollapseChange = (keys: string | string[]) => {
         let newActiveKey = '';
+
         if (Array.isArray(keys)) {
             newActiveKey = keys.includes(expandedKeys) ? '' : keys[0];
         } else {
             newActiveKey = expandedKeys === keys ? '1' : keys;
         }
+
         setExpandedKeys(newActiveKey);
     };
 
@@ -156,7 +175,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                         <div key={field.parameterName} style={{marginBottom: 12}}>
                             <label style={{display: 'block', marginBottom: 4, fontSize: 14}}>
                                 {field.parameterName}{'  '}
-                                <span style={{color: "red"}}>({field.parameterType})</span>
+                                <span style={{color: 'red'}}>({field.parameterType})</span>
                             </label>
                             <input
                                 name={field.parameterName}
@@ -181,18 +200,27 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
             children: (
                 <div style={{marginBottom: 12}}>
                     <label style={{display: 'block', marginBottom: 4, fontSize: 14}}>JSON Content</label>
-                    <div style={{
-                        border: '1px solid #e1e4e8',
-                        background: '#f6f8fa',
-                        borderRadius: '4px',
-                        padding: '10px',
-                    }}>
-                        <Editor
-                            height="300px"
-                            defaultLanguage="json"
-                            onChange={handleEditorChange}
-                            options={{scrollBeyondLastLine: false, fontSize: 16}}
-                        />
+                    <div
+                        style={{
+                            border: '1px solid #e1e4e8',
+                            background: '#f6f8fa',
+                            borderRadius: '4px',
+                            padding: '10px',
+                        }}
+                    >
+                        {isMonacoReady ? (
+                            <Suspense fallback={<div>Loading editor...</div>}>
+                                <MonacoEditor
+                                    height="300px"
+                                    defaultLanguage="json"
+                                    onChange={handleEditorChange}
+                                    value={editorValue}
+                                    options={{scrollBeyondLastLine: false, fontSize: 16}}
+                                />
+                            </Suspense>
+                        ) : (
+                            <div>Loading editor...</div>
+                        )}
                     </div>
                 </div>
             ),
@@ -206,7 +234,7 @@ const DebugForm: React.FC<DebugFormProps> = ({treeChartState}) => {
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     <input
                         value={scriptId}
-                        onChange={(e) => setScriptId(e.target.value)}
+                        onChange={(event) => setScriptId(event.target.value)}
                         disabled={!isScriptIdEditable}
                         style={{
                             flex: 1,

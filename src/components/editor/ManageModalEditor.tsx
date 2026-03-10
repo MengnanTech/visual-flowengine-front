@@ -1,25 +1,26 @@
 import React, {Suspense, useEffect, useRef, useState} from 'react';
-import Editor, {Monaco} from '@monaco-editor/react';
-import {compileGroovyScript, debugWorkflow} from "@/network/api.ts";
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import {TreeStore} from "@/store/TreeStore.ts";
-import {observer} from "mobx-react";
+import type {Monaco} from '@monaco-editor/react';
+import type {editor} from 'monaco-editor';
+import {compileGroovyScript, debugWorkflow} from '@/network/api.ts';
+import {TreeStore} from '@/store/TreeStore.ts';
+import {observer} from 'mobx-react';
 import {
     CheckCircleFilledIcon,
     CopyFilledIcon,
     EditFilledIcon,
     FullscreenExitOutlinedIcon,
     FullscreenOutlinedIcon,
-} from "@/components/ui/icons";
-import AutoWidthInput from "@/components/editor/AutoWidthInput.tsx";
+} from '@/components/ui/icons';
+import AutoWidthInput from '@/components/editor/AutoWidthInput.tsx';
 import * as d3 from 'd3';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import {registerGroovyLanguageForMonaco} from "@/components/editor/style/groovy-language-definition-for-monaco.ts";
-import {DebugRequest, WorkflowTaskLog} from "@/components/model/WorkflowModel.ts";
-import {simpleGroovyFormatter} from "@/components/d3Helpers/treeHelpers.ts";
-import CustomModal from "@/components/ui/CustomModal";
-import CustomCollapse, {CollapseItem} from "@/components/ui/Collapse";
-import {toast} from "@/components/ui/toast";
+import {registerGroovyLanguageForMonaco} from '@/components/editor/style/groovy-language-definition-for-monaco.ts';
+import {DebugRequest, WorkflowTaskLog} from '@/components/model/WorkflowModel.ts';
+import {simpleGroovyFormatter} from '@/components/d3Helpers/treeHelpers.ts';
+import CustomModal from '@/components/ui/CustomModal';
+import CustomCollapse, {CollapseItem} from '@/components/ui/Collapse';
+import {toast} from '@/components/ui/toast';
+import {ensureMonacoSetup} from '@/components/editor/monacoSetup.ts';
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
@@ -29,12 +30,13 @@ interface ManageModalEditorProps {
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
 
 const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore, readonly}) => {
-
     const clickNode = treeStore.clickNode;
-
     const [title, setTitle] = useState(clickNode?.data.scriptName || '');
     const [editorCode, setEditorCode] = useState(clickNode?.data.scriptText || '');
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+    const monacoRef = useRef<Monaco | null>(null);
+    const hasContextMenuBeenAdded = useRef(false);
+    const [isMonacoReady, setIsMonacoReady] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isDebugVisible, setIsDebugVisible] = useState(false);
@@ -43,7 +45,36 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const [debugValue, setDebugValue] = useState('');
     const [debugOutput, setDebugOutput] = useState<WorkflowTaskLog | ''>('');
     const [activeKey, setActiveKey] = useState('');
-    const [clinkNodeChangeCount, setClinkNodeChangeCount] = useState(0);
+
+    useEffect(() => {
+        if ((!clickNode && !isDebugVisible) || isMonacoReady) {
+            return;
+        }
+
+        let disposed = false;
+
+        ensureMonacoSetup().then(() => {
+            if (!disposed) {
+                setIsMonacoReady(true);
+            }
+        });
+
+        return () => {
+            disposed = true;
+        };
+    }, [clickNode, isDebugVisible, isMonacoReady]);
+
+    useEffect(() => {
+        setTitle(clickNode?.data.scriptName || '');
+        setEditorCode(clickNode?.data.scriptText || '');
+        setDebugValue('');
+        setDebugOutput('');
+        setActiveKey('');
+
+        if (clickNode?.data.scriptText) {
+            void compileCode(clickNode.data.scriptText);
+        }
+    }, [clickNode]);
 
     const handleTitleChange = (newValue: string) => {
         setTitle(newValue);
@@ -53,23 +84,17 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         if (isEditing && clickNode) {
             clickNode.data.scriptName = title;
             treeStore.setClickNode(clickNode);
-            d3.select(`#node-${clickNode.data.scriptId}`).select("text").text(clickNode.data.scriptName);
+            d3.select(`#node-${clickNode.data.scriptId}`).select('text').text(clickNode.data.scriptName);
         }
+
         setIsEditing(!isEditing);
     };
 
-    useEffect(() => {
-        setTitle(clickNode?.data.scriptName || '');
-        if (clickNode?.data.scriptText) {
-            compileCode(clickNode.data.scriptText);
-        }
-        setDebugValue('');
-    }, [clickNode]);
-
     const compileCode = async (code: string) => {
         const diagnostics = await compileGroovyScript(code);
-        if (editorRef.current) {
-            monaco.editor.setModelMarkers(editorRef.current.getModel()!, 'groovy', diagnostics);
+
+        if (editorRef.current && monacoRef.current) {
+            monacoRef.current.editor.setModelMarkers(editorRef.current.getModel()!, 'groovy', diagnostics);
         }
     };
 
@@ -78,7 +103,11 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     };
 
     const handleDebug = async () => {
-        clickNode!.data.scriptText = editorCode;
+        if (!clickNode) {
+            return;
+        }
+
+        clickNode.data.scriptText = editorCode;
         setIsDebugVisible(true);
     };
 
@@ -95,122 +124,137 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setTimeout(() => setShowConfirmation(false), 5000);
     };
 
-    function handleClose() {
+    const handleClose = () => {
         treeStore.setClickNode(null);
-        setClinkNodeChangeCount(prevCounter => prevCounter + 1);
         setTitle('');
         setEditorCode('');
-    }
+        setDebugValue('');
+        setDebugOutput('');
+        setActiveKey('');
+    };
 
-    function handleEditModalClose() {
+    const handleEditModalClose = () => {
         treeStore.setClickNode(null);
-        setClinkNodeChangeCount(prevCounter => prevCounter + 1);
-    }
+        setDebugValue('');
+        setDebugOutput('');
+        setActiveKey('');
+    };
 
-    function handleEditorChange(value: string | undefined) {
+    const handleEditorChange = (value: string | undefined) => {
         setEditorCode(value || '');
-    }
+    };
 
-    function handleDebugJsonChange(value: string | undefined) {
+    const handleDebugJsonChange = (value: string | undefined) => {
         setDebugValue(value || '');
-    }
+    };
 
-    let hasContextMenuBeenAdded = false;
+    const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
+        editorRef.current = editorInstance;
 
-    const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
-        editorRef.current = editor;
-        setEditorCode(editor.getValue());
-        editor.onDidChangeModelContent(async () => {
-            const code = editor.getValue();
-            setEditorCode(code);
+        editorInstance.onDidChangeModelContent(() => {
+            setEditorCode(editorInstance.getValue());
         });
-        editor.onContextMenu((_event) => {
-            if (!hasContextMenuBeenAdded) {
-                editor.addAction({
-                    id: 'groovy-format',
-                    label: 'Format Code',
-                    contextMenuGroupId: 'navigation',
-                    contextMenuOrder: 1.5,
-                    run: function (ed) {
-                        const unformattedCode = ed.getValue();
-                        const formattedCode = simpleGroovyFormatter(unformattedCode);
-                        ed.setValue(formattedCode);
-                    }
-                });
-                hasContextMenuBeenAdded = true;
+
+        editorInstance.onContextMenu(() => {
+            if (hasContextMenuBeenAdded.current) {
+                return;
             }
+
+            editorInstance.addAction({
+                id: 'groovy-format',
+                label: 'Format Code',
+                contextMenuGroupId: 'navigation',
+                contextMenuOrder: 1.5,
+                run: (activeEditor) => {
+                    const formattedCode = simpleGroovyFormatter(activeEditor.getValue());
+                    activeEditor.setValue(formattedCode);
+                },
+            });
+
+            hasContextMenuBeenAdded.current = true;
         });
     };
 
-    function handleEditorWillMount(handleMonaco: Monaco) {
+    const handleEditorWillMount = (handleMonaco: Monaco) => {
+        monacoRef.current = handleMonaco;
         registerGroovyLanguageForMonaco(handleMonaco);
-    }
+    };
 
-    function handleEditorValidation(markers: any[]) {
-        markers.forEach(marker => console.log('onValidate:', marker.message));
-    }
+    const handleEditorValidation = (markers: editor.IMarker[]) => {
+        if (markers.length === 0) {
+            return;
+        }
+    };
 
     const toggleFullScreen = () => {
         setIsFullScreen(!isFullScreen);
-        if (!isFullScreen) {
-            setModalSize({width: '90vw', height: '100vh'});
-        } else {
-            setModalSize({width: '90vh', height: '80vh'});
-        }
+        setModalSize(!isFullScreen ? {width: '90vw', height: '100vh'} : {width: '90vh', height: '80vh'});
     };
 
     const editorHeight = isFullScreen ? 'calc(100vh - 320px)' : '50vh';
 
-    const onFinish = (e: React.FormEvent) => {
-        e.preventDefault();
-        let debugRequest: DebugRequest = {
+    const onFinish = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!clickNode) {
+            return;
+        }
+
+        const debugRequest: DebugRequest = {
             scriptMetadata: {
-                ...clickNode!.data,
-                children: null
+                ...clickNode.data,
+                children: null,
             },
-            inputValues: debugValue ? JSON.parse(debugValue) : {}
+            inputValues: debugValue ? JSON.parse(debugValue) : {},
         };
-        debugWorkflow(debugRequest).then((r) => {
-            const log = r["1"][0];
-            log.scriptId = clickNode!.data.scriptId;
-            log.scriptName = clickNode!.data.scriptName;
+
+        debugWorkflow(debugRequest).then((result) => {
+            const log = result['1'][0];
+            log.scriptId = clickNode.data.scriptId;
+            log.scriptName = clickNode.data.scriptName;
             setDebugOutput(log);
-            setActiveKey(clickNode?.data.scriptId || '1');
+            setActiveKey(clickNode.data.scriptId || '1');
         });
     };
 
     const collapseItems: CollapseItem[] = [
         {
             key: clickNode?.data.scriptId || '1',
-            label: "Debug Output",
-            children: <MonacoEditor
-                key={Math.random()}
-                height={"30vh"}
-                defaultLanguage="json"
-                options={{
-                    contextmenu: true,
-                    wordWrap: 'off',
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    fontSize: 16,
-                    readOnly: readonly,
-                }}
-                defaultValue={debugOutput == '' ? '' : JSON.stringify(debugOutput, null, 2)}
-            />,
+            label: 'Debug Output',
+            children: isMonacoReady ? (
+                <Suspense fallback={<div>Loading editor...</div>}>
+                    <MonacoEditor
+                        height="30vh"
+                        defaultLanguage="json"
+                        options={{
+                            contextmenu: true,
+                            wordWrap: 'off',
+                            scrollBeyondLastLine: false,
+                            automaticLayout: true,
+                            fontSize: 16,
+                            readOnly: readonly,
+                        }}
+                        value={debugOutput === '' ? '' : JSON.stringify(debugOutput, null, 2)}
+                    />
+                </Suspense>
+            ) : (
+                <div>Loading editor...</div>
+            ),
         },
     ];
 
     const handleCollapseChange = (keys: string | string[]) => {
         let newActiveKey = '';
+
         if (Array.isArray(keys)) {
             newActiveKey = keys.includes(activeKey) ? '' : keys[0];
         } else {
             newActiveKey = activeKey === keys ? '1' : keys;
         }
+
         setActiveKey(newActiveKey);
     };
 
-    // Descriptions-like key-value display
     const descRow = (label: string, children: React.ReactNode) => (
         <div style={{display: 'flex', alignItems: 'center', minHeight: 28, gap: 8, marginBottom: 4}}>
             <span style={{color: '#666', fontSize: 13, whiteSpace: 'nowrap', width: 90, flexShrink: 0}}>{label}</span>
@@ -220,7 +264,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
 
     const titleContent = (
         <div>
-            {descRow("Node ID", (
+            {descRow('Node ID', (
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     <span>{clickNode?.data.scriptId}</span>
                     <CopyToClipboard text={clickNode?.data.scriptId || ''} onCopy={handleCopySuccess}>
@@ -233,7 +277,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     )}
                 </div>
             ))}
-            {descRow("Node Name", (
+            {descRow('Node Name', (
                 <div style={{display: 'flex', alignItems: 'center', height: '22px'}}>
                     {isEditing ? (
                         <AutoWidthInput value={title} onChange={handleTitleChange} onFinish={toggleEditing}/>
@@ -247,8 +291,8 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                     )}
                 </div>
             ))}
-            {descRow("Node Type", <span>{clickNode?.data.scriptType}</span>)}
-            {descRow("Node Status", (
+            {descRow('Node Type', <span>{clickNode?.data.scriptType}</span>)}
+            {descRow('Node Status', (
                 <span style={{display: 'inline-flex', alignItems: 'center', gap: 6}}>
                     <span style={{width: 8, height: 8, borderRadius: '50%', background: 'green', display: 'inline-block'}}/>
                     Running
@@ -257,8 +301,14 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
             <button
                 onClick={toggleFullScreen}
                 style={{
-                    position: 'absolute', right: 50, top: 13,
-                    background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 4,
+                    position: 'absolute',
+                    right: 50,
+                    top: 13,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 4,
+                    borderRadius: 4,
                 }}
             >
                 {isFullScreen
@@ -294,37 +344,42 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 draggable
             >
                 {!(clickNode && clickNode.data.scriptType === 'Start') && (
-                    <div style={{
-                        border: '1px solid #e1e4e8',
-                        background: '#f6f8fa',
-                        borderRadius: '4px',
-                        padding: '10px',
-                        height: editorHeight,
-                    }}>
-                        <Suspense fallback={<div>Loading Editor...</div>}>
-                            {clickNode && clickNode.data.scriptType == "rule" ? (
-                                <div>非rule类型或clickNode不存在时显示的内容{clickNode.data.scriptText}</div>
-                            ) : (
-                                <MonacoEditor
-                                    key={clickNode ? clickNode.data.scriptId : 'editor'}
-                                    height={editorHeight}
-                                    onChange={handleEditorChange}
-                                    onMount={handleEditorDidMount}
-                                    beforeMount={handleEditorWillMount}
-                                    onValidate={handleEditorValidation}
-                                    defaultLanguage="groovy"
-                                    options={{
-                                        contextmenu: true,
-                                        wordWrap: 'off',
-                                        scrollBeyondLastLine: false,
-                                        automaticLayout: true,
-                                        fontSize: 16,
-                                        readOnly: readonly,
-                                    }}
-                                    defaultValue={clickNode !== null ? clickNode.data.scriptText : ''}
-                                />
-                            )}
-                        </Suspense>
+                    <div
+                        style={{
+                            border: '1px solid #e1e4e8',
+                            background: '#f6f8fa',
+                            borderRadius: '4px',
+                            padding: '10px',
+                            height: editorHeight,
+                        }}
+                    >
+                        {isMonacoReady ? (
+                            <Suspense fallback={<div>Loading editor...</div>}>
+                                {clickNode && clickNode.data.scriptType === 'rule' ? (
+                                    <div>非 rule 类型或 clickNode 不存在时显示的内容{clickNode.data.scriptText}</div>
+                                ) : (
+                                    <MonacoEditor
+                                        height={editorHeight}
+                                        value={editorCode}
+                                        onChange={handleEditorChange}
+                                        onMount={handleEditorDidMount}
+                                        beforeMount={handleEditorWillMount}
+                                        onValidate={handleEditorValidation}
+                                        defaultLanguage="groovy"
+                                        options={{
+                                            contextmenu: true,
+                                            wordWrap: 'off',
+                                            scrollBeyondLastLine: false,
+                                            automaticLayout: true,
+                                            fontSize: 16,
+                                            readOnly: readonly,
+                                        }}
+                                    />
+                                )}
+                            </Suspense>
+                        ) : (
+                            <div>Loading editor...</div>
+                        )}
                     </div>
                 )}
             </CustomModal>
@@ -346,20 +401,27 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 <form onSubmit={onFinish} autoComplete="off" style={{display: 'flex', flexDirection: 'column', gap: 12}}>
                     <div>
                         <label style={{display: 'block', marginBottom: 4, fontSize: 14}}>JSON Content</label>
-                        <div style={{
-                            border: '1px solid #e1e4e8',
-                            background: '#f6f8fa',
-                            borderRadius: '4px',
-                            padding: '10px',
-                        }}>
-                            <Editor
-                                height="300px"
-                                defaultLanguage="json"
-                                onChange={handleDebugJsonChange}
-                                key={clickNode ? clickNode.data.scriptId + clinkNodeChangeCount : 'jsonInput'}
-                                defaultValue={debugValue}
-                                options={{scrollBeyondLastLine: false, fontSize: 16}}
-                            />
+                        <div
+                            style={{
+                                border: '1px solid #e1e4e8',
+                                background: '#f6f8fa',
+                                borderRadius: '4px',
+                                padding: '10px',
+                            }}
+                        >
+                            {isMonacoReady ? (
+                                <Suspense fallback={<div>Loading editor...</div>}>
+                                    <MonacoEditor
+                                        height="300px"
+                                        defaultLanguage="json"
+                                        onChange={handleDebugJsonChange}
+                                        value={debugValue}
+                                        options={{scrollBeyondLastLine: false, fontSize: 16}}
+                                    />
+                                </Suspense>
+                            ) : (
+                                <div>Loading editor...</div>
+                            )}
                         </div>
                     </div>
                     <button type="submit" style={{...btnStyle, width: '100%'}}>Submit</button>
