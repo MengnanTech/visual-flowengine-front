@@ -35,6 +35,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                 readOnly: true,
                 contextmenu: true,
                 automaticLayout: true,
+                glyphMargin: true,
             });
 
             originalModel = monaco.editor.createModel(originalCode, language);
@@ -65,7 +66,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                                 options: {
                                     isWholeLine: true,
                                     linesDecorationsClassName: styles.myScriptTextDecoration,
-                                    marginClassName: styles.myScriptTextMarginDecoration,
+                                    glyphMarginClassName: styles.myScriptTextMarginDecoration,
                                 },
                             });
                         }
@@ -82,7 +83,7 @@ const CodeDiffViewer: React.FC<CodeDiffViewerProps> = ({originalCode, modifiedCo
                                 options: {
                                     isWholeLine: true,
                                     linesDecorationsClassName: styles.myScriptTextDecoration,
-                                    marginClassName: styles.myScriptTextMarginDecoration,
+                                    glyphMarginClassName: styles.myScriptTextMarginDecoration,
                                 },
                             });
                         }

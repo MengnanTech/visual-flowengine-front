@@ -29,3 +29,12 @@ If you are developing a production application, we recommend updating the config
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and
   add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+## TODO
+
+- Fix the workflow code compare `scriptText` marker in Monaco diff view. Current status: compare flow still works, but the expected red dot marker is not visible in the gutter/margin after the editor refactor and Monaco lazy loading changes.
+- Debug direction for the `scriptText` marker issue:
+  verify Monaco decorations are created at runtime,
+  inspect gutter DOM/classes in the diff editor,
+  confirm the marker is attached to the correct side of the diff editor,
+  and check whether the current CSS module class is being applied inside Monaco's rendered gutter nodes.

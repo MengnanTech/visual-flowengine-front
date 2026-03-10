@@ -14,6 +14,13 @@ export default defineConfig({
             open: false,
         }) as never,
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: 'modern-compiler',
+            },
+        },
+    },
     build: {
         minify: 'terser',
         terserOptions: {
