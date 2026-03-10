@@ -4,23 +4,17 @@ import type {editor} from 'monaco-editor';
 import {compileGroovyScript, debugWorkflow} from '@/network/api.ts';
 import {TreeStore} from '@/store/TreeStore.ts';
 import {observer} from 'mobx-react';
-import {
-    CheckCircleFilledIcon,
-    CopyFilledIcon,
-    EditFilledIcon,
-    FullscreenExitOutlinedIcon,
-    FullscreenOutlinedIcon,
-} from '@/components/ui/icons';
-import AutoWidthInput from '@/components/editor/AutoWidthInput.tsx';
 import * as d3 from 'd3';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {registerGroovyLanguageForMonaco} from '@/components/editor/style/groovy-language-definition-for-monaco.ts';
 import {DebugRequest, WorkflowTaskLog} from '@/components/model/WorkflowModel.ts';
 import {simpleGroovyFormatter} from '@/components/d3Helpers/treeHelpers.ts';
 import CustomModal from '@/components/ui/CustomModal';
-import CustomCollapse, {CollapseItem} from '@/components/ui/Collapse';
 import {toast} from '@/components/ui/toast';
 import {ensureMonacoSetup} from '@/components/editor/monacoSetup.ts';
+import EditorModalTitle from '@/components/editor/manage-modal/EditorModalTitle.tsx';
+import EditorDebugModal from '@/components/editor/manage-modal/EditorDebugModal.tsx';
+import EditorCodePanel from '@/components/editor/manage-modal/EditorCodePanel.tsx';
+import type {CollapseItem} from '@/components/ui/Collapse';
 
 interface ManageModalEditorProps {
     treeStore: TreeStore;
@@ -28,6 +22,16 @@ interface ManageModalEditorProps {
 }
 
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react'));
+
+const btnStyle: React.CSSProperties = {
+    padding: '6px 16px',
+    background: '#1890ff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontSize: 14,
+    cursor: 'pointer',
+};
 
 const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore, readonly}) => {
     const clickNode = treeStore.clickNode;
@@ -76,10 +80,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         }
     }, [clickNode]);
 
-    const handleTitleChange = (newValue: string) => {
-        setTitle(newValue);
-    };
-
     const toggleEditing = () => {
         if (isEditing && clickNode) {
             clickNode.data.scriptName = title;
@@ -102,7 +102,7 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         await compileCode(editorCode);
     };
 
-    const handleDebug = async () => {
+    const handleDebug = () => {
         if (!clickNode) {
             return;
         }
@@ -124,28 +124,22 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setTimeout(() => setShowConfirmation(false), 5000);
     };
 
+    const resetDebugState = () => {
+        setDebugValue('');
+        setDebugOutput('');
+        setActiveKey('');
+    };
+
     const handleClose = () => {
         treeStore.setClickNode(null);
         setTitle('');
         setEditorCode('');
-        setDebugValue('');
-        setDebugOutput('');
-        setActiveKey('');
+        resetDebugState();
     };
 
     const handleEditModalClose = () => {
         treeStore.setClickNode(null);
-        setDebugValue('');
-        setDebugOutput('');
-        setActiveKey('');
-    };
-
-    const handleEditorChange = (value: string | undefined) => {
-        setEditorCode(value || '');
-    };
-
-    const handleDebugJsonChange = (value: string | undefined) => {
-        setDebugValue(value || '');
+        resetDebugState();
     };
 
     const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor) => {
@@ -178,12 +172,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     const handleEditorWillMount = (handleMonaco: Monaco) => {
         monacoRef.current = handleMonaco;
         registerGroovyLanguageForMonaco(handleMonaco);
-    };
-
-    const handleEditorValidation = (markers: editor.IMarker[]) => {
-        if (markers.length === 0) {
-            return;
-        }
     };
 
     const toggleFullScreen = () => {
@@ -255,70 +243,6 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
         setActiveKey(newActiveKey);
     };
 
-    const descRow = (label: string, children: React.ReactNode) => (
-        <div style={{display: 'flex', alignItems: 'center', minHeight: 28, gap: 8, marginBottom: 4}}>
-            <span style={{color: '#666', fontSize: 13, whiteSpace: 'nowrap', width: 90, flexShrink: 0}}>{label}</span>
-            <div style={{flex: 1, minWidth: 0}}>{children}</div>
-        </div>
-    );
-
-    const titleContent = (
-        <div>
-            {descRow('Node ID', (
-                <div style={{display: 'flex', alignItems: 'center'}}>
-                    <span>{clickNode?.data.scriptId}</span>
-                    <CopyToClipboard text={clickNode?.data.scriptId || ''} onCopy={handleCopySuccess}>
-                        <span title="复制" style={{cursor: 'pointer', marginLeft: 4}}>
-                            <CopyFilledIcon style={{color: 'gray', width: 14, height: 14}}/>
-                        </span>
-                    </CopyToClipboard>
-                    {showConfirmation && (
-                        <CheckCircleFilledIcon style={{color: '#36f33e', fontSize: '16px', width: 16, height: 16, marginLeft: 4}}/>
-                    )}
-                </div>
-            ))}
-            {descRow('Node Name', (
-                <div style={{display: 'flex', alignItems: 'center', height: '22px'}}>
-                    {isEditing ? (
-                        <AutoWidthInput value={title} onChange={handleTitleChange} onFinish={toggleEditing}/>
-                    ) : (
-                        <>
-                            <span style={{lineHeight: '32px'}}>{title}</span>
-                            <span onClick={toggleEditing} style={{cursor: 'pointer', marginLeft: 'auto'}}>
-                                <EditFilledIcon style={{width: 14, height: 14}}/>
-                            </span>
-                        </>
-                    )}
-                </div>
-            ))}
-            {descRow('Node Type', <span>{clickNode?.data.scriptType}</span>)}
-            {descRow('Node Status', (
-                <span style={{display: 'inline-flex', alignItems: 'center', gap: 6}}>
-                    <span style={{width: 8, height: 8, borderRadius: '50%', background: 'green', display: 'inline-block'}}/>
-                    Running
-                </span>
-            ))}
-            <button
-                onClick={toggleFullScreen}
-                style={{
-                    position: 'absolute',
-                    right: 50,
-                    top: 13,
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 4,
-                    borderRadius: 4,
-                }}
-            >
-                {isFullScreen
-                    ? <FullscreenExitOutlinedIcon style={{width: 16, height: 16}}/>
-                    : <FullscreenOutlinedIcon style={{width: 16, height: 16}}/>
-                }
-            </button>
-        </div>
-    );
-
     const editorFooter = clickNode && clickNode.data.scriptType === 'Start' ? null : (
         <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
             <div style={{display: 'flex', gap: 8}}>
@@ -335,7 +259,19 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
     return (
         <div>
             <CustomModal
-                title={titleContent}
+                title={(
+                    <EditorModalTitle
+                        clickNode={clickNode}
+                        title={title}
+                        isEditing={isEditing}
+                        isFullScreen={isFullScreen}
+                        showConfirmation={showConfirmation}
+                        onTitleChange={setTitle}
+                        onToggleEditing={toggleEditing}
+                        onToggleFullScreen={toggleFullScreen}
+                        onCopySuccess={handleCopySuccess}
+                    />
+                )}
                 open={treeStore.clickNode !== null}
                 onCancel={handleEditModalClose}
                 maskClosable={false}
@@ -343,109 +279,39 @@ const ManageModalEditor: React.FC<ManageModalEditorProps> = observer(({treeStore
                 footer={editorFooter}
                 draggable
             >
-                {!(clickNode && clickNode.data.scriptType === 'Start') && (
-                    <div
-                        style={{
-                            border: '1px solid #e1e4e8',
-                            background: '#f6f8fa',
-                            borderRadius: '4px',
-                            padding: '10px',
-                            height: editorHeight,
-                        }}
-                    >
-                        {isMonacoReady ? (
-                            <Suspense fallback={<div>Loading editor...</div>}>
-                                {clickNode && clickNode.data.scriptType === 'rule' ? (
-                                    <div>非 rule 类型或 clickNode 不存在时显示的内容{clickNode.data.scriptText}</div>
-                                ) : (
-                                    <MonacoEditor
-                                        height={editorHeight}
-                                        value={editorCode}
-                                        onChange={handleEditorChange}
-                                        onMount={handleEditorDidMount}
-                                        beforeMount={handleEditorWillMount}
-                                        onValidate={handleEditorValidation}
-                                        defaultLanguage="groovy"
-                                        options={{
-                                            contextmenu: true,
-                                            wordWrap: 'off',
-                                            scrollBeyondLastLine: false,
-                                            automaticLayout: true,
-                                            fontSize: 16,
-                                            readOnly: readonly,
-                                        }}
-                                    />
-                                )}
-                            </Suspense>
-                        ) : (
-                            <div>Loading editor...</div>
-                        )}
-                    </div>
-                )}
+                <EditorCodePanel
+                    clickNodeScriptType={clickNode?.data.scriptType}
+                    clickNodeScriptText={clickNode?.data.scriptText}
+                    isMonacoReady={isMonacoReady}
+                    editorHeight={editorHeight}
+                    editorCode={editorCode}
+                    readonly={readonly}
+                    onEditorChange={(value) => setEditorCode(value || '')}
+                    onEditorDidMount={handleEditorDidMount}
+                    onEditorWillMount={handleEditorWillMount}
+                    onEditorValidate={() => {}}
+                />
             </CustomModal>
 
-            <CustomModal
-                title="Debug Node"
+            <EditorDebugModal
                 open={isDebugVisible}
+                isMonacoReady={isMonacoReady}
+                debugValue={debugValue}
+                debugOutput={debugOutput === '' ? '' : JSON.stringify(debugOutput, null, 2)}
+                readonly={readonly}
+                activeKey={activeKey}
+                collapseItems={collapseItems}
                 onCancel={() => {
                     setIsDebugVisible(false);
                     setDebugOutput('');
                     setActiveKey('');
                 }}
-                maskClosable={false}
-                footer={null}
-                width={1000}
-                style={{height: '95vh'}}
-                draggable
-            >
-                <form onSubmit={onFinish} autoComplete="off" style={{display: 'flex', flexDirection: 'column', gap: 12}}>
-                    <div>
-                        <label style={{display: 'block', marginBottom: 4, fontSize: 14}}>JSON Content</label>
-                        <div
-                            style={{
-                                border: '1px solid #e1e4e8',
-                                background: '#f6f8fa',
-                                borderRadius: '4px',
-                                padding: '10px',
-                            }}
-                        >
-                            {isMonacoReady ? (
-                                <Suspense fallback={<div>Loading editor...</div>}>
-                                    <MonacoEditor
-                                        height="300px"
-                                        defaultLanguage="json"
-                                        onChange={handleDebugJsonChange}
-                                        value={debugValue}
-                                        options={{scrollBeyondLastLine: false, fontSize: 16}}
-                                    />
-                                </Suspense>
-                            ) : (
-                                <div>Loading editor...</div>
-                            )}
-                        </div>
-                    </div>
-                    <button type="submit" style={{...btnStyle, width: '100%'}}>Submit</button>
-                    <CustomCollapse
-                        key={clickNode?.data.scriptId}
-                        onChange={handleCollapseChange}
-                        activeKey={activeKey}
-                        bordered={true}
-                        items={collapseItems}
-                    />
-                </form>
-            </CustomModal>
+                onSubmit={onFinish}
+                onDebugJsonChange={(value) => setDebugValue(value || '')}
+                onCollapseChange={handleCollapseChange}
+            />
         </div>
     );
 });
-
-const btnStyle: React.CSSProperties = {
-    padding: '6px 16px',
-    background: '#1890ff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 6,
-    fontSize: 14,
-    cursor: 'pointer',
-};
 
 export default ManageModalEditor;
