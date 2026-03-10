@@ -38,3 +38,9 @@ If you are developing a production application, we recommend updating the config
   inspect gutter DOM/classes in the diff editor,
   confirm the marker is attached to the correct side of the diff editor,
   and check whether the current CSS module class is being applied inside Monaco's rendered gutter nodes.
+- Work already done for the `scriptText` marker issue:
+  enabled `glyphMargin` in `CodeDiffViewer`,
+  switched Monaco line decorations from `marginClassName` to `glyphMarginClassName`,
+  rewrote `src/components/editor/style/diff.module.scss` to use a stable red-dot marker style,
+  and rebuilt successfully.
+  Result so far: build passes, compare modal still opens and line click handling remains in place, but the gutter red dot is still not rendered visibly.
