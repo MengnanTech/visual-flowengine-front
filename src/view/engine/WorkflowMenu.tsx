@@ -31,9 +31,13 @@ interface LineContent {
     label: string;
 }
 
-const calculateInitialPosition = () => {
-    const x = 40;
-    const y = window.innerHeight - 120;
+const EXPANDED_WIDTH = 560;
+const COLLAPSED_WIDTH = 96;
+
+const calculateInitialPosition = (expanded: boolean = false) => {
+    const width = expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
+    const x = Math.max((window.innerWidth - width) / 2, 24);
+    const y = window.innerHeight - 96;
     return {x, y};
 };
 
@@ -113,7 +117,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         const scriptTextIndex = lineContent.indexOf('scriptText":');
 
         if (scriptTextIndex === -1) {
-            toast.success('只对比代码部分');
+            toast.success('Only scriptText blocks can be compared');
             return;
         }
 
@@ -137,17 +141,19 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             return;
         }
 
+        const width = isExpanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH;
         const newX = event.clientX - bubbleRef.current!.offsetX;
         const newY = event.clientY - bubbleRef.current!.offsetY;
-        const divBounds = treeChartState.svgRef.getBoundingClientRect();
-        const minX = divBounds.left - 310;
-        const maxX = isExpanded ? divBounds.right - 1200 : divBounds.right - 470;
-        const minY = divBounds.top + 10;
-        const maxY = divBounds.bottom + 230;
-        const clampedX = Math.max(Math.min(newX, maxX), minX);
-        const clampedY = Math.max(Math.min(newY, maxY), minY);
+        const svgBounds = treeChartState.svgRef.getBoundingClientRect();
+        const minX = svgBounds.left + 16;
+        const maxX = svgBounds.right - width - 16;
+        const minY = svgBounds.top + 16;
+        const maxY = svgBounds.bottom - 72;
 
-        setBubblePosition({x: clampedX, y: clampedY});
+        setBubblePosition({
+            x: Math.max(Math.min(newX, maxX), minX),
+            y: Math.max(Math.min(newY, maxY), minY),
+        });
     };
 
     const handleDragEnd = () => {
@@ -156,11 +162,15 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     const toggleExpand = () => {
         if (rotated) {
-            toast.success('请先取消固定');
+            toast.success('Unpin the dock before resizing it');
             return;
         }
 
-        setIsExpanded(!isExpanded);
+        setIsExpanded((prev) => {
+            const next = !prev;
+            setBubblePosition(calculateInitialPosition(next));
+            return next;
+        });
     };
 
     const handleWorkflowUpdate = () => {
@@ -168,9 +178,9 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
         setTimeout(() => {
             updateWorkflow(treeChartState.currentData).then((result) => {
                 if (result) {
-                    toast.success('更新成功!');
+                    toast.success('Update succeeded');
                 } else {
-                    toast.error('更新失败!');
+                    toast.error('Update failed');
                 }
             });
         }, 500);
@@ -178,12 +188,12 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
 
     useEffect(() => {
         const handleResize = () => {
-            setBubblePosition(calculateInitialPosition());
+            setBubblePosition(calculateInitialPosition(isExpanded));
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [isExpanded]);
 
     useEffect(() => {
         if (isDragging) {
@@ -198,12 +208,43 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             document.removeEventListener('mousemove', handleDragMove);
             document.removeEventListener('mouseup', handleDragEnd);
         };
-    }, [isDragging]);
+    }, [isDragging, isExpanded]);
 
     const confirm = () => {
         window.open('https://github.com/code-visual/visual-flowengine-spring-boot-starter', '_blank');
         setConfirmGithub(false);
     };
+
+    const actions = [
+        {
+            key: 'debug',
+            label: 'Debug',
+            icon: debug,
+            iconStyle: {width: '28px', height: '28px'},
+            onClick: handleDebugWorkflow,
+        },
+        {
+            key: 'update',
+            label: 'Deploy',
+            icon: update,
+            iconStyle: {width: '34px', height: '34px'},
+            onClick: handleWorkflowUpdate,
+        },
+        {
+            key: 'compare',
+            label: 'Compare',
+            icon: vs,
+            iconStyle: {width: '28px', height: '28px'},
+            onClick: showModal,
+        },
+        {
+            key: 'starter',
+            label: 'Starter',
+            icon: can,
+            iconStyle: {width: '28px', height: '28px'},
+            onClick: () => setConfirmGithub(true),
+        },
+    ];
 
     return (
         <>
@@ -226,7 +267,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                 style={{
                     left: `${bubblePosition.x}px`,
                     top: `${bubblePosition.y}px`,
-                    transition: isDragging ? 'none' : 'all 0.5s ease',
+                    transition: isDragging ? 'none' : 'box-shadow 0.25s ease, transform 0.25s ease',
                 }}
                 onClick={() => {
                     if (!isExpanded) {
@@ -238,25 +279,31 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             >
                 {isExpanded ? (
                     <div className={styles.expandedContent}>
-                        <div onClick={handleDebugWorkflow} className={styles.icon}>
-                            <img src={debug} alt="icon" style={{width: '30px', height: '30px'}}/>
+                        <div className={styles.dockMeta}>
+                            <span className={styles.dockEyebrow}>Workflow Actions</span>
+                            <strong className={styles.dockTitle}>Canvas Dock</strong>
+                            <span className={styles.dockHint}>Drag to move, pin to lock</span>
                         </div>
-                        <div onClick={handleWorkflowUpdate} className={styles.icon}>
-                            <img src={update} alt="icon" style={{width: '42px', height: '42px'}}/>
+                        <div className={styles.actionRail}>
+                            {actions.map((action) => (
+                                <button
+                                    key={action.key}
+                                    type="button"
+                                    onClick={action.onClick}
+                                    className={styles.actionButton}
+                                >
+                                    <span className={styles.actionIconShell}>
+                                        <img src={action.icon} alt={action.label} style={action.iconStyle}/>
+                                    </span>
+                                    <span className={styles.actionLabel}>{action.label}</span>
+                                </button>
+                            ))}
                         </div>
-                        <div onClick={showModal} className={styles.icon}>
-                            <img src={vs} alt="icon" style={{width: '30px', height: '30px'}}/>
-                        </div>
-                        <div style={{padding: '12px'}} onClick={() => setConfirmGithub(true)}>
-                            <div className={styles.icon}>
-                                <img src={can} alt="icon" style={{width: '30px', height: '30px'}}/>
-                            </div>
-                        </div>
-                        <div onClick={toggleExpand} className={styles.icon}>
-                            <img src={close} alt="icon" style={{width: '30px', height: '30px'}}/>
-                        </div>
+                        <button type="button" onClick={toggleExpand} className={styles.closeButton}>
+                            <img src={close} alt="Close" style={{width: '20px', height: '20px'}}/>
+                        </button>
                     </div>
-                ) : '菜单'}
+                ) : <span className={styles.collapsedLabel}>Actions</span>}
             </div>
 
             <PushpinOutlinedIcon
@@ -266,12 +313,12 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                     display: isExpanded ? 'block' : 'none',
                     position: 'absolute',
                     cursor: 'grab',
-                    left: `${bubblePosition.x + 778}px`,
-                    top: `${bubblePosition.y - 5}px`,
+                    left: `${bubblePosition.x + EXPANDED_WIDTH - 24}px`,
+                    top: `${bubblePosition.y - 10}px`,
                     transform: rotated ? 'rotate(-45deg)' : 'none',
                     transition: 'transform 0.3s',
-                    width: '16px',
-                    height: '16px',
+                    width: '18px',
+                    height: '18px',
                 }}
             />
 
@@ -283,16 +330,16 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
                         transition: isDragging ? 'none' : 'all 0.3s ease',
                         position: 'absolute',
                         cursor: 'grab',
-                        left: `${isExpanded ? bubblePosition.x - 2 : bubblePosition.x + 22}px`,
-                        top: `${isExpanded ? bubblePosition.y - 5 : bubblePosition.y - 15}px`,
-                        width: '16px',
-                        height: '16px',
+                        left: `${isExpanded ? bubblePosition.x + 14 : bubblePosition.x + 36}px`,
+                        top: `${bubblePosition.y - 10}px`,
+                        width: '18px',
+                        height: '18px',
                     }}
                 />
             )}
 
             <CodeCompareModal
-                title="初始代码 VS 当前代码"
+                title="Initial Code VS Current Code"
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 originalCode={JSON.stringify(workflowMetadata == null ? '' : workflowMetadata.scriptMetadata, null, 2)}
@@ -301,7 +348,7 @@ const WorkflowMenu: React.FC<DraggableBubbleProps> = ({treeChartState}) => {
             />
 
             <CodeCompareModal
-                title="详细代码对比"
+                title="Detailed Code Compare"
                 open={isCompareModalVisible}
                 onCancel={handleDetailCancel}
                 originalCode={compareLines && compareLines.length > 0 ? compareLines[0].content : ''}

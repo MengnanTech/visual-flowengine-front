@@ -1,136 +1,190 @@
 .bubble {
   position: absolute;
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  background-color: skyblue;
+  width: 96px;
+  height: 46px;
+  border: 1px solid rgba(16, 47, 74, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #173049;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: grab;
   user-select: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-
+  box-shadow: 0 18px 42px rgba(18, 32, 48, 0.14);
+  backdrop-filter: blur(14px);
 
   &:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-
+    transform: translateY(-1px);
+    box-shadow: 0 22px 44px rgba(18, 32, 48, 0.18);
   }
 
   &:active {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); // 点击时添加内阴影
-    transform: translateY(2px); // 稍微向下移动模仿按下效果
+    cursor: grabbing;
   }
+}
+
+.collapsedLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .expanded {
   position: absolute;
+  width: 560px;
+  min-height: 72px;
+  padding: 12px 14px;
+  border-radius: 24px;
+  border: 1px solid rgba(16, 47, 74, 0.1);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(238, 244, 249, 0.88)),
+    rgba(255, 255, 255, 0.84);
+  box-shadow:
+    0 28px 60px rgba(17, 32, 48, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(18px);
   cursor: grab;
   user-select: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  bottom: 120px; // 调整位置
-  ////left: 20px;
-  //transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 10px 30px;
-
-  backdrop-filter: blur(5px); // 创建玻璃效果
-  background-color: skyblue;
-  width: 800px; // 展开后的宽度
-  height: 60px; // 展开后的高度
-  border-radius: 20px; // 调整为适当的圆角
-}
-
-.fixedIcon {
-  cursor: grab;
-  user-select: none;
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
-  border-radius: 50%;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   &:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 }
-
-.dragIcon {
-  cursor: grab;
-  user-select: none;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  background-color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    transform: scale(1.2);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-}
-
 
 .expandedContent {
-  display: flex;
+  display: grid;
+  grid-template-columns: 132px 1fr auto;
   align-items: center;
-  justify-content: space-around;
-  width: 100%;
-  height: 100%;
+  gap: 12px;
 }
 
+.dockMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
 
-.icon {
+.dockEyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7b8a99;
+}
 
-  width: 42px; // 调整图标大小
-  height: 42px;
-  //background-color: #e3f1f1; // 假设所有图标都有统一的背景色，实际情况可能需要调整
-  border-radius: 30%;
+.dockTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #102f4a;
+}
+
+.dockHint {
+  font-size: 11px;
+  color: #667587;
+}
+
+.actionRail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.actionButton {
+  border: none;
+  border-radius: 18px;
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, rgba(245, 248, 251, 0.98), rgba(231, 237, 244, 0.96));
+  color: #15324e;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 10px 24px rgba(25, 38, 56, 0.08);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(228, 236, 244, 0.98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 14px 28px rgba(25, 38, 56, 0.14);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 8px rgba(17, 38, 58, 0.12);
+  }
+}
+
+.actionIconShell {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(184, 220, 241, 0.48), rgba(220, 235, 246, 0.9));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.actionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.closeButton {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(16, 47, 74, 0.08);
+  color: #173049;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.3s ease;
-  //box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 调整阴影的颜色、模糊半径等参数以符合设计需求 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 8px rgba(255, 255, 255, 0.3); /* 添加亮光效果 */
+  transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    //background-color: #def3f3;
-  }
-
-  &:active {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); // 点击时添加内阴影
-    transform: translateY(2px); // 稍微向下移动模仿按下效果
+    background: rgba(16, 47, 74, 0.14);
   }
 }
 
-@keyframes iconMove {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(70px); /* Adjust based on desired end position */
+.fixedIcon,
+.dragIcon {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #173049;
+  box-shadow: 0 10px 28px rgba(18, 32, 48, 0.18);
+  padding: 4px;
+
+  &:hover {
+    transform: scale(1.06);
   }
 }
 
-//.iconMove1 {
-//  animation: iconMove 0.5s ease forwards;
-//}
+@media (max-width: 900px) {
+  .expanded {
+    width: min(92vw, 560px);
+  }
 
+  .expandedContent {
+    grid-template-columns: 1fr;
+  }
 
+  .actionRail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
+  .closeButton {
+    justify-self: end;
+  }
+}
