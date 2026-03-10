@@ -66,7 +66,7 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
     };
 
     const svgWidth = windowSize.windowWidth - treeStore.siderWidth;
-    const svgHeight = windowSize.windowHeight - 62;
+    const svgHeight = windowSize.windowHeight;
 
     return (
         <div>
@@ -85,7 +85,13 @@ const TreeChart: React.FC<TreeChartProps> = observer(({
                     setReadonly={setReadonly}
                 />
 
-                <svg ref={svgRef} width={svgWidth} height={svgHeight} onContextMenu={handleContextMenu}/>
+                <svg
+                    ref={svgRef}
+                    width={svgWidth}
+                    height={svgHeight}
+                    style={{display: 'block'}}
+                    onContextMenu={handleContextMenu}
+                />
                 <div style={{position: 'absolute', top: 0, left: 0}}>
                     <svg>
                         <MovingArrowPattern/>

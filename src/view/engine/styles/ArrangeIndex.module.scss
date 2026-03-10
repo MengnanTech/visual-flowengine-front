@@ -1,20 +1,103 @@
 .layout {
-  display: flex;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 28%),
+    linear-gradient(180deg, #f4f1f1 0%, #ece9e9 100%);
 }
 
 .contentArea {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+}
+
+.globalToolbar {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(18, 44, 70, 0.08);
+  box-shadow: 0 16px 40px rgba(25, 36, 54, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.toolbarGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbarButton,
+.toolbarButtonSecondary {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.toolbarButton {
+  background: #102f4a;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(16, 47, 74, 0.24);
+
+  &:hover {
+    transform: translateY(-1px);
+    background: #0b253a;
+  }
+}
+
+.toolbarButtonSecondary {
+  background: #f3f6fa;
+  color: #24384d;
+  border: 1px solid rgba(36, 56, 77, 0.1);
+
+  &:hover {
+    transform: translateY(-1px);
+    background: #e7edf4;
+  }
+}
+
+.workflowBadge {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   min-width: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(16, 47, 74, 0.05);
+  color: #183149;
+
+  strong {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+}
+
+.workflowBadgeLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f8092;
 }
 
 .treeContainer {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -24,13 +107,28 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: #556372;
   font-size: 15px;
 
   span {
-    &::before {
-      content: '← ';
-      color: #e53e3e;
-    }
+    padding: 18px 22px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(18, 44, 70, 0.08);
+    box-shadow: 0 16px 40px rgba(18, 44, 70, 0.08);
   }
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(8, 18, 28, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.drawerShell {
+  position: absolute;
+  top: 88px;
+  left: 18px;
 }

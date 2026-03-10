@@ -15,6 +15,8 @@ interface SidebarProps {
     onRename: (id: number, newName: string) => void;
     onDelete: (id: number) => void;
     onLogoClick: () => void;
+    floating?: boolean;
+    showCreateButton?: boolean;
 }
 
 interface ContextMenuState {
@@ -34,23 +36,29 @@ const Sidebar: React.FC<SidebarProps> = ({
     onRename,
     onDelete,
     onLogoClick,
+    floating = false,
+    showCreateButton = true,
 }) => {
     const [editingKey, setEditingKey] = useState<number | null>(null);
     const [contextMenu, setContextMenu] = useState<ContextMenuState>({
-        visible: false, x: 0, y: 0, itemId: 0,
+        visible: false,
+        x: 0,
+        y: 0,
+        itemId: 0,
     });
     const isResizing = useRef(false);
 
-    const handleResizeStart = useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
+    const handleResizeStart = useCallback((event: React.MouseEvent) => {
+        event.preventDefault();
         isResizing.current = true;
         document.body.style.userSelect = 'none';
         document.body.style.cursor = 'col-resize';
 
-        const onMouseMove = (ev: MouseEvent) => {
-            const newWidth = Math.min(Math.max(ev.clientX, 200), 600);
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            const newWidth = Math.min(Math.max(moveEvent.clientX, 240), 520);
             onWidthChange(newWidth);
         };
+
         const onMouseUp = () => {
             isResizing.current = false;
             document.body.style.userSelect = '';
@@ -58,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         };
+
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     }, [onWidthChange]);
@@ -67,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const closeContextMenu = () => {
-        setContextMenu(prev => ({...prev, visible: false}));
+        setContextMenu((prev) => ({...prev, visible: false}));
     };
 
     const handleContextMenuAction = (action: 'rename' | 'delete') => {
@@ -79,15 +88,21 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     return (
-        <div className={styles.sidebar} style={{width}}>
+        <div
+            className={`${styles.sidebar} ${floating ? styles.sidebarFloating : ''}`}
+            style={{width}}
+            onClick={floating ? (event) => event.stopPropagation() : undefined}
+        >
             <div className={styles.logo} onClick={onLogoClick}>
                 <img src={logo} alt="logo"/>
                 <span>可视化流程引擎</span>
             </div>
 
-            <button className={styles.newButton} onClick={onAddWorkflow}>
-                + New Workflow
-            </button>
+            {showCreateButton && (
+                <button className={styles.newButton} onClick={onAddWorkflow}>
+                    + New Workflow
+                </button>
+            )}
 
             <div className={styles.list}>
                 {items.length === 0 && (
@@ -105,12 +120,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                             setEditingKey(null);
                         }}
                         onRenameCancel={() => setEditingKey(null)}
-                        onContextMenu={(e) => {
-                            e.preventDefault();
-                            openContextMenu(item.workflowId, e.clientX, e.clientY);
+                        onContextMenu={(event) => {
+                            event.preventDefault();
+                            openContextMenu(item.workflowId, event.clientX, event.clientY);
                         }}
-                        onMoreClick={(e) => {
-                            const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        onMoreClick={(event) => {
+                            const rect = (event.target as HTMLElement).getBoundingClientRect();
                             openContextMenu(item.workflowId, rect.right, rect.bottom);
                         }}
                         contextMenuVisible={contextMenu.visible && contextMenu.itemId === item.workflowId}
@@ -118,10 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 ))}
             </div>
 
-            <div
-                className={styles.resizeHandle}
-                onMouseDown={handleResizeStart}
-            />
+            <div className={styles.resizeHandle} onMouseDown={handleResizeStart}/>
 
             {contextMenu.visible && (
                 <ContextMenu

@@ -1,5 +1,4 @@
-import React, {Suspense, useEffect, useRef, useState} from 'react';
-
+import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
 import {TreeStore} from '@/store/TreeStore';
 import styles from './styles/ArrangeIndex.module.scss';
 import {
@@ -14,7 +13,6 @@ import {
     ListWorkflow,
     updateWorkflow,
 } from '@/network/api.ts';
-
 import Sidebar from './sidebar/Sidebar';
 import NewWorkflowModal from './sidebar/NewWorkflowModal';
 import {toast} from '@/components/ui/toast';
@@ -24,9 +22,10 @@ const TreeChart = React.lazy(() => import('./TreeChart'));
 const ArrangeIndex: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItemsIdAndName[]>([]);
     const [treeData, setTreeData] = useState<WorkflowMetadata | null>(null);
-    const [siderWidth, setSiderWidth] = useState(280);
+    const [drawerWidth, setDrawerWidth] = useState(320);
     const [keyValue, setKeyValue] = useState<string>('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isWorkflowDrawerOpen, setIsWorkflowDrawerOpen] = useState(false);
     const treeStoreRef = useRef<TreeStore | null>(null);
 
     if (!treeStoreRef.current) {
@@ -48,13 +47,22 @@ const ArrangeIndex: React.FC = () => {
         fetchMenuItems();
     }, []);
 
+    const currentWorkflowName = useMemo(() => {
+        return menuItems.find((item) => String(item.workflowId) === keyValue)?.workflowName || '未选择流程';
+    }, [keyValue, menuItems]);
+
     const handleSelect = async (item: MenuItemsIdAndName) => {
         const key = String(item.workflowId);
-        if (key === keyValue) return;
+        if (key === keyValue) {
+            setIsWorkflowDrawerOpen(false);
+            return;
+        }
+
         setKeyValue(key);
         try {
             const workflowMetadata = await getWorkflowMetadata(item.workflowId);
             setTreeData(workflowMetadata);
+            setIsWorkflowDrawerOpen(false);
         } catch (err: any) {
             toast.error(err.message);
         }
@@ -86,16 +94,18 @@ const ArrangeIndex: React.FC = () => {
         await createWorkflow(data);
         await fetchMenuItems();
         setIsModalVisible(false);
+        setIsWorkflowDrawerOpen(true);
     };
 
     const handleLogoClick = () => {
         setTreeData(null);
         setKeyValue('');
+        setIsWorkflowDrawerOpen(false);
     };
 
     useEffect(() => {
-        treeStore.setSiderWidth(siderWidth);
-    }, [siderWidth, treeStore]);
+        treeStore.setSiderWidth(0);
+    }, [treeStore]);
 
     useEffect(() => {
         treeStore.setTreeData(treeData);
@@ -103,19 +113,23 @@ const ArrangeIndex: React.FC = () => {
 
     return (
         <div className={styles.layout}>
-            <Sidebar
-                width={siderWidth}
-                onWidthChange={setSiderWidth}
-                items={menuItems}
-                selectedKey={keyValue}
-                onSelect={handleSelect}
-                onAddWorkflow={() => setIsModalVisible(true)}
-                onRename={handleRename}
-                onDelete={handleDelete}
-                onLogoClick={handleLogoClick}
-            />
+            <div className={styles.contentArea}>
+                <div className={styles.globalToolbar}>
+                    <div className={styles.toolbarGroup}>
+                        <button className={styles.toolbarButton} onClick={() => setIsWorkflowDrawerOpen(true)}>
+                            Workflows
+                        </button>
+                        <button className={styles.toolbarButtonSecondary} onClick={() => setIsModalVisible(true)}>
+                            + New Workflow
+                        </button>
+                    </div>
 
-            <div className={styles.contentArea} style={{marginLeft: siderWidth}}>
+                    <div className={styles.workflowBadge}>
+                        <span className={styles.workflowBadgeLabel}>Current</span>
+                        <strong>{currentWorkflowName}</strong>
+                    </div>
+                </div>
+
                 <div className={styles.treeContainer}>
                     <Suspense fallback={<div>Loading...</div>}>
                         {treeData ? (
@@ -126,12 +140,32 @@ const ArrangeIndex: React.FC = () => {
                             />
                         ) : (
                             <div className={styles.placeholder}>
-                                <span>请选择左侧列表中的一个工作流查看详情</span>
+                                <span>先打开左上角工作流列表，再选择一个流程开始编辑。</span>
                             </div>
                         )}
                     </Suspense>
                 </div>
             </div>
+
+            {isWorkflowDrawerOpen && (
+                <div className={styles.drawerBackdrop} onClick={() => setIsWorkflowDrawerOpen(false)}>
+                    <div className={styles.drawerShell}>
+                        <Sidebar
+                            floating
+                            showCreateButton={false}
+                            width={drawerWidth}
+                            onWidthChange={setDrawerWidth}
+                            items={menuItems}
+                            selectedKey={keyValue}
+                            onSelect={handleSelect}
+                            onAddWorkflow={() => setIsModalVisible(true)}
+                            onRename={handleRename}
+                            onDelete={handleDelete}
+                            onLogoClick={handleLogoClick}
+                        />
+                    </div>
+                </div>
+            )}
 
             {isModalVisible && (
                 <NewWorkflowModal
